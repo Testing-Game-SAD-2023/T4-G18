@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 )
 
@@ -31,4 +32,16 @@ func writeJson(w http.ResponseWriter, statusCode int, v any) error {
 		return err
 	}
 	return nil
+}
+
+func makeApiError(err error) error {
+
+	switch {
+		case errors.Is(err, ErrNotFound):
+			return ApiError{code: http.StatusNotFound, Message: "Resource not found"}
+		case errors.Is(err, ErrBadRequest):
+			return ApiError{code: http.StatusBadRequest, Message: "Bad request"}
+		default:
+			return ApiError{code: http.StatusInternalServerError, Message: "Internal server"}
+	}
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"log"
 	"net/http"
 	"strconv"
@@ -18,31 +17,14 @@ func makeHTTPHandlerFunc(f ApiFunction) http.HandlerFunc {
 			apiError, ok := err.(ApiError)
 
 			if ok {
-				if err := writeJson(w, apiError.code, ApiError{
-					Message: apiError.Message,
-				}); err != nil {
+				if err := writeJson(w, apiError.code, apiError); err != nil {
 					log.Print(err)
 				}
+				return
 			}
 
-			switch {
-			case errors.Is(err, ErrBadRequest):
-				err = writeJson(w, http.StatusBadRequest, ApiError{
-					Message: "Bad request",
-				})
-			case errors.Is(err, ErrNotFound):
-				err = writeJson(w, http.StatusNotFound, ApiError{
-					Message: "Resource not found",
-				})
-			default:
-				err = writeJson(w, http.StatusServiceUnavailable, ApiError{
-					Message: apiError.Message,
-				})
-			}
-
-			if err != nil {
-				log.Print(err)
-			}
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Print(err)
 		}
 	}
 
@@ -96,7 +78,7 @@ func (gh *GameController) create(w http.ResponseWriter, r *http.Request) error {
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return ApiError{
 			code:    http.StatusBadRequest,
-			Message: "Cannot parse json body",
+			Message: "Invalid json body",
 		}
 	}
 
@@ -105,7 +87,7 @@ func (gh *GameController) create(w http.ResponseWriter, r *http.Request) error {
 	g, err := gh.controller.Create(&request)
 
 	if err != nil {
-		return err
+		return makeApiError(err)
 	}
 
 	return writeJson(w, http.StatusCreated, gameModelToDto(g))
@@ -125,7 +107,7 @@ func (gh *GameController) findByID(w http.ResponseWriter, r *http.Request) error
 	g, err := gh.controller.FindByID(id)
 
 	if err != nil {
-		return err
+		return makeApiError(err)
 	}
 
 	return writeJson(w, http.StatusOK, gameModelToDto(g))
@@ -144,7 +126,7 @@ func (gh *GameController) delete(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if err := gh.controller.Delete(id); err != nil {
-		return err
+		return makeApiError(err)
 	}
 	w.WriteHeader(http.StatusNoContent)
 	return nil
@@ -166,7 +148,7 @@ func (rh *RoundController) create(w http.ResponseWriter, r *http.Request) error 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return ApiError{
 			code:    http.StatusBadRequest,
-			Message: "Cannot parse json body",
+			Message: "Invalid json body",
 		}
 	}
 
@@ -175,7 +157,7 @@ func (rh *RoundController) create(w http.ResponseWriter, r *http.Request) error 
 	g, err := rh.controller.Create(&request)
 
 	if err != nil {
-		return err
+		return makeApiError(err)
 	}
 
 	return writeJson(w, http.StatusCreated, roundModelToDto(g))
@@ -195,7 +177,7 @@ func (rh *RoundController) findByID(w http.ResponseWriter, r *http.Request) erro
 	round, err := rh.controller.FindByID(id)
 
 	if err != nil {
-		return err
+		return makeApiError(err)
 	}
 
 	return writeJson(w, http.StatusOK, roundModelToDto(round))
@@ -214,7 +196,7 @@ func (rh *RoundController) delete(w http.ResponseWriter, r *http.Request) error 
 	}
 
 	if err := rh.controller.Delete(id); err != nil {
-		return err
+		return makeApiError(err)
 	}
 	w.WriteHeader(http.StatusNoContent)
 	return nil

@@ -66,10 +66,12 @@ func run(configuration Configuration) error {
 
 	api := MakeHTTPHandler(gameController, roundController)
 
-	r.Use(middleware.Logger)
 	r.Handle("/metrics", promhttp.Handler())
 
-	r.Mount(configuration.ApiPrefix, api)
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.Logger)
+		r.Mount(configuration.ApiPrefix, api)
+	})
 
 	log.Printf("listening on %s", configuration.ListenAddress)
 	return http.ListenAndServe(configuration.ListenAddress, r)
