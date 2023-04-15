@@ -14,6 +14,14 @@ build:
 run: build
 	./$(OUT_DIR)/$(APP_NAME)
 
+## docker-build: build a docker image
+docker-build:
+	docker build -t $(APP_NAME):$(GIT_COMMIT) .
+
+## docker-run: runs a docker container exposing port 3000 and using config.json
+docker-run:
+	docker run -p 3000:3000 -v $(shell pwd)/config.json:/app/config.json $(APP_NAME):$(GIT_COMMIT)
+
 .PHONY: help
 ## help: prints this help message
 help:
