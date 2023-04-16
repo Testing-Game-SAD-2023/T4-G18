@@ -32,7 +32,7 @@ func makeHTTPHandlerFunc(f ApiFunction) http.HandlerFunc {
 func MakeHTTPHandler(gc *GameService, rc *RoundService) *chi.Mux {
 	r := chi.NewRouter()
 
-	gh := NewGameHandler(gc)
+	gh := NewGameController(gc)
 	r.Route("/games", func(r chi.Router) {
 		// Create Game
 		r.Post("/", makeHTTPHandlerFunc(gh.create))
@@ -40,16 +40,12 @@ func MakeHTTPHandler(gc *GameService, rc *RoundService) *chi.Mux {
 		//Get Game
 		r.Get("/{id}", makeHTTPHandlerFunc(gh.findByID))
 
-		// sus
-		// r.Put("/{id}", func(w http.ResponseWriter, r *http.Request) {
-		// 	//gameId, _ := strconv.Atoi(chi.URLParam(r, "id"))
-
-		// })
+		// r.Put
 
 		r.Delete("/{id}", makeHTTPHandlerFunc(gh.delete))
 	})
 
-	rh := NewRoundHandler(rc)
+	rh := NewRoundController(rc)
 	r.Route("/rounds", func(r chi.Router) {
 		r.Get("/{id}", makeHTTPHandlerFunc(rh.create))
 
@@ -65,11 +61,11 @@ func MakeHTTPHandler(gc *GameService, rc *RoundService) *chi.Mux {
 }
 
 type GameController struct {
-	controller *GameService
+	service *GameService
 }
 
-func NewGameHandler(gc *GameService) *GameController {
-	return &GameController{controller: gc}
+func NewGameController(gc *GameService) *GameController {
+	return &GameController{service: gc}
 }
 
 func (gh *GameController) create(w http.ResponseWriter, r *http.Request) error {
@@ -84,7 +80,7 @@ func (gh *GameController) create(w http.ResponseWriter, r *http.Request) error {
 
 	defer r.Body.Close()
 
-	g, err := gh.controller.Create(&request)
+	g, err := gh.service.Create(&request)
 
 	if err != nil {
 		return makeApiError(err)
@@ -104,7 +100,7 @@ func (gh *GameController) findByID(w http.ResponseWriter, r *http.Request) error
 			Message: "Invalid game id",
 		}
 	}
-	g, err := gh.controller.FindByID(id)
+	g, err := gh.service.FindByID(id)
 
 	if err != nil {
 		return makeApiError(err)
@@ -125,7 +121,7 @@ func (gh *GameController) delete(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := gh.controller.Delete(id); err != nil {
+	if err := gh.service.Delete(id); err != nil {
 		return makeApiError(err)
 	}
 	w.WriteHeader(http.StatusNoContent)
@@ -136,7 +132,7 @@ type RoundController struct {
 	controller *RoundService
 }
 
-func NewRoundHandler(rc *RoundService) *RoundController {
+func NewRoundController(rc *RoundService) *RoundController {
 	return &RoundController{
 		controller: rc,
 	}

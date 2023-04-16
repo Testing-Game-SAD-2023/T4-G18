@@ -6,7 +6,6 @@ var (
 	ErrNotFound   = errors.New("not found")
 	ErrBadRequest = errors.New("bad request")
 )
-
 type GameRepository interface {
 	Create(request *CreateGameRequest) (*GameModel, error)
 	FindById(id uint64) (*GameModel, error)
@@ -14,10 +13,10 @@ type GameRepository interface {
 }
 
 type GameService struct {
-	storage GameRepository
+	storage GameRepository 
 }
 
-func NewGameController(storage GameRepository) *GameService {
+func NewGameService(storage GameRepository) *GameService {
 	return &GameService{
 		storage: storage,
 	}
@@ -45,7 +44,7 @@ type RoundService struct {
 	storage RoundRepository
 }
 
-func NewRoundController(storage RoundRepository) *RoundService {
+func NewRoundService(storage RoundRepository) *RoundService {
 	return &RoundService{
 		storage: storage,
 	}

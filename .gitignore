@@ -1,1 +1,3 @@
 build
+*.out
+config.json

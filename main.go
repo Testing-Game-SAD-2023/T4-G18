@@ -27,12 +27,12 @@ var (
 func main() {
 	flag.Parse()
 
-	var configuration Configuration
 	fcontent, err := os.ReadFile(*configPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	var configuration Configuration
 	if err := json.Unmarshal(fcontent, &configuration); err != nil {
 		log.Fatal(err)
 	}
@@ -51,20 +51,19 @@ func run(configuration Configuration) error {
 		return err
 	}
 
-	err = db.AutoMigrate(&GameModel{}, &RoundModel{})
-	if err != nil {
+	if err := db.AutoMigrate(&GameModel{}, &RoundModel{}); err != nil {
 		return err
 	}
 
-	r := chi.NewRouter()
-
 	gameStorage := NewGameStorage(db)
-	gameController := NewGameController(gameStorage)
+	gameService := NewGameService(gameStorage)
 
 	roundStorage := NewRoundStorage(db)
-	roundController := NewRoundController(roundStorage)
+	roundService := NewRoundService(roundStorage)
 
-	api := MakeHTTPHandler(gameController, roundController)
+	api := MakeHTTPHandler(gameService, roundService)
+
+	r := chi.NewRouter()
 
 	r.Handle("/metrics", promhttp.Handler())
 

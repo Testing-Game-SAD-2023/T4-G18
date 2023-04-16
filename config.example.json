@@ -1,0 +1,5 @@
+{
+    "postgresUrl": "<DATABASE_URL>",
+    "listenAddress": "<LISTEN_ADDRESS>",
+    "apiPrefix": "/"
+}
