@@ -69,6 +69,24 @@ func run(configuration Configuration) error {
 
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Logger)
+
+		// custom middleware to allow only json in POST, PUT, PATCH requests
+		r.Use(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				switch r.Method {
+				case http.MethodPost, http.MethodPut, http.MethodPatch:
+					cType := r.Header.Get("Content-Type")
+					if cType != "application/json" {
+						w.WriteHeader(http.StatusUnsupportedMediaType)
+						return
+					}
+					next.ServeHTTP(w, r)
+				default:
+					next.ServeHTTP(w, r)
+				}
+			})
+		})
+
 		r.Mount(configuration.ApiPrefix, api)
 	})
 
