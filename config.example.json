@@ -1,5 +1,5 @@
 {
-    "postgresUrl": "<DATABASE_URL>",
-    "listenAddress": "<LISTEN_ADDRESS>",
+    "postgresUrl": "",
+    "listenAddress": "localhost:3000",
     "apiPrefix": "/"
 }

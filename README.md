@@ -11,7 +11,7 @@ The prototype exposes basic endpoint for:
     - DELETE /rounds/{id} delete a round;
 
 ## Usage
-The application uses a json configuration file like `config.example.json`. The application looks for a file config.json near executable, but a custom one can be provided through "--config=<PATH>" command line arguments.
+The application uses a json configuration file like `config.example.json` (which contains default values). The application looks for a file `config.json` near executable, but a custom one can be provided through `--config=<PATH>` command line arguments.
 
 The application can be executed through:
 ```sh

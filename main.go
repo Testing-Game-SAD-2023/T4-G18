@@ -37,6 +37,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	makeDefaults(&configuration)
+
 	if err := run(configuration); err != nil {
 		log.Fatal(err)
 	}
@@ -93,4 +95,13 @@ func run(configuration Configuration) error {
 	log.Printf("listening on %s", configuration.ListenAddress)
 	return http.ListenAndServe(configuration.ListenAddress, r)
 
+}
+
+func makeDefaults(c *Configuration) {
+	if c.ApiPrefix == "" {
+		c.ApiPrefix = "/"
+	}
+	if c.ListenAddress == "" {
+		c.ListenAddress = "localhost:3000"
+	}
 }
