@@ -28,20 +28,17 @@ func roundModelToDto(g *RoundModel) *RoundDto {
 func writeJson(w http.ResponseWriter, statusCode int, v any) error {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	if err := json.NewEncoder(w).Encode(v); err != nil {
-		return err
-	}
-	return nil
+	return json.NewEncoder(w).Encode(v)
 }
 
 func makeApiError(err error) error {
 
 	switch {
-		case errors.Is(err, ErrNotFound):
-			return ApiError{code: http.StatusNotFound, Message: "Resource not found"}
-		case errors.Is(err, ErrBadRequest):
-			return ApiError{code: http.StatusBadRequest, Message: "Bad request"}
-		default:
-			return ApiError{code: http.StatusInternalServerError, Message: "Internal server"}
+	case errors.Is(err, ErrNotFound):
+		return ApiError{code: http.StatusNotFound, Message: "Resource not found"}
+	case errors.Is(err, ErrBadRequest):
+		return ApiError{code: http.StatusBadRequest, Message: "Bad request"}
+	default:
+		return ApiError{code: http.StatusInternalServerError, Message: "Internal server error"}
 	}
 }
