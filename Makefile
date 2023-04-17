@@ -1,6 +1,5 @@
 APP_NAME=$(shell basename $(CURDIR))
 GIT_COMMIT=$(shell git rev-parse --short HEAD)
-FILES=$(wildcard *.go)
 
 OUT_DIR=build
 
@@ -8,7 +7,7 @@ OUT_DIR=build
 
 ## build: build the project in a single file executable in "build" directory
 build:
-	CGO_ENABLED=0 go build -o $(OUT_DIR)/$(APP_NAME) -ldflags "-X main.gitCommit=$(GIT_COMMIT)" $(FILES)
+	CGO_ENABLED=0 go build -o $(OUT_DIR)/$(APP_NAME) -ldflags "-X main.gitCommit=$(GIT_COMMIT)"
 
 ## run: run application
 run: build
