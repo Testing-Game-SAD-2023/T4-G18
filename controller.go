@@ -150,22 +150,15 @@ func (rh *RoundController) delete(w http.ResponseWriter, r *http.Request) error 
 
 type TurnController struct {
 	service *TurnService
-	fileKey string
 }
 
-func NewTurnController(service *TurnService, fileKey string) *TurnController {
+func NewTurnController(service *TurnService) *TurnController {
 	return &TurnController{
 		service: service,
-		fileKey: fileKey,
 	}
 }
 
 func (tc *TurnController) upload(w http.ResponseWriter, r *http.Request) error {
-	file, _, err := r.FormFile(tc.fileKey)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
 
 	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
 
@@ -175,8 +168,8 @@ func (tc *TurnController) upload(w http.ResponseWriter, r *http.Request) error {
 			Message: "Invalid round id",
 		}
 	}
-	if err := tc.service.Store(id, file); err != nil {
-		return err
+	if err := tc.service.Store(id, r.Body); err != nil {
+		return makeApiError(err)
 	}
 	return nil
 }
@@ -193,7 +186,7 @@ func (tc *TurnController) download(w http.ResponseWriter, r *http.Request) error
 
 	f, err := tc.service.GetTurnFile(id)
 	if err != nil {
-		return err
+		return makeApiError(err)
 	}
 	defer f.Close()
 

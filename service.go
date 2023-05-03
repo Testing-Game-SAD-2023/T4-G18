@@ -13,6 +13,7 @@ import (
 var (
 	ErrNotFound   = errors.New("not found")
 	ErrBadRequest = errors.New("bad request")
+	ErrNotAZip    = errors.New("file is not a valid zip")
 )
 
 type GameRepository interface {
@@ -100,7 +101,7 @@ func (ts *TurnService) Store(turnId uint64, r io.Reader) error {
 	}
 
 	if zfile, err := zip.OpenReader(dst.Name()); err != nil {
-		return err
+		return ErrNotAZip
 	} else {
 		zfile.Close()
 	}

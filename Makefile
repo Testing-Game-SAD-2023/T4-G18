@@ -22,14 +22,15 @@ docker-run:
 	docker run -p 3000:3000 -v $(shell pwd)/config.json:/app/config.json $(APP_NAME):$(GIT_COMMIT)
 
 ## test: execute all tests in the repository
-test: test-unit test-with-race
+test: test-unit test-race
 
 ## test-unit: execute all unit tests in the repository
 test-unit:
-	go test -v -cover -coverprofile=coverage.out ./...
+	CGO_ENABLED=0 go test -v ./... 
+
 
 ## test-with-race: execute all tests with a race detector. Takes longer
-test-with-race:
+test-race:
 	go test -race ./...
 
 

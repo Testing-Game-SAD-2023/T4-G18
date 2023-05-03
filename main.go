@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -22,7 +21,6 @@ type Configuration struct {
 	ListenAddress string `json:"listenAddress"`
 	ApiPrefix     string `json:"apiPrefix"`
 	DataDir       string `json:"dataDir"`
-	FileKey       string `json:"fileKey"`
 }
 
 func main() {
@@ -83,7 +81,7 @@ func run(configuration Configuration) error {
 						return
 					}
 				case http.MethodPut:
-					if cType != "application/json" && !strings.HasPrefix(cType, "multipart/form-data") {
+					if cType != "application/json" && cType != "application/zip" {
 						w.WriteHeader(http.StatusUnsupportedMediaType)
 						return
 					}
@@ -107,7 +105,7 @@ func run(configuration Configuration) error {
 			// turn endpoint
 			turnStorage    = NewTurnStorage(db)
 			turnService    = NewTurnService(turnStorage, configuration.DataDir)
-			turnController = NewTurnController(turnService, configuration.FileKey)
+			turnController = NewTurnController(turnService)
 		)
 
 		r.Mount(configuration.ApiPrefix, setupRoutes(
@@ -133,7 +131,4 @@ func makeDefaults(c *Configuration) {
 		c.DataDir = "data"
 	}
 
-	if c.FileKey == "" {
-		c.FileKey = "file"
-	}
 }

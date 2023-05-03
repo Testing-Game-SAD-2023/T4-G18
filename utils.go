@@ -41,6 +41,8 @@ func makeApiError(err error) error {
 		return ApiError{code: http.StatusNotFound, Message: "Resource not found"}
 	case errors.Is(err, ErrBadRequest):
 		return ApiError{code: http.StatusBadRequest, Message: "Bad request"}
+	case errors.Is(err, ErrNotAZip):
+		return ApiError{code: http.StatusUnprocessableEntity, Message: "File is not a valid zip"}
 	default:
 		return ApiError{code: http.StatusInternalServerError, Message: "Internal server error"}
 	}
