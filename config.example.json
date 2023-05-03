@@ -1,0 +1,6 @@
+{
+    "postgresUrl": "",
+    "listenAddress": "localhost:3000",
+    "apiPrefix": "/",
+    "dataPath": "data"
+}
