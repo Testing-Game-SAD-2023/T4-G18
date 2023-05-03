@@ -1,5 +1,7 @@
 {
     "postgresUrl": "",
     "listenAddress": "localhost:3000",
-    "apiPrefix": "/"
+    "apiPrefix": "/",
+    "dataPath": "/etc/data",
+    "fileKey": "file"
 }

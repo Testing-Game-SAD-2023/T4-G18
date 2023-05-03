@@ -2,10 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -18,13 +21,14 @@ type Configuration struct {
 	PostgresUrl   string `json:"postgresUrl"`
 	ListenAddress string `json:"listenAddress"`
 	ApiPrefix     string `json:"apiPrefix"`
+	DataDir       string `json:"dataDir"`
+	FileKey       string `json:"fileKey"`
 }
 
-var (
-	configPath = flag.String("config", "config.json", "Path for configuration")
-)
-
 func main() {
+	var (
+		configPath = flag.String("config", "config.json", "Path for configuration")
+	)
 	flag.Parse()
 
 	fcontent, err := os.ReadFile(*configPath)
@@ -53,17 +57,13 @@ func run(configuration Configuration) error {
 		return err
 	}
 
-	if err := db.AutoMigrate(&GameModel{}, &RoundModel{}); err != nil {
+	if err := db.AutoMigrate(&GameModel{}, &RoundModel{}, &PlayerModel{}, &TurnModel{}, &MetadataModel{}); err != nil {
 		return err
 	}
 
-	gameStorage := NewGameStorage(db)
-	gameService := NewGameService(gameStorage)
-
-	roundStorage := NewRoundStorage(db)
-	roundService := NewRoundService(roundStorage)
-
-	api := MakeHTTPHandler(gameService, roundService)
+	if err := os.Mkdir(configuration.DataDir, os.ModePerm); err != nil && !errors.Is(err, os.ErrExist) {
+		return fmt.Errorf("cannot create data directory: %w", err)
+	}
 
 	r := chi.NewRouter()
 
@@ -72,26 +72,50 @@ func run(configuration Configuration) error {
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Logger)
 
-		// custom middleware to allow only json in POST, PUT, PATCH requests
+		// custom middleware to allow only json and multipart data in POST, PUT, PATCH requests
 		r.Use(func(next http.Handler) http.Handler {
 			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				cType := r.Header.Get("Content-Type")
 				switch r.Method {
-				case http.MethodPost, http.MethodPut, http.MethodPatch:
-					cType := r.Header.Get("Content-Type")
+				case http.MethodPost, http.MethodPatch:
 					if cType != "application/json" {
 						w.WriteHeader(http.StatusUnsupportedMediaType)
 						return
 					}
-					next.ServeHTTP(w, r)
+				case http.MethodPut:
+					if cType != "application/json" && !strings.HasPrefix(cType, "multipart/form-data") {
+						w.WriteHeader(http.StatusUnsupportedMediaType)
+						return
+					}
 				default:
 					next.ServeHTTP(w, r)
 				}
+				next.ServeHTTP(w, r)
 			})
 		})
+		var (
+			// game endpoint
+			gameStorage    = NewGameStorage(db)
+			gameService    = NewGameService(gameStorage)
+			gameController = NewGameController(gameService)
 
-		r.Mount(configuration.ApiPrefix, api)
+			// round endpoint
+			roundStorage    = NewRoundStorage(db)
+			roundService    = NewRoundService(roundStorage)
+			roundController = NewRoundController(roundService)
+
+			// turn endpoint
+			turnStorage    = NewTurnStorage(db)
+			turnService    = NewTurnService(turnStorage, configuration.DataDir)
+			turnController = NewTurnController(turnService, configuration.FileKey)
+		)
+
+		r.Mount(configuration.ApiPrefix, setupRoutes(
+			gameController,
+			roundController,
+			turnController,
+		))
 	})
-
 	log.Printf("listening on %s", configuration.ListenAddress)
 	return http.ListenAndServe(configuration.ListenAddress, r)
 
@@ -103,5 +127,13 @@ func makeDefaults(c *Configuration) {
 	}
 	if c.ListenAddress == "" {
 		c.ListenAddress = "localhost:3000"
+	}
+
+	if c.DataDir == "" {
+		c.DataDir = "data"
+	}
+
+	if c.FileKey == "" {
+		c.FileKey = "file"
 	}
 }

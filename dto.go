@@ -3,10 +3,9 @@ package main
 import "time"
 
 type ApiError struct {
-	code int
+	code    int
 	Message string `json:"message"`
 }
-
 
 func (ae ApiError) Error() string {
 	return ae.Message
