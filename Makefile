@@ -26,7 +26,7 @@ test: test-unit test-race
 
 ## test-unit: execute all unit tests in the repository
 test-unit:
-	CGO_ENABLED=0 go test -v ./... 
+	CGO_ENABLED=0 go test -v -cover ./... 
 
 
 ## test-with-race: execute all tests with a race detector. Takes longer
