@@ -149,12 +149,14 @@ func (rh *RoundController) delete(w http.ResponseWriter, r *http.Request) error 
 }
 
 type TurnController struct {
-	service *TurnService
+	service    *TurnService
+	bufferSize int
 }
 
-func NewTurnController(service *TurnService) *TurnController {
+func NewTurnController(service *TurnService, bufferSize int) *TurnController {
 	return &TurnController{
-		service: service,
+		service:    service,
+		bufferSize: bufferSize,
 	}
 }
 
@@ -191,7 +193,7 @@ func (tc *TurnController) download(w http.ResponseWriter, r *http.Request) error
 	defer f.Close()
 
 	w.Header().Set("Content-Type", "application/zip")
-	b := make([]byte, 4096)
+	b := make([]byte, tc.bufferSize)
 	for {
 		n, err := f.Read(b)
 		if errors.Is(err, io.EOF) {

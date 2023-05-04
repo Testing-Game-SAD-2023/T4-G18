@@ -169,7 +169,7 @@ func (suite *TurnControllerSuite) SetupSuite() {
 
 	suite.tmpDir = os.TempDir()
 	service := NewTurnService(tr, suite.tmpDir)
-	controller := NewTurnController(service)
+	controller := NewTurnController(service, 512)
 
 	r := chi.NewMux()
 	r.Get("/{id}/files", makeHTTPHandlerFunc(controller.download))

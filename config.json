@@ -2,5 +2,6 @@
     "postgresUrl": "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable",
     "listenAddress": "localhost:3000",
     "apiPrefix": "/",
-    "dataDir": "data"
+    "dataDir": "data",
+    "bufferSize": 512
 }

@@ -21,6 +21,7 @@ type Configuration struct {
 	ListenAddress string `json:"listenAddress"`
 	ApiPrefix     string `json:"apiPrefix"`
 	DataDir       string `json:"dataDir"`
+	BufferSize    int    `json:"bufferSize"`
 }
 
 func main() {
@@ -39,15 +40,17 @@ func main() {
 		log.Fatal(err)
 	}
 
-	makeDefaults(&configuration)
+	if err := validateAndMakeDefaults(&configuration); err != nil {
+		log.Fatal(err)
+	}
 
 	if err := run(configuration); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func run(configuration Configuration) error {
-	db, err := gorm.Open(postgres.Open(configuration.PostgresUrl), &gorm.Config{
+func run(c Configuration) error {
+	db, err := gorm.Open(postgres.Open(c.PostgresUrl), &gorm.Config{
 		SkipDefaultTransaction: true,
 	})
 
@@ -59,7 +62,7 @@ func run(configuration Configuration) error {
 		return err
 	}
 
-	if err := os.Mkdir(configuration.DataDir, os.ModePerm); err != nil && !errors.Is(err, os.ErrExist) {
+	if err := os.Mkdir(c.DataDir, os.ModePerm); err != nil && !errors.Is(err, os.ErrExist) {
 		return fmt.Errorf("cannot create data directory: %w", err)
 	}
 
@@ -104,22 +107,22 @@ func run(configuration Configuration) error {
 
 			// turn endpoint
 			turnStorage    = NewTurnStorage(db)
-			turnService    = NewTurnService(turnStorage, configuration.DataDir)
-			turnController = NewTurnController(turnService)
+			turnService    = NewTurnService(turnStorage, c.DataDir)
+			turnController = NewTurnController(turnService, c.BufferSize)
 		)
 
-		r.Mount(configuration.ApiPrefix, setupRoutes(
+		r.Mount(c.ApiPrefix, setupRoutes(
 			gameController,
 			roundController,
 			turnController,
 		))
 	})
-	log.Printf("listening on %s", configuration.ListenAddress)
-	return http.ListenAndServe(configuration.ListenAddress, r)
+	log.Printf("listening on %s", c.ListenAddress)
+	return http.ListenAndServe(c.ListenAddress, r)
 
 }
 
-func makeDefaults(c *Configuration) {
+func validateAndMakeDefaults(c *Configuration) error {
 	if c.ApiPrefix == "" {
 		c.ApiPrefix = "/"
 	}
@@ -130,5 +133,12 @@ func makeDefaults(c *Configuration) {
 	if c.DataDir == "" {
 		c.DataDir = "data"
 	}
+	if c.BufferSize == 0 {
+		c.BufferSize = 512
+	} else if c.BufferSize < 0 {
+		return fmt.Errorf("Buffer size must be a positive integer")
+	}
+
+	return nil
 
 }
