@@ -20,8 +20,6 @@ type GameControllerSuite struct {
 	tServer *httptest.Server
 }
 
-// Make sure that VariableThatShouldStartAtFive is set to five
-// before each test
 func (suite *GameControllerSuite) SetupSuite() {
 	gr := new(MockedGameRepository)
 	gr.
@@ -41,8 +39,6 @@ func (suite *GameControllerSuite) SetupSuite() {
 	suite.tServer = httptest.NewServer(r)
 }
 
-// All methods that begin with "Test" are run as tests within a
-// suite.
 func (suite *GameControllerSuite) TestFindByID() {
 
 	tcs := []struct {
@@ -72,7 +68,7 @@ func (suite *GameControllerSuite) TestFindByID() {
 			req, err := http.Get(fmt.Sprintf("%s/%s", suite.tServer.URL, tc.Arg))
 			suite.NoError(err, "Cannot perform GET request")
 
-			suite.Equal(req.StatusCode, tc.ExpectedStatus)
+			suite.Equal(tc.ExpectedStatus,req.StatusCode)
 
 		})
 	}
@@ -102,7 +98,7 @@ func (suite *GameControllerSuite) TestCreate() {
 			req, err := http.Post(suite.tServer.URL, "application/json", bytes.NewBufferString(tc.Body))
 			suite.NoError(err, "Cannot perform POST request")
 
-			suite.Equal(req.StatusCode, tc.ExpectedStatus)
+			suite.Equal(tc.ExpectedStatus,req.StatusCode)
 
 		})
 	}
