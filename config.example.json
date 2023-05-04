@@ -2,5 +2,6 @@
     "postgresUrl": "",
     "listenAddress": "localhost:3000",
     "apiPrefix": "/",
-    "dataPath": "data"
+    "dataPath": "data",
+    "bufferSize": 512
 }
