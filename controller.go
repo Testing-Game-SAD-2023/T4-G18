@@ -173,7 +173,9 @@ func (tc *TurnController) upload(w http.ResponseWriter, r *http.Request) error {
 	if err := tc.service.Store(id, r.Body); err != nil {
 		return makeApiError(err)
 	}
+	
 	defer r.Body.Close()
+	w.WriteHeader(http.StatusOK)
 	return nil
 }
 
