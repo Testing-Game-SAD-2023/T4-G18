@@ -68,7 +68,7 @@ func (suite *GameControllerSuite) TestFindByID() {
 			req, err := http.Get(fmt.Sprintf("%s/%s", suite.tServer.URL, tc.Arg))
 			suite.NoError(err, "Cannot perform GET request")
 
-			suite.Equal(tc.ExpectedStatus,req.StatusCode)
+			suite.Equal(tc.ExpectedStatus, req.StatusCode)
 
 		})
 	}
@@ -98,7 +98,7 @@ func (suite *GameControllerSuite) TestCreate() {
 			req, err := http.Post(suite.tServer.URL, "application/json", bytes.NewBufferString(tc.Body))
 			suite.NoError(err, "Cannot perform POST request")
 
-			suite.Equal(tc.ExpectedStatus,req.StatusCode)
+			suite.Equal(tc.ExpectedStatus, req.StatusCode)
 
 		})
 	}
@@ -143,6 +143,16 @@ func (gr *MockedGameRepository) Delete(id uint64) error {
 	return args.Error(0)
 }
 
+func (gr *MockedGameRepository) Update(id uint64, ur *UpdateGameRequest) (*GameModel, error) {
+	args := gr.Called(id, ur)
+	v := args.Get(0)
+
+	if v == nil {
+		return nil, args.Error(1)
+	}
+	return v.(*GameModel), args.Error(1)
+}
+
 type TurnControllerSuite struct {
 	suite.Suite
 	tServer *httptest.Server
@@ -151,7 +161,7 @@ type TurnControllerSuite struct {
 
 func (suite *TurnControllerSuite) SetupSuite() {
 	tr := new(MockedTurnRepository)
-	f ,err := os.CreateTemp(suite.tmpDir, "")
+	f, err := os.CreateTemp(suite.tmpDir, "")
 	f.Write([]byte("hello"))
 	defer f.Close()
 	suite.NoError(err)

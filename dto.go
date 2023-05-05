@@ -20,6 +20,10 @@ type CreateRoundRequest struct {
 	IdTestClass string `json:"idTestClass"`
 }
 
+type UpdateGameRequest struct {
+	CurrentRound int `json:"currentRound"`
+}
+
 type GameDto struct {
 	ID           uint64    `json:"id"`
 	CurrentRound int       `json:"currentRound"`

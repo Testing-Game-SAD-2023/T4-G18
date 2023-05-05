@@ -20,6 +20,7 @@ type GameRepository interface {
 	Create(request *CreateGameRequest) (*GameModel, error)
 	FindById(id uint64) (*GameModel, error)
 	Delete(id uint64) error
+	Update(id uint64, ug *UpdateGameRequest) (*GameModel, error)
 }
 
 type GameService struct {
@@ -42,6 +43,10 @@ func (gc *GameService) FindByID(id uint64) (*GameModel, error) {
 
 func (gc *GameService) Delete(id uint64) error {
 	return gc.storage.Delete(id)
+}
+
+func (gc *GameService) Update(id uint64, ug *UpdateGameRequest) (*GameModel, error) {
+	return gc.storage.Update(id, ug)
 }
 
 type RoundRepository interface {

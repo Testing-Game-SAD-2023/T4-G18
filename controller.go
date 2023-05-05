@@ -78,6 +78,30 @@ func (gh *GameController) delete(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+func (gh *GameController) update(w http.ResponseWriter, r *http.Request) error {
+
+	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+
+	if err != nil {
+		return ApiError{
+			code:    http.StatusBadRequest,
+			Message: "Invalid game id",
+		}
+	}
+
+	var rq UpdateGameRequest
+	if err := json.NewDecoder(r.Body).Decode(&rq); err != nil {
+		return makeApiError(err)
+	}
+
+	g, err := gh.service.Update(id, &rq)
+	if err != nil {
+		return makeApiError(err)
+	}
+
+	return writeJson(w, http.StatusOK, gameModelToDto(g))
+}
+
 type RoundController struct {
 	service *RoundService
 }
@@ -173,7 +197,7 @@ func (tc *TurnController) upload(w http.ResponseWriter, r *http.Request) error {
 	if err := tc.service.Store(id, r.Body); err != nil {
 		return makeApiError(err)
 	}
-	
+
 	defer r.Body.Close()
 	w.WriteHeader(http.StatusOK)
 	return nil

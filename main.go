@@ -50,6 +50,7 @@ func main() {
 }
 
 func run(c Configuration) error {
+
 	db, err := gorm.Open(postgres.Open(c.PostgresUrl), &gorm.Config{
 		SkipDefaultTransaction: true,
 	})
@@ -58,7 +59,7 @@ func run(c Configuration) error {
 		return err
 	}
 
-	if err := db.AutoMigrate(&GameModel{}, &RoundModel{}, &PlayerModel{}, &TurnModel{}, &MetadataModel{}); err != nil {
+	if err := db.AutoMigrate(&GameModel{}, &RoundModel{}, &PlayerModel{}, &TurnModel{}, &MetadataModel{}, &PlayerGameModel{}); err != nil {
 		return err
 	}
 
@@ -88,8 +89,6 @@ func run(c Configuration) error {
 						w.WriteHeader(http.StatusUnsupportedMediaType)
 						return
 					}
-				default:
-					next.ServeHTTP(w, r)
 				}
 				next.ServeHTTP(w, r)
 			})
@@ -136,7 +135,7 @@ func validateAndMakeDefaults(c *Configuration) error {
 	if c.BufferSize == 0 {
 		c.BufferSize = 512
 	} else if c.BufferSize < 0 {
-		return fmt.Errorf("Buffer size must be a positive integer")
+		return fmt.Errorf("buffer size must be a positive integer")
 	}
 
 	return nil

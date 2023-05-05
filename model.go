@@ -3,12 +3,13 @@ package main
 import "time"
 
 type GameModel struct {
-	ID           uint64 `gorm:"primaryKey;autoIncrement"`
 	CurrentRound int
-	CreatedAt    time.Time `gorm:"autoCreateTime"`
-	UpdatedAt    time.Time `gorm:"autoUpdateTime"`
+	ID           uint64            `gorm:"primaryKey;autoIncrement"`
+	CreatedAt    time.Time         `gorm:"autoCreateTime"`
+	UpdatedAt    time.Time         `gorm:"autoUpdateTime"`
+	Rounds       []RoundModel      `gorm:"foreignKey:GameID"`
+	PlayerGame   []PlayerGameModel `gorm:"foreignKey:GameID"`
 	PlayersCount int
-	Rounds       []RoundModel `gorm:"foreignKey:GameID"`
 }
 
 func (g GameModel) TableName() string {
@@ -16,12 +17,12 @@ func (g GameModel) TableName() string {
 }
 
 type RoundModel struct {
-	ID          uint64 `gorm:"primaryKey;autoIncrement"`
-	IdTestClass string
-	CreatedAt   time.Time `gorm:"autoCreateTime"`
-	UpdatedAt   time.Time `gorm:"autoUpdateTime"`
-	GameID      uint64
+	ID          uint64      `gorm:"primaryKey;autoIncrement"`
+	UpdatedAt   time.Time   `gorm:"autoUpdateTime"`
+	CreatedAt   time.Time   `gorm:"autoCreateTime"`
 	Turns       []TurnModel `gorm:"foreignKey:RoundID"`
+	IdTestClass string
+	GameID      uint64
 }
 
 func (g RoundModel) TableName() string {
@@ -29,12 +30,12 @@ func (g RoundModel) TableName() string {
 }
 
 type TurnModel struct {
-	ID        uint64 `gorm:"primaryKey;autoIncrement"`
-	IsWinner  bool
-	CreatedAt time.Time `gorm:"autoCreateTime"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime"`
-	PlayerID  string
+	ID        uint64        `gorm:"primaryKey;autoIncrement"`
+	CreatedAt time.Time     `gorm:"autoCreateTime"`
+	UpdatedAt time.Time     `gorm:"autoUpdateTime"`
 	Metadata  MetadataModel `gorm:"foreignKey:TurnID"`
+	IsWinner  bool
+	PlayerID  string
 	RoundID   uint64
 }
 
@@ -43,11 +44,11 @@ func (t TurnModel) TableName() string {
 }
 
 type PlayerModel struct {
-	ID        string `gorm:"primaryKey"`
-	IsWinner  bool
-	CreatedAt time.Time   `gorm:"autoCreateTime"`
-	UpdatedAt time.Time   `gorm:"autoUpdateTime"`
-	Turns     []TurnModel `gorm:"foreignKey:PlayerID"`
+	ID          string            `gorm:"primaryKey"`
+	CreatedAt   time.Time         `gorm:"autoCreateTime"`
+	UpdatedAt   time.Time         `gorm:"autoUpdateTime"`
+	Turns       []TurnModel       `gorm:"foreignKey:PlayerID"`
+	PlayerGames []PlayerGameModel `gorm:"foreignKey:PlayerID"`
 }
 
 func (p PlayerModel) TableName() string {
@@ -64,4 +65,16 @@ type MetadataModel struct {
 
 func (t MetadataModel) TableName() string {
 	return "metadata"
+}
+
+type PlayerGameModel struct {
+	ID        uint64    `gorm:"primaryKey;autoIncrement"`
+	CreatedAt time.Time `gorm:"autoCreateTime"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime"`
+	PlayerID  uint64
+	GameID    uint64
+}
+
+func (t PlayerGameModel) TableName() string {
+	return "player_game"
 }

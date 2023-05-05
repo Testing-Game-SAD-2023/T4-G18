@@ -80,6 +80,7 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 		r.Get("/{id}", makeHTTPHandlerFunc(gc.findByID))
 
 		// r.Put
+		r.Put("/{id}", makeHTTPHandlerFunc(gc.update))
 
 		r.Delete("/{id}", makeHTTPHandlerFunc(gc.delete))
 	})

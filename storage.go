@@ -45,6 +45,29 @@ func (gs *GameStorage) Delete(id uint64) error {
 	return nil
 }
 
+func (gs *GameStorage) Update(id uint64, ug *UpdateGameRequest) (*GameModel, error) {
+	tx := gs.db.Begin()
+	defer tx.Rollback()
+
+	var game GameModel
+	err := tx.First(&game, id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrNotFound
+	} else if err != nil {
+		return nil, err
+	}
+
+	game.CurrentRound = ug.CurrentRound
+
+	if err := gs.db.Save(&game).Error; err != nil {
+		return nil, err
+	}
+
+	tx.Commit()
+
+	return &game, nil
+}
+
 type RoundStorage struct {
 	db *gorm.DB
 }
@@ -118,6 +141,7 @@ func (ts *TurnStorage) UpdateMetadata(id uint64, path string) error {
 		DoUpdates: clause.Assignments(map[string]interface{}{"path": path}),
 	}).Create(&meta).Error
 }
+
 func (ts *TurnStorage) FindMetadataByTurn(turnId uint64) (*MetadataModel, error) {
 	var meta MetadataModel
 	if err := ts.db.First(&meta, "turn_id = ?", turnId).Error; err != nil {
