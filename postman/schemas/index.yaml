@@ -1,0 +1,251 @@
+openapi: '3.0.0'
+info:
+  version: '0.0.1'
+  title: 'Game Repository API'
+  description: CRUD on Game Repository
+
+servers:
+  - url: https://sad.capass.org
+    description: Stage server (public available)
+  - url: http://localhost:3000
+    description: Local server (used for development)
+
+
+paths:
+
+  /games/{id}:
+    parameters:
+      - name: id
+        description: Game identifier 
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Id'
+
+    get:
+      summary: Reads a Game
+      responses:
+        '200':
+          description: The game corresponding to the provided `Id`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No game found for the provided `Id`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default: 
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Deletes a Game
+      responses:
+        '204':
+          description: Game deleted
+        '404': 
+          description: No game found for the provided `Id`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default: 
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'        
+
+  /games:
+    post:
+      summary: Creates a Game
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                playersCount :
+                  type: integer
+      responses: 
+        '201':
+          description: Created 
+        default: 
+          description: Unexpected Error  
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /rounds/{id}:
+    parameters:
+      - name: id
+        description: Round identifier 
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/Id'    
+
+    get:
+      summary: Reads a Round
+      responses:
+        '200':
+          description: The Round corresponding to the provided `Id`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Round'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No Round found for the provided `Id`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default: 
+          description: Unexpected Error
+
+    delete:
+      summary: Deletes a Round
+      responses:
+        '204':
+          description: Round deleted
+        '404': 
+          description: No Round found for the provided `Id`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default: 
+          description: Unexpected Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /rounds:
+    post:
+      summary: Creates a Round
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                idGame :
+                  type: integer
+                idTestClass :
+                  type: integer
+      responses: 
+        '201':
+          description: Created 
+        default: 
+          description: Unexpected Error  
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+ 
+
+
+
+
+
+
+
+components:
+  schemas:
+
+    Id:
+      description: The unique identifier
+      type: integer
+
+
+    Game:
+      type: object
+      required:
+        - id
+        - currentRound
+        - createdAt
+        - updatedAt
+        - playersCount
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        currentRound:
+          type: integer       
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        playersCount:
+          type: integer
+   
+    Round:
+      type: object
+      required:
+        - id
+        - idTestClass
+        - createdAt
+        - updatedAt
+      
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        idTestClass:
+          type: string       
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    
+
+    Error:      
+      type: "object"
+      required: 
+        - code
+        - message
+      properties: 
+        code: 
+          type: integer
+          format: int32
+        message: 
+          type: string
+
