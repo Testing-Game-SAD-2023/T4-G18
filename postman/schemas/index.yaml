@@ -1,8 +1,15 @@
 openapi: '3.0.0'
 info:
-  version: '1.0.0'
+  version: '0.0.1'
   title: 'Game Repository API'
   description: CRUD on Game Repository
+
+servers:
+  - url: https://sad.capass.org
+    description: Stage server (public available)
+  - url: http://localhost:3000
+    description: Local server (used for development)
+
 
 paths:
 
