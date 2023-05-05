@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -11,6 +12,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
+	mw "github.com/go-openapi/runtime/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -22,7 +25,11 @@ type Configuration struct {
 	ApiPrefix     string `json:"apiPrefix"`
 	DataDir       string `json:"dataDir"`
 	BufferSize    int    `json:"bufferSize"`
+	EnableSwagger bool   `json:"enableSwagger"`
 }
+
+//go:embed postman
+var postmanDir embed.FS
 
 func main() {
 	var (
@@ -69,6 +76,32 @@ func run(c Configuration) error {
 
 	r := chi.NewRouter()
 
+	if c.EnableSwagger {
+		r.Group(func(r chi.Router) {
+
+			r.Use(cors.Handler(cors.Options{
+				AllowedOrigins:   []string{"https://*", "http://*"},
+				AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+				AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+				ExposedHeaders:   []string{"Link"},
+				AllowCredentials: false,
+				MaxAge:           300, // Maximum value not ignored by any of major browsers
+			}))
+			opts := mw.SwaggerUIOpts{SpecURL: "/public/postman/schemas/index.yaml"}
+			sh := mw.SwaggerUI(opts, nil)
+			r.Handle("/docs", sh)
+
+			f, err := postmanDir.Open("postman/schemas/index.yaml")
+			if err != nil {
+				panic(err)
+			}
+			defer f.Close()
+
+			fs := http.FileServer(http.FS(postmanDir))
+			r.Mount("/public/", http.StripPrefix("/public/", fs))
+
+		})
+	}
 	r.Handle("/metrics", promhttp.Handler())
 
 	r.Group(func(r chi.Router) {

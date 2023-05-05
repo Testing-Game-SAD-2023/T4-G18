@@ -3,5 +3,6 @@
     "listenAddress": "localhost:3000",
     "apiPrefix": "/",
     "dataPath": "data",
-    "bufferSize": 512
+    "bufferSize": 512,
+    "enableSwagger": false
 }
