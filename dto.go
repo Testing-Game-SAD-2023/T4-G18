@@ -21,6 +21,10 @@ type CreateRoundRequest struct {
 	IdTestClass string `json:"idTestClass"`
 }
 
+type CreateTurnRequest struct {
+	IdPlayer     uint64 `json:"idPlayer"`
+}
+
 type GameDto struct {
 	ID           uint64    `json:"id"`
 	CurrentRound int       `json:"currentRound"`
@@ -35,3 +39,12 @@ type RoundDto struct {
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
+
+type TurnDto struct {
+	ID          uint64    `json:"id"`
+	IsWinner 	bool      `json:"isWinner"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+	PlayerID    uint64	  `json:"idPlayer"`
+}
+

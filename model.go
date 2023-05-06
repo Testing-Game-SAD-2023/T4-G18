@@ -27,4 +27,27 @@ func (g RoundModel) TableName() string {
 	return "rounds"
 }
 
+type PlayerModel struct {
+	ID          uint64 `gorm:"primaryKey;autoIncrement"`
+	CreatedAt   time.Time `gorm:"autoCreateTime"`
+	Turns      	[]TurnModel `gorm:"foreignKey:PlayerID"`
+}
+
+func (g PlayerModel) TableName() string {
+	return "players"
+}
+
+type TurnModel struct {
+	ID          uint64 `gorm:"primaryKey;autoIncrement"`
+	CreatedAt   time.Time `gorm:"autoCreateTime"`
+	UpdatedAt   time.Time `gorm:"autoUpdateTime"`
+	IsWinner  	bool 
+	PlayerID    uint64
+}
+
+func (g TurnModel) TableName() string {
+	return "turns"
+}
+
+
 

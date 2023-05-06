@@ -25,6 +25,16 @@ func roundModelToDto(g *RoundModel) *RoundDto {
 	}
 }
 
+func turnModelToDto(t *TurnModel) *TurnDto {
+	return &TurnDto{
+		ID:          t.ID,	
+		IsWinner:  	 t.IsWinner,
+		CreatedAt:   t.CreatedAt,
+		UpdatedAt:   t.UpdatedAt,	
+		PlayerID:    t.PlayerID,
+	}
+}
+
 func writeJson(w http.ResponseWriter, statusCode int, v any) error {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(statusCode)

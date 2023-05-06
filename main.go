@@ -53,7 +53,7 @@ func run(configuration Configuration) error {
 		return err
 	}
 
-	if err := db.AutoMigrate(&GameModel{}, &RoundModel{}); err != nil {
+	if err := db.AutoMigrate(&GameModel{}, &RoundModel{}, &PlayerModel{}, &TurnModel{}); err != nil {
 		return err
 	}
 
@@ -63,7 +63,10 @@ func run(configuration Configuration) error {
 	roundStorage := NewRoundStorage(db)
 	roundService := NewRoundService(roundStorage)
 
-	api := MakeHTTPHandler(gameService, roundService)
+	turnStorage := NewTurnStorage(db)
+	turnService := NewTurnService(turnStorage)
+
+	api := MakeHTTPHandler(gameService, roundService, turnService)
 
 	r := chi.NewRouter()
 

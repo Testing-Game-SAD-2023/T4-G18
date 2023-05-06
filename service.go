@@ -61,3 +61,32 @@ func (rc *RoundService) FindByID(id uint64) (*RoundModel, error) {
 func (rc *RoundService) Delete(id uint64) error {
 	return rc.storage.Delete(id)
 }
+
+type TurnRepository interface {
+	Create(request *CreateTurnRequest) (*TurnModel, error)
+	FindById(id uint64) (*TurnModel, error)
+	Delete(id uint64) error
+}
+
+type TurnService struct {
+	storage TurnRepository
+}
+
+func NewTurnService(storage TurnRepository) *TurnService {
+	return &TurnService{
+		storage: storage,
+	}
+}
+
+func (tc *TurnService) Create(request *CreateTurnRequest) (*TurnModel, error) {
+	return tc.storage.Create(request)
+}
+
+func (tc *TurnService) FindByID(id uint64) (*TurnModel, error) {
+	return tc.storage.FindById(id)
+}
+
+func (tc *TurnService) Delete(id uint64) error {
+	return tc.storage.Delete(id)
+}
+

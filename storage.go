@@ -82,3 +82,42 @@ func (db *RoundStorage) Delete(id uint64) error {
 	}
 	return nil
 }
+
+
+type TurnStorage struct {
+	db *gorm.DB
+}
+
+func NewTurnStorage(db *gorm.DB) *TurnStorage {
+	return &TurnStorage{
+		db: db,
+	}
+}
+
+func (db *TurnStorage) Create(request *CreateTurnRequest) (*TurnModel, error) {
+	t := TurnModel{
+		PlayerID:      request.IdPlayer,
+	}
+	err := db.db.Create(&t).Error
+
+	return &t, err
+}
+
+func (db *TurnStorage) FindById(id uint64) (*TurnModel, error) {
+	var turn TurnModel
+	err := db.db.First(&turn, id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrNotFound
+	} else if err != nil {
+		return nil, err
+	}
+	return &turn, nil
+}
+
+func (db *TurnStorage) Delete(id uint64) error {
+	rowsAffected := db.db.Delete(&TurnModel{}, id).RowsAffected
+	if rowsAffected < 1 {
+		return ErrNotFound
+	}
+	return nil
+}

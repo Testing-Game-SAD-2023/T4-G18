@@ -29,7 +29,7 @@ func makeHTTPHandlerFunc(f ApiFunction) http.HandlerFunc {
 	}
 
 }
-func MakeHTTPHandler(gc *GameService, rc *RoundService) *chi.Mux {
+func MakeHTTPHandler(gc *GameService, rc *RoundService, tc *TurnService) *chi.Mux {
 	r := chi.NewRouter()
 
 	gh := NewGameController(gc)
@@ -52,6 +52,18 @@ func MakeHTTPHandler(gc *GameService, rc *RoundService) *chi.Mux {
 		r.Post("/", makeHTTPHandlerFunc(rh.findByID))
 
 		r.Delete("/{id}", makeHTTPHandlerFunc(rh.delete))
+
+		//r.Put
+
+	})
+
+	th := NewTurnController(tc)
+	r.Route("/turns", func(r chi.Router) {
+		r.Get("/{id}", makeHTTPHandlerFunc(th.create))
+
+		r.Post("/", makeHTTPHandlerFunc(th.findByID))
+
+		r.Delete("/{id}", makeHTTPHandlerFunc(th.delete))
 
 		//r.Put
 
@@ -192,6 +204,77 @@ func (rh *RoundController) delete(w http.ResponseWriter, r *http.Request) error 
 	}
 
 	if err := rh.controller.Delete(id); err != nil {
+		return makeApiError(err)
+	}
+	w.WriteHeader(http.StatusNoContent)
+	return nil
+}
+
+
+type TurnController struct {
+	controller *TurnService
+}
+
+func NewTurnController(tc *TurnService) *TurnController {
+	return &TurnController{
+		controller: tc,
+	}
+}
+
+func (th *TurnController) create(w http.ResponseWriter, r *http.Request) error {
+
+	var request CreateTurnRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return ApiError{
+			code:    http.StatusBadRequest,
+			Message: "Invalid json body",
+		}
+	}
+
+	defer r.Body.Close()
+
+	g, err := th.controller.Create(&request)
+
+	if err != nil {
+		return makeApiError(err)
+	}
+
+	return writeJson(w, http.StatusCreated, turnModelToDto(g)) //TODO
+
+}
+
+func (th *TurnController) findByID(w http.ResponseWriter, r *http.Request) error {
+
+	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+
+	if err != nil {
+		return ApiError{
+			code:    http.StatusBadRequest,
+			Message: "Invalid game id",
+		}
+	}
+	turn, err := th.controller.FindByID(id)
+
+	if err != nil {
+		return makeApiError(err)
+	}
+
+	return writeJson(w, http.StatusOK, turnModelToDto(turn)) //TODO
+
+}
+
+func (th *TurnController) delete(w http.ResponseWriter, r *http.Request) error {
+
+	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+
+	if err != nil {
+		return ApiError{
+			code:    http.StatusBadRequest,
+			Message: "Invalid turn id",
+		}
+	}
+
+	if err := th.controller.Delete(id); err != nil {
 		return makeApiError(err)
 	}
 	w.WriteHeader(http.StatusNoContent)
