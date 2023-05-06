@@ -27,7 +27,9 @@ func (suite *GameControllerSuite) SetupSuite() {
 		On("FindById", uint64(1)).Return(&GameModel{ID: 1}, nil).
 		On("FindById", mock.MatchedBy(func(id uint64) bool { return id != 1 })).Return(nil, ErrNotFound).
 		On("Delete", uint64(1)).Return(nil).
-		On("Delete", mock.Anything).Return(ErrNotFound)
+		On("Delete", mock.MatchedBy(func(id uint64) bool { return id != 1 })).Return(ErrNotFound).
+		On("Update", uint64(1), &UpdateGameRequest{Name: "test", CurrentRound: 10}).Return(&GameModel{}, nil).
+		On("Update", mock.MatchedBy(func(id uint64) bool { return id != 1 }), &UpdateGameRequest{Name: "test", CurrentRound: 10}).Return(nil, ErrNotFound)
 
 	service := NewGameService(gr)
 	controller := NewGameController(service)
@@ -35,6 +37,8 @@ func (suite *GameControllerSuite) SetupSuite() {
 	r := chi.NewMux()
 	r.Get("/{id}", makeHTTPHandlerFunc(controller.findByID))
 	r.Post("/", makeHTTPHandlerFunc(controller.create))
+	r.Delete("/{id}", makeHTTPHandlerFunc(controller.delete))
+	r.Put("/{id}", makeHTTPHandlerFunc(controller.update))
 
 	suite.tServer = httptest.NewServer(r)
 }
@@ -68,7 +72,7 @@ func (suite *GameControllerSuite) TestFindByID() {
 			req, err := http.Get(fmt.Sprintf("%s/%s", suite.tServer.URL, tc.Arg))
 			suite.NoError(err, "Cannot perform GET request")
 
-			suite.Equal(tc.ExpectedStatus, req.StatusCode)
+			suite.Equal(tc.ExpectedStatus, req.StatusCode, tc.Name)
 
 		})
 	}
@@ -82,12 +86,12 @@ func (suite *GameControllerSuite) TestCreate() {
 		Body           string
 	}{
 		{
-			Name:           "T11-BadJson",
+			Name:           "T04-BadJson",
 			ExpectedStatus: http.StatusBadRequest,
 			Body:           `{"playersCount": 34`,
 		},
 		{
-			Name:           "T12-GameCreated",
+			Name:           "T05-GameCreated",
 			ExpectedStatus: http.StatusCreated,
 			Body:           `{"playersCount": 10}`,
 		},
@@ -98,13 +102,102 @@ func (suite *GameControllerSuite) TestCreate() {
 			req, err := http.Post(suite.tServer.URL, "application/json", bytes.NewBufferString(tc.Body))
 			suite.NoError(err, "Cannot perform POST request")
 
-			suite.Equal(tc.ExpectedStatus, req.StatusCode)
+			suite.Equal(tc.ExpectedStatus, req.StatusCode, tc.Name)
 
 		})
 	}
 
 }
 
+func (suite *GameControllerSuite) TestDelete() {
+
+	tcs := []struct {
+		Name           string
+		ExpectedStatus int
+		Id             string
+	}{
+		{
+			Name:           "T06-BadId",
+			ExpectedStatus: http.StatusBadRequest,
+			Id:             `26a4`,
+		},
+		{
+			Name:           "T07-GameDeleted",
+			ExpectedStatus: http.StatusNoContent,
+			Id:             `1`,
+		},
+		{
+			Name:           "T08-GameNotFound",
+			ExpectedStatus: http.StatusNotFound,
+			Id:             `14`,
+		},
+	}
+	for _, tc := range tcs {
+		tc := tc
+		suite.T().Run(tc.Name, func(t *testing.T) {
+			url := fmt.Sprintf("%s/%s", suite.tServer.URL, tc.Id)
+			req, err := http.NewRequest(http.MethodDelete, url, nil)
+			suite.NoError(err)
+
+			res, err := http.DefaultClient.Do(req)
+			suite.NoError(err)
+
+			suite.Equal(tc.ExpectedStatus, res.StatusCode, tc.Name)
+
+		})
+	}
+
+}
+func (suite *GameControllerSuite) TestUpdate() {
+
+	tcs := []struct {
+		Name           string
+		ExpectedStatus int
+		Body           string
+		Id             string
+	}{
+		{
+			Name:           "T09-BadId",
+			ExpectedStatus: http.StatusBadRequest,
+			Body:           ` {"currentRound": 10, "name: "test"}`,
+			Id:             `1a`,
+		},
+		{
+			Name:           "T010-GameUpdated",
+			ExpectedStatus: http.StatusOK,
+			Body:           `{"currentRound": 10, "name": "test"}`,
+			Id:             `1`,
+		},
+		{
+			Name:           "T011-InvalidJSON",
+			ExpectedStatus: http.StatusBadRequest,
+			Body:           ` {"currentRound": 10, "name: "test"}`,
+			Id:             `1`,
+		},
+		{
+			Name:           "T012-GameNotFound",
+			ExpectedStatus: http.StatusNotFound,
+			Body:           ` {"currentRound": 10, "name": "test"}`,
+			Id:             `11`,
+		},
+	}
+	for _, tc := range tcs {
+		tc := tc
+		suite.T().Run(tc.Name, func(t *testing.T) {
+			url := fmt.Sprintf("%s/%s", suite.tServer.URL, tc.Id)
+			req, err := http.NewRequest(http.MethodPut, url, bytes.NewBufferString(tc.Body))
+			suite.NoError(err)
+			req.Header.Add("Content-Type", "application/json")
+
+			res, err := http.DefaultClient.Do(req)
+			suite.NoError(err)
+
+			suite.Equal(tc.ExpectedStatus, res.StatusCode, tc.Name)
+
+		})
+	}
+
+}
 func TestGameControllerSuite(t *testing.T) {
 	suite.Run(t, new(GameControllerSuite))
 }
@@ -193,7 +286,7 @@ func (suite *TurnControllerSuite) TestUpload() {
 		BodyFn         func() *bytes.Buffer
 	}{
 		{
-			Name:           "T31-BadZip",
+			Name:           "T21-BadZip",
 			ExpectedStatus: http.StatusUnprocessableEntity,
 			TurnID:         "1",
 			BodyFn: func() *bytes.Buffer {
@@ -206,7 +299,7 @@ func (suite *TurnControllerSuite) TestUpload() {
 			},
 		},
 		{
-			Name:           "T32-ZipSaved",
+			Name:           "T22-ZipSaved",
 			ExpectedStatus: http.StatusOK,
 			TurnID:         "1",
 			BodyFn: func() *bytes.Buffer {
@@ -224,7 +317,7 @@ func (suite *TurnControllerSuite) TestUpload() {
 			},
 		},
 		{
-			Name:           "T33-TurnNotFound",
+			Name:           "T23-TurnNotFound",
 			ExpectedStatus: http.StatusNotFound,
 			TurnID:         "12",
 			BodyFn: func() *bytes.Buffer {
@@ -242,7 +335,7 @@ func (suite *TurnControllerSuite) TestUpload() {
 			},
 		},
 		{
-			Name:           "T34-BadTurnID",
+			Name:           "T24-BadTurnID",
 			ExpectedStatus: http.StatusBadRequest,
 			TurnID:         "a12",
 			BodyFn: func() *bytes.Buffer {
@@ -271,7 +364,7 @@ func (suite *TurnControllerSuite) TestUpload() {
 
 			res, err := http.DefaultClient.Do(req)
 			suite.NoError(err)
-			suite.Equal(tc.ExpectedStatus, res.StatusCode)
+			suite.Equal(tc.ExpectedStatus, res.StatusCode, tc.Name)
 
 		})
 	}
@@ -306,7 +399,7 @@ func (suite *TurnControllerSuite) TestDownload() {
 			_, err = io.Copy(io.Discard, res.Body)
 
 			suite.NoError(err)
-			suite.Equal(tc.ExpectedStatus, res.StatusCode)
+			suite.Equal(tc.ExpectedStatus, res.StatusCode, tc.Name)
 
 		})
 	}
