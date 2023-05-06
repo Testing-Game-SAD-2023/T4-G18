@@ -3,10 +3,9 @@ package main
 import "time"
 
 type ApiError struct {
-	code int
+	code    int
 	Message string `json:"message"`
 }
-
 
 func (ae ApiError) Error() string {
 	return ae.Message
@@ -23,6 +22,11 @@ type CreateRoundRequest struct {
 
 type CreateTurnRequest struct {
 	IdPlayer     uint64 `json:"idPlayer"`
+	IdRound      uint64 `json:"idRound"`
+}
+
+type UpdateGameRequest struct {
+	CurrentRound int `json:"currentRound"`
 }
 
 type GameDto struct {

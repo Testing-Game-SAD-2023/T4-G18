@@ -1,19 +1,30 @@
 package main
 
-import "errors"
+import (
+	"archive/zip"
+	"errors"
+	"io"
+	"os"
+	"path"
+	"strconv"
+	"time"
+)
 
 var (
 	ErrNotFound   = errors.New("not found")
 	ErrBadRequest = errors.New("bad request")
+	ErrNotAZip    = errors.New("file is not a valid zip")
 )
+
 type GameRepository interface {
 	Create(request *CreateGameRequest) (*GameModel, error)
 	FindById(id uint64) (*GameModel, error)
 	Delete(id uint64) error
+	Update(id uint64, ug *UpdateGameRequest) (*GameModel, error)
 }
 
 type GameService struct {
-	storage GameRepository 
+	storage GameRepository
 }
 
 func NewGameService(storage GameRepository) *GameService {
@@ -32,6 +43,10 @@ func (gc *GameService) FindByID(id uint64) (*GameModel, error) {
 
 func (gc *GameService) Delete(id uint64) error {
 	return gc.storage.Delete(id)
+}
+
+func (gc *GameService) Update(id uint64, ug *UpdateGameRequest) (*GameModel, error) {
+	return gc.storage.Update(id, ug)
 }
 
 type RoundRepository interface {
@@ -66,27 +81,80 @@ type TurnRepository interface {
 	Create(request *CreateTurnRequest) (*TurnModel, error)
 	FindById(id uint64) (*TurnModel, error)
 	Delete(id uint64) error
+	FindGameByTurn(id uint64) (*GameModel, error)
+	UpdateMetadata(id uint64, path string) error
+	FindMetadataByTurn(id uint64) (*MetadataModel, error)
 }
 
 type TurnService struct {
-	storage TurnRepository
+	turnRepository TurnRepository
+	dataDir        string
 }
 
-func NewTurnService(storage TurnRepository) *TurnService {
+func NewTurnService(tr TurnRepository, dr string) *TurnService {
 	return &TurnService{
-		storage: storage,
+		turnRepository: tr,
+		dataDir:        dr,
 	}
 }
 
 func (tc *TurnService) Create(request *CreateTurnRequest) (*TurnModel, error) {
-	return tc.storage.Create(request)
+	return tc.turnRepository.Create(request)
 }
 
 func (tc *TurnService) FindByID(id uint64) (*TurnModel, error) {
-	return tc.storage.FindById(id)
+	return tc.turnRepository.FindById(id)
 }
 
 func (tc *TurnService) Delete(id uint64) error {
-	return tc.storage.Delete(id)
+	return tc.turnRepository.Delete(id)
 }
 
+func (ts *TurnService) Store(turnId uint64, r io.Reader) error {
+	dst, err := os.CreateTemp("", "")
+	if err != nil {
+		return err
+	}
+	defer os.Remove(dst.Name())
+	if _, err := io.Copy(dst, r); err != nil {
+		return err
+	}
+
+	if zfile, err := zip.OpenReader(dst.Name()); err != nil {
+		return ErrNotAZip
+	} else {
+		zfile.Close()
+	}
+
+	game, err := ts.turnRepository.FindGameByTurn(turnId)
+	if err != nil {
+		return err
+	}
+
+	year := time.Now().Year()
+	fname := path.Join(ts.dataDir,
+		strconv.FormatInt(int64(year), 10),
+		strconv.FormatUint(game.ID, 10),
+		strconv.FormatUint(turnId, 10)+".zip",
+	)
+
+	dir := path.Dir(fname)
+	if err := os.MkdirAll(dir, os.ModePerm); err != nil && !errors.Is(err, os.ErrExist) {
+		return err
+	}
+
+	if err := os.Rename(dst.Name(), fname); err != nil {
+		return err
+	}
+
+	return ts.turnRepository.UpdateMetadata(turnId, fname)
+}
+
+func (ts *TurnService) GetTurnFile(turnId uint64) (*os.File, error) {
+	m, err := ts.turnRepository.FindMetadataByTurn(turnId)
+	if err != nil {
+		return nil, err
+	}
+	return os.Open(m.Path)
+
+}

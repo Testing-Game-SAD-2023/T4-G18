@@ -9,6 +9,9 @@ The prototype exposes basic endpoint for:
     - GET /rounds/{id} retrieve a round by ID;
     - POST /rounds create a round;
     - DELETE /rounds/{id} delete a round;
+* turns:
+    - PUT /turns/{id}/files upload player files as a zip;
+    - GET /turns/{id}/files retrieve player files as a zip;
 
 ## Usage
 The application uses a json configuration file like `config.example.json` (which contains default values). The application looks for a file `config.json` near executable, but a custom one can be provided through `--config=<PATH>` command line arguments.
@@ -24,8 +27,8 @@ make help
 ```
 
 ### Testing
-As an example, a basic test suite (with a manual created mocked service for storage) is provided for the `GameController` struct.
-Test can be executed using:
+Unit testing is provided using mocking of storage class in order to not depend of a real database. Tests can be 
+executed with:
 ```
 make test
 ```

@@ -2,75 +2,13 @@ package main
 
 import (
 	"encoding/json"
-	"log"
+	"errors"
+	"io"
 	"net/http"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
 )
-
-type ApiFunction func(http.ResponseWriter, *http.Request) error
-
-func makeHTTPHandlerFunc(f ApiFunction) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if err := f(w, r); err != nil {
-			apiError, ok := err.(ApiError)
-
-			if ok {
-				if err := writeJson(w, apiError.code, apiError); err != nil {
-					log.Print(err)
-				}
-				return
-			}
-
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Print(err)
-		}
-	}
-
-}
-func MakeHTTPHandler(gc *GameService, rc *RoundService, tc *TurnService) *chi.Mux {
-	r := chi.NewRouter()
-
-	gh := NewGameController(gc)
-	r.Route("/games", func(r chi.Router) {
-		// Create Game
-		r.Post("/", makeHTTPHandlerFunc(gh.create))
-
-		//Get Game
-		r.Get("/{id}", makeHTTPHandlerFunc(gh.findByID))
-
-		// r.Put
-
-		r.Delete("/{id}", makeHTTPHandlerFunc(gh.delete))
-	})
-
-	rh := NewRoundController(rc)
-	r.Route("/rounds", func(r chi.Router) {
-		r.Get("/{id}", makeHTTPHandlerFunc(rh.create))
-
-		r.Post("/", makeHTTPHandlerFunc(rh.findByID))
-
-		r.Delete("/{id}", makeHTTPHandlerFunc(rh.delete))
-
-		//r.Put
-
-	})
-
-	th := NewTurnController(tc)
-	r.Route("/turns", func(r chi.Router) {
-		r.Get("/{id}", makeHTTPHandlerFunc(th.create))
-
-		r.Post("/", makeHTTPHandlerFunc(th.findByID))
-
-		r.Delete("/{id}", makeHTTPHandlerFunc(th.delete))
-
-		//r.Put
-
-	})
-
-	return r
-}
 
 type GameController struct {
 	service *GameService
@@ -140,13 +78,37 @@ func (gh *GameController) delete(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-type RoundController struct {
-	controller *RoundService
+func (gh *GameController) update(w http.ResponseWriter, r *http.Request) error {
+
+	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+
+	if err != nil {
+		return ApiError{
+			code:    http.StatusBadRequest,
+			Message: "Invalid game id",
+		}
+	}
+
+	var rq UpdateGameRequest
+	if err := json.NewDecoder(r.Body).Decode(&rq); err != nil {
+		return makeApiError(err)
+	}
+
+	g, err := gh.service.Update(id, &rq)
+	if err != nil {
+		return makeApiError(err)
+	}
+
+	return writeJson(w, http.StatusOK, gameModelToDto(g))
 }
 
-func NewRoundController(rc *RoundService) *RoundController {
+type RoundController struct {
+	service *RoundService
+}
+
+func NewRoundController(rs *RoundService) *RoundController {
 	return &RoundController{
-		controller: rc,
+		service: rs,
 	}
 }
 
@@ -162,7 +124,7 @@ func (rh *RoundController) create(w http.ResponseWriter, r *http.Request) error 
 
 	defer r.Body.Close()
 
-	g, err := rh.controller.Create(&request)
+	g, err := rh.service.Create(&request)
 
 	if err != nil {
 		return makeApiError(err)
@@ -182,7 +144,7 @@ func (rh *RoundController) findByID(w http.ResponseWriter, r *http.Request) erro
 			Message: "Invalid game id",
 		}
 	}
-	round, err := rh.controller.FindByID(id)
+	round, err := rh.service.FindByID(id)
 
 	if err != nil {
 		return makeApiError(err)
@@ -203,21 +165,22 @@ func (rh *RoundController) delete(w http.ResponseWriter, r *http.Request) error 
 		}
 	}
 
-	if err := rh.controller.Delete(id); err != nil {
+	if err := rh.service.Delete(id); err != nil {
 		return makeApiError(err)
 	}
 	w.WriteHeader(http.StatusNoContent)
 	return nil
 }
 
-
 type TurnController struct {
-	controller *TurnService
+	service    *TurnService
+	bufferSize int
 }
 
-func NewTurnController(tc *TurnService) *TurnController {
+func NewTurnController(service *TurnService, bufferSize int) *TurnController {
 	return &TurnController{
-		controller: tc,
+		service:    service,
+		bufferSize: bufferSize,
 	}
 }
 
@@ -233,14 +196,13 @@ func (th *TurnController) create(w http.ResponseWriter, r *http.Request) error {
 
 	defer r.Body.Close()
 
-	g, err := th.controller.Create(&request)
+	g, err := th.service.Create(&request)
 
 	if err != nil {
 		return makeApiError(err)
 	}
 
-	return writeJson(w, http.StatusCreated, turnModelToDto(g)) //TODO
-
+	return writeJson(w, http.StatusCreated, turnModelToDto(g)) 
 }
 
 func (th *TurnController) findByID(w http.ResponseWriter, r *http.Request) error {
@@ -253,13 +215,13 @@ func (th *TurnController) findByID(w http.ResponseWriter, r *http.Request) error
 			Message: "Invalid game id",
 		}
 	}
-	turn, err := th.controller.FindByID(id)
+	turn, err := th.service.FindByID(id)
 
 	if err != nil {
 		return makeApiError(err)
 	}
 
-	return writeJson(w, http.StatusOK, turnModelToDto(turn)) //TODO
+	return writeJson(w, http.StatusOK, turnModelToDto(turn)) 
 
 }
 
@@ -274,9 +236,61 @@ func (th *TurnController) delete(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := th.controller.Delete(id); err != nil {
+	if err := th.service.Delete(id); err != nil {
 		return makeApiError(err)
 	}
 	w.WriteHeader(http.StatusNoContent)
+	return nil
+}
+
+func (tc *TurnController) upload(w http.ResponseWriter, r *http.Request) error {
+
+	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+
+	if err != nil {
+		return ApiError{
+			code:    http.StatusBadRequest,
+			Message: "Invalid round id",
+		}
+	}
+	if err := tc.service.Store(id, r.Body); err != nil {
+		return makeApiError(err)
+	}
+
+	defer r.Body.Close()
+	w.WriteHeader(http.StatusOK)
+	return nil
+}
+
+func (tc *TurnController) download(w http.ResponseWriter, r *http.Request) error {
+	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+
+	if err != nil {
+		return ApiError{
+			code:    http.StatusBadRequest,
+			Message: "Invalid round id",
+		}
+	}
+
+	f, err := tc.service.GetTurnFile(id)
+	if err != nil {
+		return makeApiError(err)
+	}
+	defer f.Close()
+
+	w.Header().Set("Content-Type", "application/zip")
+	b := make([]byte, tc.bufferSize)
+	for {
+		n, err := f.Read(b)
+		if errors.Is(err, io.EOF) {
+			break
+		} else if err != nil {
+			return err
+		}
+
+		if _, err := w.Write(b[:n]); err != nil {
+			return err
+		}
+	}
 	return nil
 }
