@@ -71,6 +71,7 @@ type PlayerGameModel struct {
 	ID        uint64    `gorm:"primaryKey;autoIncrement"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
+	IsWinner  bool
 	PlayerID  uint64
 	GameID    uint64
 }
