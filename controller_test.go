@@ -426,6 +426,9 @@ func (ts *MockedTurnRepository) FindById(id uint64) (*TurnModel, error) {
 func (ts *MockedTurnRepository) Delete(id uint64) error {
 	return fmt.Errorf("not implemented")
 }
+func (ts *MockedTurnRepository) Update(id uint64, request *UpdateTurnRequest) (*TurnModel, error) {
+	return nil, fmt.Errorf("not implemented")
+}
 
 func (m *MockedTurnRepository) FindGameByTurn(id uint64) (*GameModel, error) {
 	args := m.Called(id)

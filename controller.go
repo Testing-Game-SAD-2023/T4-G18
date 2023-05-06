@@ -137,6 +137,33 @@ func (rh *RoundController) create(w http.ResponseWriter, r *http.Request) error 
 
 }
 
+func (rc *RoundController) update(w http.ResponseWriter, r *http.Request) error {
+
+	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+
+	if err != nil {
+		return ApiError{
+			code:    http.StatusBadRequest,
+			Message: "Invalid round id",
+		}
+	}
+
+	var rq UpdateRoundRequest
+	if err := json.NewDecoder(r.Body).Decode(&rq); err != nil {
+		return ApiError{
+			code:    http.StatusBadRequest,
+			Message: "Invalid json body",
+		}
+	}
+
+	g, err := rc.service.Update(id, &rq)
+	if err != nil {
+		return makeApiError(err)
+	}
+
+	return writeJson(w, http.StatusOK, roundModelToDto(g))
+}
+
 func (rh *RoundController) findByID(w http.ResponseWriter, r *http.Request) error {
 
 	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
@@ -208,27 +235,7 @@ func (th *TurnController) create(w http.ResponseWriter, r *http.Request) error {
 	return writeJson(w, http.StatusCreated, turnModelToDto(g)) 
 }
 
-func (th *TurnController) findByID(w http.ResponseWriter, r *http.Request) error {
-
-	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
-
-	if err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid game id",
-		}
-	}
-	turn, err := th.service.FindByID(id)
-
-	if err != nil {
-		return makeApiError(err)
-	}
-
-	return writeJson(w, http.StatusOK, turnModelToDto(turn)) 
-
-}
-
-func (th *TurnController) delete(w http.ResponseWriter, r *http.Request) error {
+func (tc *TurnController) update(w http.ResponseWriter, r *http.Request) error {
 
 	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
 
@@ -239,7 +246,55 @@ func (th *TurnController) delete(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	if err := th.service.Delete(id); err != nil {
+	var rq UpdateTurnRequest
+	if err := json.NewDecoder(r.Body).Decode(&rq); err != nil {
+		return ApiError{
+			code:    http.StatusBadRequest,
+			Message: "Invalid json body",
+		}
+	}
+
+	g, err := tc.service.Update(id, &rq)
+	if err != nil {
+		return makeApiError(err)
+	}
+
+	return writeJson(w, http.StatusOK, turnModelToDto(g))
+}
+
+
+func (tc *TurnController) findByID(w http.ResponseWriter, r *http.Request) error {
+
+	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+
+	if err != nil {
+		return ApiError{
+			code:    http.StatusBadRequest,
+			Message: "Invalid game id",
+		}
+	}
+	turn, err := tc.service.FindByID(id)
+
+	if err != nil {
+		return makeApiError(err)
+	}
+
+	return writeJson(w, http.StatusOK, turnModelToDto(turn)) 
+
+}
+
+func (tc *TurnController) delete(w http.ResponseWriter, r *http.Request) error {
+
+	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+
+	if err != nil {
+		return ApiError{
+			code:    http.StatusBadRequest,
+			Message: "Invalid turn id",
+		}
+	}
+
+	if err := tc.service.Delete(id); err != nil {
 		return makeApiError(err)
 	}
 	w.WriteHeader(http.StatusNoContent)

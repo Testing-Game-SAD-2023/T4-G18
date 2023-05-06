@@ -23,6 +23,7 @@ func gameModelToDto(g *GameModel) *GameDto {
 func roundModelToDto(g *RoundModel) *RoundDto {
 	return &RoundDto{
 		ID:          g.ID,
+		Order:       g.Order,
 		CreatedAt:   g.CreatedAt,
 		UpdatedAt:   g.UpdatedAt,
 		IdTestClass: g.IdTestClass,
@@ -33,6 +34,7 @@ func turnModelToDto(t *TurnModel) *TurnDto {
 	return &TurnDto{
 		ID:          t.ID,	
 		IsWinner:  	 t.IsWinner,
+		Scores:      t.Scores,
 		CreatedAt:   t.CreatedAt,
 		UpdatedAt:   t.UpdatedAt,	
 		PlayerID:    t.PlayerID,
@@ -103,7 +105,7 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 
 		r.Delete("/{id}", makeHTTPHandlerFunc(rc.delete))
 
-		//r.Put
+		r.Put("/{id}", makeHTTPHandlerFunc(rc.update))
 
 	})
 
@@ -111,6 +113,7 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 		r.Get("/{id}", makeHTTPHandlerFunc(tc.findByID))
 		r.Post("/", makeHTTPHandlerFunc(tc.create))
 		r.Delete("/{id}", makeHTTPHandlerFunc(tc.delete))
+		r.Put("/{id}", makeHTTPHandlerFunc(tc.update))
 
 		r.Put("/{id}/files", makeHTTPHandlerFunc(tc.upload))
 		r.Get("/{id}/files", makeHTTPHandlerFunc(tc.download))
