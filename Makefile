@@ -17,9 +17,9 @@ run: build
 docker-build:
 	docker build -t $(APP_NAME):$(GIT_COMMIT) .
 
-## docker-run: runs a docker container exposing port 3000 and using config.json
+## docker-run: runs a docker container. Needs port and config arguments
 docker-run:
-	docker run -p 3000:3000 -v $(shell pwd)/config.json:/app/config.json $(APP_NAME):$(GIT_COMMIT)
+	docker run -p $(port) -v $(config):/app/config.json $(APP_NAME):$(GIT_COMMIT)
 
 ## test: execute all unit tests in the repository
 test:
