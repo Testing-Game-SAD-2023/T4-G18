@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -117,6 +118,17 @@ func NewTurnStorage(db *gorm.DB) *TurnStorage {
 		db: db,
 	}
 }
+
+func (ts *TurnStorage) Create(request *CreateTurnRequest) (*TurnModel, error) {
+	return nil, fmt.Errorf("not implemented")
+}
+func (ts *TurnStorage) FindById(id uint64) (*TurnModel, error) {
+	return nil, fmt.Errorf("not implemented")
+}
+func (ts *TurnStorage) Delete(id uint64) error {
+	return fmt.Errorf("not implemented")
+}
+
 func (ts *TurnStorage) FindGameByTurn(id uint64) (*GameModel, error) {
 	var game GameModel
 	if err := ts.db.Preload("Rounds.Turns", "turn_id = ?", id).First(&game).Error; err != nil {

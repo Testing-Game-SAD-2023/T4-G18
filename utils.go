@@ -87,9 +87,9 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 	})
 
 	r.Route("/rounds", func(r chi.Router) {
-		r.Get("/{id}", makeHTTPHandlerFunc(rc.create))
+		r.Get("/{id}", makeHTTPHandlerFunc(rc.findByID))
 
-		r.Post("/", makeHTTPHandlerFunc(rc.findByID))
+		r.Post("/", makeHTTPHandlerFunc(rc.create))
 
 		r.Delete("/{id}", makeHTTPHandlerFunc(rc.delete))
 

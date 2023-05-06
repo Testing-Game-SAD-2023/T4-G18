@@ -78,6 +78,9 @@ func (rc *RoundService) Delete(id uint64) error {
 }
 
 type TurnRepository interface {
+	Create(request *CreateTurnRequest) (*TurnModel, error)
+	FindById(id uint64) (*TurnModel, error)
+	Delete(id uint64) error
 	FindGameByTurn(id uint64) (*GameModel, error)
 	UpdateMetadata(id uint64, path string) error
 	FindMetadataByTurn(id uint64) (*MetadataModel, error)

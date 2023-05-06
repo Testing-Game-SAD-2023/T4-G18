@@ -417,6 +417,16 @@ type MockedTurnRepository struct {
 	mock.Mock
 }
 
+func (ts *MockedTurnRepository) Create(request *CreateTurnRequest) (*TurnModel, error) {
+	return nil, fmt.Errorf("not implemented")
+}
+func (ts *MockedTurnRepository) FindById(id uint64) (*TurnModel, error) {
+	return nil, fmt.Errorf("not implemented")
+}
+func (ts *MockedTurnRepository) Delete(id uint64) error {
+	return fmt.Errorf("not implemented")
+}
+
 func (m *MockedTurnRepository) FindGameByTurn(id uint64) (*GameModel, error) {
 	args := m.Called(id)
 	v := args.Get(0)
