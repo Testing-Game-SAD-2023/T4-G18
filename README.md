@@ -10,6 +10,9 @@ Implemented endpoint are:
     - POST /rounds create a round;
     - DELETE /rounds/{id} delete a round;
 * turns:
+    - GET /turns/{id} retrieve a turn by ID;
+    - POST /turns create a turn;
+    - DELETE /turns/{id} delete a turn;
     - PUT /turns/{id}/files upload player files as a zip;
     - GET /turns/{id}/files retrieve player files as a zip;
 
