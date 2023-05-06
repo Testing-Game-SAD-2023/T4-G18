@@ -19,11 +19,12 @@ func (g GameModel) TableName() string {
 
 type RoundModel struct {
 	ID          uint64      `gorm:"primaryKey;autoIncrement"`
+	Order       int			`gorm:"not null"`
 	UpdatedAt   time.Time   `gorm:"autoUpdateTime"`
 	CreatedAt   time.Time   `gorm:"autoCreateTime"`
 	Turns       []TurnModel `gorm:"foreignKey:RoundID"`
-	IdTestClass string
-	GameID      uint64
+	IdTestClass string      `gorm:"not null"`
+	GameID      uint64      `gorm:"not null"`
 }
 
 func (g RoundModel) TableName() string {
@@ -35,9 +36,11 @@ type TurnModel struct {
 	CreatedAt time.Time     `gorm:"autoCreateTime"`
 	UpdatedAt time.Time     `gorm:"autoUpdateTime"`
 	Metadata  MetadataModel `gorm:"foreignKey:TurnID"`
-	IsWinner  bool
-	PlayerID  uint64
-	RoundID   uint64
+	Scores    string        `gorm:"default:null"`
+	IsWinner  bool          `gorm:"default:false"`
+	PlayerID  uint64		`gorm:"index:idx_playerturn,unique,not null"`
+	RoundID   uint64        `gorm:"index:idx_playerturn,unique,not null"`
+
 }
 
 func (t TurnModel) TableName() string {
@@ -46,6 +49,7 @@ func (t TurnModel) TableName() string {
 
 type PlayerModel struct {
 	ID          uint64            `gorm:"primaryKey"`
+	AccountID   string            `gorm:"unique"`
 	CreatedAt   time.Time         `gorm:"autoCreateTime"`
 	UpdatedAt   time.Time         `gorm:"autoUpdateTime"`
 	Turns       []TurnModel       `gorm:"foreignKey:PlayerID"`
@@ -60,8 +64,8 @@ type MetadataModel struct {
 	ID        uint64    `gorm:"primaryKey;autoIncrement"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
-	TurnID    uint64    `gorm:"unique"`
-	Path      string
+	TurnID    uint64    `gorm:"unique,not null"`
+	Path      string	`gorm:"unique,not null"`
 }
 
 func (t MetadataModel) TableName() string {
@@ -72,9 +76,9 @@ type PlayerGameModel struct {
 	ID        uint64    `gorm:"primaryKey;autoIncrement"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
-	IsWinner  bool
-	PlayerID  uint64
-	GameID    uint64
+	IsWinner  bool		`gorm:"default:false"`
+	PlayerID  uint64    `gorm:"index:idx_playergame,unique,not null;"`
+	GameID    uint64    `gorm:"index:idx_playergame,unique,not null"`
 }
 
 func (t PlayerGameModel) TableName() string {
