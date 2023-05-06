@@ -47,9 +47,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := validateAndMakeDefaults(&configuration); err != nil {
-		log.Fatal(err)
-	}
+	makeDefaults(&configuration)
 
 	if err := run(configuration); err != nil {
 		log.Fatal(err)
@@ -90,12 +88,6 @@ func run(c Configuration) error {
 			opts := mw.SwaggerUIOpts{SpecURL: "/public/postman/schemas/index.yaml"}
 			sh := mw.SwaggerUI(opts, nil)
 			r.Handle("/docs", sh)
-
-			f, err := postmanDir.Open("postman/schemas/index.yaml")
-			if err != nil {
-				panic(err)
-			}
-			defer f.Close()
 
 			fs := http.FileServer(http.FS(postmanDir))
 			r.Mount("/public/", http.StripPrefix("/public/", fs))
@@ -154,7 +146,7 @@ func run(c Configuration) error {
 
 }
 
-func validateAndMakeDefaults(c *Configuration) error {
+func makeDefaults(c *Configuration) {
 	if c.ApiPrefix == "" {
 		c.ApiPrefix = "/"
 	}
@@ -165,12 +157,8 @@ func validateAndMakeDefaults(c *Configuration) error {
 	if c.DataDir == "" {
 		c.DataDir = "data"
 	}
-	if c.BufferSize == 0 {
+	if c.BufferSize <= 0 {
 		c.BufferSize = 512
-	} else if c.BufferSize < 0 {
-		return fmt.Errorf("buffer size must be a positive integer")
 	}
-
-	return nil
 
 }

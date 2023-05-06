@@ -1,10 +1,10 @@
-# Game-Repository - Prototype
-In this repository a REST API skeleton is layed out. 
-The prototype exposes basic endpoint for:
+# Game-Repository  
+Implemented endpoint are:
 * games:
     - GET /games/{id} retrieve a game by ID;
     - POST /games create a game;
-    - DELETE /games/{id}delete a game;
+    - DELETE /games/{id} delete a game;
+    - PUT /games/{id} update an existing game;
 * rounds:
     - GET /rounds/{id} retrieve a round by ID;
     - POST /rounds create a round;
@@ -26,11 +26,12 @@ Extra commands can be discovered using
 make help
 ```
 
+### Documentation
+A swagger UI can be enabled setting `enableSwagger` to True in configuration file. Also, OpenAPI3 specification and a Postman collection are available in [`postman`](/postman) directory.
+
 ### Testing
 Unit testing is provided using mocking of storage class in order to not depend of a real database. Tests can be 
 executed with:
-```
+```sh
 make test
 ```
-Which includes the execution of all tests provided also the execution of race detector.
-

@@ -91,7 +91,10 @@ func (gh *GameController) update(w http.ResponseWriter, r *http.Request) error {
 
 	var rq UpdateGameRequest
 	if err := json.NewDecoder(r.Body).Decode(&rq); err != nil {
-		return makeApiError(err)
+		return ApiError{
+			code:    http.StatusBadRequest,
+			Message: "Invalid json body",
+		}
 	}
 
 	g, err := gh.service.Update(id, &rq)
@@ -141,7 +144,7 @@ func (rh *RoundController) findByID(w http.ResponseWriter, r *http.Request) erro
 	if err != nil {
 		return ApiError{
 			code:    http.StatusBadRequest,
-			Message: "Invalid game id",
+			Message: "Invalid round id",
 		}
 	}
 	round, err := rh.service.FindByID(id)

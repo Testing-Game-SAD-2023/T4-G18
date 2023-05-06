@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -20,6 +19,7 @@ func NewGameStorage(db *gorm.DB) *GameStorage {
 func (gs *GameStorage) Create(request *CreateGameRequest) (*GameModel, error) {
 	g := GameModel{
 		PlayersCount: request.PlayersCount,
+		Name:         request.Name,
 	}
 	err := gs.db.Create(&g).Error
 
@@ -57,9 +57,7 @@ func (gs *GameStorage) Update(id uint64, ug *UpdateGameRequest) (*GameModel, err
 		return nil, err
 	}
 
-	game.CurrentRound = ug.CurrentRound
-
-	if err := gs.db.Save(&game).Error; err != nil {
+	if err := gs.db.Model(&game).Updates(ug).Error; err != nil {
 		return nil, err
 	}
 
@@ -118,6 +116,7 @@ func NewTurnStorage(db *gorm.DB) *TurnStorage {
 		db: db,
 	}
 }
+
 func (ts *TurnStorage) FindGameByTurn(id uint64) (*GameModel, error) {
 	var game GameModel
 	if err := ts.db.Preload("Rounds.Turns", "turn_id = ?", id).First(&game).Error; err != nil {
