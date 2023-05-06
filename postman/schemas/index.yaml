@@ -63,6 +63,47 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
+        put:
+            summary: Updates a Game
+            tags:
+                - games
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                name:
+                                    type: string
+                                currentRound:
+                                    type: integer
+            responses:
+                "200":
+                    description: The game is successfully updated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Game"
+                "400":
+                    description: Bad request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "404":
+                    description: No game found for the provided `Id`
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "500":
+                    description: Internal server error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
     /games:
         post:
             summary: Creates a Game
