@@ -1,6 +1,8 @@
 package main
 
-import "time"
+import (
+	"time"
+)
 
 type ApiError struct {
 	code    int
@@ -48,10 +50,21 @@ type RoundDto struct {
 }
 
 type TurnDto struct {
-	ID          uint64    `json:"id"`
-	IsWinner 	bool      `json:"isWinner"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
-	PlayerID    uint64	  `json:"idPlayer"`
+	ID        uint64    `json:"id"`
+	IsWinner  bool      `json:"isWinner"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+	PlayerID  uint64    `json:"idPlayer"`
 }
 
+
+type PaginationMetadata struct {
+		HasNext bool `json:"hasNext"`
+		Count   int  `json:"count"`
+
+}
+
+type PaginatedResponse struct {
+	Data     any `json:"data"`
+	Metadata PaginationMetadata `json:"metadata"`
+}

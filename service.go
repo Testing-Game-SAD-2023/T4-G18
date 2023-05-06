@@ -21,6 +21,7 @@ type GameRepository interface {
 	FindById(id uint64) (*GameModel, error)
 	Delete(id uint64) error
 	Update(id uint64, ug *UpdateGameRequest) (*GameModel, error)
+	FindByInterval(i *IntervalParams, p *PaginationParams) ([]GameModel, error)
 }
 
 type GameService struct {
@@ -49,10 +50,15 @@ func (gc *GameService) Update(id uint64, ug *UpdateGameRequest) (*GameModel, err
 	return gc.storage.Update(id, ug)
 }
 
+func (gc *GameService) FindByInterval(i *IntervalParams, p *PaginationParams) ([]GameModel, error) {
+	return gc.storage.FindByInterval(i, p)
+}
+
 type RoundRepository interface {
 	Create(request *CreateRoundRequest) (*RoundModel, error)
 	FindById(id uint64) (*RoundModel, error)
 	Delete(id uint64) error
+	FindByGame(id uint64) ([]RoundModel, error)
 }
 
 type RoundService struct {
@@ -65,22 +71,27 @@ func NewRoundService(storage RoundRepository) *RoundService {
 	}
 }
 
-func (rc *RoundService) Create(request *CreateRoundRequest) (*RoundModel, error) {
-	return rc.storage.Create(request)
+func (rs *RoundService) Create(request *CreateRoundRequest) (*RoundModel, error) {
+	return rs.storage.Create(request)
 }
 
-func (rc *RoundService) FindByID(id uint64) (*RoundModel, error) {
-	return rc.storage.FindById(id)
+func (rs *RoundService) FindByID(id uint64) (*RoundModel, error) {
+	return rs.storage.FindById(id)
 }
 
-func (rc *RoundService) Delete(id uint64) error {
-	return rc.storage.Delete(id)
+func (rs *RoundService) Delete(id uint64) error {
+	return rs.storage.Delete(id)
+}
+
+func (rs *RoundService) FindByGame(id uint64) ([]RoundModel, error) {
+	return rs.storage.FindByGame(id)
 }
 
 type TurnRepository interface {
 	Create(request *CreateTurnRequest) (*TurnModel, error)
 	FindById(id uint64) (*TurnModel, error)
 	Delete(id uint64) error
+	FindByRound(id uint64) ([]TurnModel, error)
 	FindGameByTurn(id uint64) (*GameModel, error)
 	UpdateMetadata(id uint64, path string) error
 	FindMetadataByTurn(id uint64) (*MetadataModel, error)
@@ -106,6 +117,9 @@ func (tc *TurnService) FindByID(id uint64) (*TurnModel, error) {
 	return tc.turnRepository.FindById(id)
 }
 
+func (tc *TurnService) FindByRound(id uint64) ([]TurnModel, error) {
+	return tc.turnRepository.FindByRound(id)
+}
 func (tc *TurnService) Delete(id uint64) error {
 	return tc.turnRepository.Delete(id)
 }

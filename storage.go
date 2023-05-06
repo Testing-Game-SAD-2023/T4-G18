@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -35,6 +36,14 @@ func (gs *GameStorage) FindById(id uint64) (*GameModel, error) {
 		return nil, err
 	}
 	return &game, nil
+}
+
+func (gs *GameStorage) FindByInterval(i *IntervalParams, p *PaginationParams) ([]GameModel, error) {
+	var games []GameModel
+	if err := gs.db.Scopes(PaginateScope(p), IntervalScope(i)).Find(&games).Error; err != nil {
+		return nil, err
+	}
+	return games, nil
 }
 
 func (gs *GameStorage) Delete(id uint64) error {
@@ -99,6 +108,18 @@ func (rs *RoundStorage) FindById(id uint64) (*RoundModel, error) {
 	return &round, nil
 }
 
+func (rs *RoundStorage) FindByGame(id uint64) ([]RoundModel, error) {
+	var rounds []RoundModel
+
+	if err := rs.db.Find(&rounds).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrNotFound
+		}
+		return nil, err
+	}
+	return rounds, nil
+}
+
 func (rs *RoundStorage) Delete(id uint64) error {
 	rowsAffected := rs.db.Delete(&RoundModel{}, id).RowsAffected
 	if rowsAffected < 1 {
@@ -153,19 +174,19 @@ func (ts *TurnStorage) FindMetadataByTurn(turnId uint64) (*MetadataModel, error)
 	return &meta, nil
 }
 
-func (db *TurnStorage) Create(request *CreateTurnRequest) (*TurnModel, error) {
+func (ts *TurnStorage) Create(request *CreateTurnRequest) (*TurnModel, error) {
 	t := TurnModel{
-		PlayerID:      request.IdPlayer,
-		RoundID: 	   request.IdRound,
+		PlayerID: request.IdPlayer,
+		RoundID:  request.IdRound,
 	}
-	err := db.db.Create(&t).Error
+	err := ts.db.Create(&t).Error
 
 	return &t, err
 }
 
-func (db *TurnStorage) FindById(id uint64) (*TurnModel, error) {
+func (ts *TurnStorage) FindById(id uint64) (*TurnModel, error) {
 	var turn TurnModel
-	err := db.db.First(&turn, id).Error
+	err := ts.db.First(&turn, id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, ErrNotFound
 	} else if err != nil {
@@ -174,8 +195,20 @@ func (db *TurnStorage) FindById(id uint64) (*TurnModel, error) {
 	return &turn, nil
 }
 
-func (db *TurnStorage) Delete(id uint64) error {
-	rowsAffected := db.db.Delete(&TurnModel{}, id).RowsAffected
+func (ts *TurnStorage) FindByRound(id uint64) ([]TurnModel, error) {
+	var turns []TurnModel
+
+	if err := ts.db.Where(&TurnModel{RoundID: id}).Find(&turns).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrNotFound
+		}
+		return nil, err
+	}
+	return turns, nil
+}
+
+func (ts *TurnStorage) Delete(id uint64) error {
+	rowsAffected := ts.db.Delete(&TurnModel{}, id).RowsAffected
 	if rowsAffected < 1 {
 		return ErrNotFound
 	}

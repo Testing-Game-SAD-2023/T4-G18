@@ -246,6 +246,10 @@ func (gr *MockedGameRepository) Update(id uint64, ur *UpdateGameRequest) (*GameM
 	return v.(*GameModel), args.Error(1)
 }
 
+func (gr *MockedGameRepository) FindByInterval(i *IntervalParams, p *PaginationParams) ([]GameModel, error) {
+	return nil, fmt.Errorf("not implemented")
+}
+
 type TurnControllerSuite struct {
 	suite.Suite
 	tServer *httptest.Server
@@ -426,7 +430,9 @@ func (ts *MockedTurnRepository) FindById(id uint64) (*TurnModel, error) {
 func (ts *MockedTurnRepository) Delete(id uint64) error {
 	return fmt.Errorf("not implemented")
 }
-
+func (ts *MockedTurnRepository) FindByRound(id uint64) ([]TurnModel, error) {
+	return nil, fmt.Errorf("not implemented")
+}
 func (m *MockedTurnRepository) FindGameByTurn(id uint64) (*GameModel, error) {
 	args := m.Called(id)
 	v := args.Get(0)
