@@ -110,7 +110,7 @@ func (gc *GameController) list(w http.ResponseWriter, r *http.Request) error {
 	paginationParams := r.Context().Value(paginationParamsKey).(PaginationParams)
 	intervalParams := r.Context().Value(intervalParamsKey).(IntervalParams)
 
-	games, err := gc.service.FindByInterval(&intervalParams, &paginationParams)
+	games, count, err := gc.service.FindByInterval(&intervalParams, &paginationParams)
 	if err != nil {
 		return makeApiError(err)
 	}
@@ -119,7 +119,7 @@ func (gc *GameController) list(w http.ResponseWriter, r *http.Request) error {
 		res[i] = *gameModelToDto(&game)
 	}
 
-	return writeJson(w, http.StatusOK, makePaginatedResponse(res, len(res), &paginationParams))
+	return writeJson(w, http.StatusOK, makePaginatedResponse(res, count, &paginationParams))
 }
 
 type RoundController struct {

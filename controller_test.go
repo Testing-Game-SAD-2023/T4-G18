@@ -246,8 +246,8 @@ func (gr *MockedGameRepository) Update(id uint64, ur *UpdateGameRequest) (*GameM
 	return v.(*GameModel), args.Error(1)
 }
 
-func (gr *MockedGameRepository) FindByInterval(i *IntervalParams, p *PaginationParams) ([]GameModel, error) {
-	return nil, fmt.Errorf("not implemented")
+func (gr *MockedGameRepository) FindByInterval(i *IntervalParams, p *PaginationParams) ([]GameModel, int64, error) {
+	return nil, 0, fmt.Errorf("not implemented")
 }
 
 type TurnControllerSuite struct {

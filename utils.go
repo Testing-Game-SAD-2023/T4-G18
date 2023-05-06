@@ -59,7 +59,6 @@ func writeJson(w http.ResponseWriter, statusCode int, v any) error {
 }
 
 func makeApiError(err error) error {
-
 	switch {
 	case errors.Is(err, ErrNotFound):
 		return ApiError{code: http.StatusNotFound, Message: "Resource not found"}
@@ -109,27 +108,26 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 		// Delete game
 		r.Delete("/{id}", makeHTTPHandlerFunc(gc.delete))
 
-		r.With(WithPagination, WithInterval).Get("/", makeHTTPHandlerFunc(gc.list))
+		r.With(Pagination, Interval).Get("/", makeHTTPHandlerFunc(gc.list))
 	})
 
 	r.Route("/rounds", func(r chi.Router) {
 		r.Get("/{id}", makeHTTPHandlerFunc(rc.findByID))
-		r.Post("/", makeHTTPHandlerFunc(rc.create))
-		r.Delete("/{id}", makeHTTPHandlerFunc(rc.delete))
-
-		r.Put("/{id}", makeHTTPHandlerFunc(rc.update))
 		r.Get("/", makeHTTPHandlerFunc(rc.list))
+		r.Post("/", makeHTTPHandlerFunc(rc.create))
+		r.Put("/{id}", makeHTTPHandlerFunc(rc.update))
+		r.Delete("/{id}", makeHTTPHandlerFunc(rc.delete))
 
 	})
 
 	r.Route("/turns", func(r chi.Router) {
 		r.Get("/{id}", makeHTTPHandlerFunc(tc.findByID))
 		r.Get("/", makeHTTPHandlerFunc(tc.list))
+		r.Get("/{id}/files", makeHTTPHandlerFunc(tc.download))
 		r.Post("/", makeHTTPHandlerFunc(tc.create))
-		r.Delete("/{id}", makeHTTPHandlerFunc(tc.delete))
 		r.Put("/{id}", makeHTTPHandlerFunc(tc.update))
 		r.Put("/{id}/files", makeHTTPHandlerFunc(tc.upload))
-		r.Get("/{id}/files", makeHTTPHandlerFunc(tc.download))
+		r.Delete("/{id}", makeHTTPHandlerFunc(tc.delete))
 	})
 	return r
 }
@@ -159,7 +157,7 @@ func IntervalScope(i *IntervalParams) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-func WithPagination(next http.Handler) http.Handler {
+func Pagination(next http.Handler) http.Handler {
 	return makeHTTPHandlerFunc((func(w http.ResponseWriter, r *http.Request) error {
 		q := r.URL.Query()
 
@@ -195,7 +193,7 @@ func WithPagination(next http.Handler) http.Handler {
 	}))
 }
 
-func WithInterval(next http.Handler) http.Handler {
+func Interval(next http.Handler) http.Handler {
 	return makeHTTPHandlerFunc((func(w http.ResponseWriter, r *http.Request) error {
 		q := r.URL.Query()
 
@@ -239,12 +237,14 @@ func parseDateWithDefault(s string, t time.Time) (time.Time, error) {
 
 }
 
-func makePaginatedResponse(v any, count int, p *PaginationParams) *PaginatedResponse {
+func makePaginatedResponse(v any, count int64, p *PaginationParams) *PaginatedResponse {
 	return &PaginatedResponse{
 		Data: v,
 		Metadata: PaginationMetadata{
-			Count:   count,
-			HasNext: (count - p.page*p.pageSize) > 0,
+			Count:    count,
+			HasNext:  (count - int64(p.page*p.pageSize)) > 0,
+			Page:     p.page,
+			PageSize: p.pageSize,
 		},
 	}
 }

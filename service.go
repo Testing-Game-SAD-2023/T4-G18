@@ -21,7 +21,7 @@ type GameRepository interface {
 	FindById(id uint64) (*GameModel, error)
 	Delete(id uint64) error
 	Update(id uint64, ug *UpdateGameRequest) (*GameModel, error)
-	FindByInterval(i *IntervalParams, p *PaginationParams) ([]GameModel, error)
+	FindByInterval(i *IntervalParams, p *PaginationParams) ([]GameModel, int64, error)
 }
 
 type GameService struct {
@@ -50,7 +50,7 @@ func (gc *GameService) Update(id uint64, ug *UpdateGameRequest) (*GameModel, err
 	return gc.storage.Update(id, ug)
 }
 
-func (gc *GameService) FindByInterval(i *IntervalParams, p *PaginationParams) ([]GameModel, error) {
+func (gc *GameService) FindByInterval(i *IntervalParams, p *PaginationParams) ([]GameModel, int64, error) {
 	return gc.storage.FindByInterval(i, p)
 }
 

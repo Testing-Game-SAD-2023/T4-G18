@@ -38,12 +38,19 @@ func (gs *GameStorage) FindById(id uint64) (*GameModel, error) {
 	return &game, nil
 }
 
-func (gs *GameStorage) FindByInterval(i *IntervalParams, p *PaginationParams) ([]GameModel, error) {
+func (gs *GameStorage) FindByInterval(i *IntervalParams, p *PaginationParams) ([]GameModel, int64, error) {
 	var games []GameModel
-	if err := gs.db.Scopes(PaginateScope(p), IntervalScope(i)).Find(&games).Error; err != nil {
-		return nil, err
+	var n int64
+	tx := gs.db.Begin()
+	defer tx.Rollback()
+	if err := tx.Model(&GameModel{}).Count(&n).Error; err != nil {
+		return nil, 0, err
 	}
-	return games, nil
+	if err := tx.Scopes(PaginateScope(p), IntervalScope(i)).Find(&games).Error; err != nil {
+		return nil, 0, err
+	}
+	tx.Commit()
+	return games, n, nil
 }
 
 func (gs *GameStorage) Delete(id uint64) error {
