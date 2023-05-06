@@ -89,12 +89,6 @@ func run(c Configuration) error {
 			sh := mw.SwaggerUI(opts, nil)
 			r.Handle("/docs", sh)
 
-			f, err := postmanDir.Open("postman/schemas/index.yaml")
-			if err != nil {
-				panic(err)
-			}
-			defer f.Close()
-
 			fs := http.FileServer(http.FS(postmanDir))
 			r.Mount("/public/", http.StripPrefix("/public/", fs))
 

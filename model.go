@@ -3,8 +3,9 @@ package main
 import "time"
 
 type GameModel struct {
-	CurrentRound int
-	ID           uint64            `gorm:"primaryKey;autoIncrement"`
+	CurrentRound int    `gorm:"default:1"`
+	ID           uint64 `gorm:"primaryKey;autoIncrement"`
+	Name         string
 	CreatedAt    time.Time         `gorm:"autoCreateTime"`
 	UpdatedAt    time.Time         `gorm:"autoUpdateTime"`
 	Rounds       []RoundModel      `gorm:"foreignKey:GameID"`

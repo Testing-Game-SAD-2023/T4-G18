@@ -16,6 +16,7 @@ func gameModelToDto(g *GameModel) *GameDto {
 		CreatedAt:    g.CreatedAt,
 		UpdatedAt:    g.UpdatedAt,
 		PlayersCount: g.PlayersCount,
+		Name:         g.Name,
 	}
 }
 
