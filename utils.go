@@ -13,6 +13,13 @@ import (
 	"gorm.io/gorm"
 )
 
+type ctxKey int
+
+const (
+	paginationParamsKey ctxKey = 1
+	intervalParamsKey   ctxKey = 2
+)
+
 func gameModelToDto(g *GameModel) *GameDto {
 	return &GameDto{
 		ID:           g.ID,
@@ -27,6 +34,7 @@ func gameModelToDto(g *GameModel) *GameDto {
 func roundModelToDto(g *RoundModel) *RoundDto {
 	return &RoundDto{
 		ID:          g.ID,
+		Order:       g.Order,
 		CreatedAt:   g.CreatedAt,
 		UpdatedAt:   g.UpdatedAt,
 		IdTestClass: g.IdTestClass,
@@ -37,6 +45,7 @@ func turnModelToDto(t *TurnModel) *TurnDto {
 	return &TurnDto{
 		ID:        t.ID,
 		IsWinner:  t.IsWinner,
+		Scores:    t.Scores,
 		CreatedAt: t.CreatedAt,
 		UpdatedAt: t.UpdatedAt,
 		PlayerID:  t.PlayerID,
@@ -107,6 +116,8 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 		r.Get("/{id}", makeHTTPHandlerFunc(rc.findByID))
 		r.Post("/", makeHTTPHandlerFunc(rc.create))
 		r.Delete("/{id}", makeHTTPHandlerFunc(rc.delete))
+
+		r.Put("/{id}", makeHTTPHandlerFunc(rc.update))
 		r.Get("/", makeHTTPHandlerFunc(rc.list))
 
 	})
@@ -116,6 +127,7 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 		r.Get("/", makeHTTPHandlerFunc(tc.list))
 		r.Post("/", makeHTTPHandlerFunc(tc.create))
 		r.Delete("/{id}", makeHTTPHandlerFunc(tc.delete))
+		r.Put("/{id}", makeHTTPHandlerFunc(tc.update))
 		r.Put("/{id}/files", makeHTTPHandlerFunc(tc.upload))
 		r.Get("/{id}/files", makeHTTPHandlerFunc(tc.download))
 	})
@@ -176,7 +188,7 @@ func WithPagination(next http.Handler) http.Handler {
 			pageSize: pageSize,
 			page:     page,
 		}
-		r = r.WithContext(context.WithValue(r.Context(), "paginationParams", p))
+		r = r.WithContext(context.WithValue(r.Context(), paginationParamsKey, p))
 
 		next.ServeHTTP(w, r)
 		return nil
@@ -204,7 +216,7 @@ func WithInterval(next http.Handler) http.Handler {
 			endDate:   endDate,
 		}
 
-		r = r.WithContext(context.WithValue(r.Context(), "intervalParams", i))
+		r = r.WithContext(context.WithValue(r.Context(), intervalParamsKey, i))
 
 		next.ServeHTTP(w, r)
 		return nil
@@ -232,7 +244,7 @@ func makePaginatedResponse(v any, count int, p *PaginationParams) *PaginatedResp
 		Data: v,
 		Metadata: PaginationMetadata{
 			Count:   count,
-			HasNext: (count - p.page * p.pageSize) > 0,
+			HasNext: (count - p.page*p.pageSize) > 0,
 		},
 	}
 }

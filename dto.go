@@ -21,11 +21,22 @@ type CreateGameRequest struct {
 type CreateRoundRequest struct {
 	IdGame      uint64 `json:"idGame"`
 	IdTestClass string `json:"idTestClass"`
+	Order       int    `json:"order"`
 }
 
 type CreateTurnRequest struct {
 	IdPlayer uint64 `json:"idPlayer"`
 	IdRound  uint64 `json:"idRound"`
+	Scores   string `json:"scores"`
+}
+
+type UpdateRoundRequest struct {
+	//TO-DO
+}
+
+type UpdateTurnRequest struct {
+	Scores   string `json:"scores"`
+	IsWinner bool   `json:"isWinner"`
 }
 
 type UpdateGameRequest struct {
@@ -44,6 +55,7 @@ type GameDto struct {
 
 type RoundDto struct {
 	ID          uint64    `json:"id"`
+	Order       int       `json:"order"`
 	IdTestClass string    `json:"idTestClass"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
@@ -55,16 +67,15 @@ type TurnDto struct {
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 	PlayerID  uint64    `json:"idPlayer"`
-}
-
-
-type PaginationMetadata struct {
-		HasNext bool `json:"hasNext"`
-		Count   int  `json:"count"`
-
+	Scores    string    `json:"scores"`
 }
 
 type PaginatedResponse struct {
-	Data     any `json:"data"`
+	Data     any                `json:"data"`
 	Metadata PaginationMetadata `json:"metadata"`
+}
+
+type PaginationMetadata struct {
+	HasNext bool `json:"hasNext"`
+	Count   int  `json:"count"`
 }

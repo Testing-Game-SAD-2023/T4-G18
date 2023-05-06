@@ -58,6 +58,7 @@ type RoundRepository interface {
 	Create(request *CreateRoundRequest) (*RoundModel, error)
 	FindById(id uint64) (*RoundModel, error)
 	Delete(id uint64) error
+	Update(id uint64, request *UpdateRoundRequest) (*RoundModel, error)
 	FindByGame(id uint64) ([]RoundModel, error)
 }
 
@@ -75,22 +76,27 @@ func (rs *RoundService) Create(request *CreateRoundRequest) (*RoundModel, error)
 	return rs.storage.Create(request)
 }
 
-func (rs *RoundService) FindByID(id uint64) (*RoundModel, error) {
-	return rs.storage.FindById(id)
+func (rs *RoundService) Update(id uint64, request *UpdateRoundRequest) (*RoundModel, error) {
+	return rs.storage.Update(id, request)
 }
 
-func (rs *RoundService) Delete(id uint64) error {
-	return rs.storage.Delete(id)
+func (rs *RoundService) FindByID(id uint64) (*RoundModel, error) {
+	return rs.storage.FindById(id)
 }
 
 func (rs *RoundService) FindByGame(id uint64) ([]RoundModel, error) {
 	return rs.storage.FindByGame(id)
 }
 
+func (rs *RoundService) Delete(id uint64) error {
+	return rs.storage.Delete(id)
+}
+
 type TurnRepository interface {
 	Create(request *CreateTurnRequest) (*TurnModel, error)
 	FindById(id uint64) (*TurnModel, error)
 	Delete(id uint64) error
+	Update(id uint64, request *UpdateTurnRequest) (*TurnModel, error)
 	FindByRound(id uint64) ([]TurnModel, error)
 	FindGameByTurn(id uint64) (*GameModel, error)
 	UpdateMetadata(id uint64, path string) error
@@ -109,19 +115,23 @@ func NewTurnService(tr TurnRepository, dr string) *TurnService {
 	}
 }
 
-func (tc *TurnService) Create(request *CreateTurnRequest) (*TurnModel, error) {
-	return tc.turnRepository.Create(request)
+func (ts *TurnService) Create(request *CreateTurnRequest) (*TurnModel, error) {
+	return ts.turnRepository.Create(request)
 }
 
-func (tc *TurnService) FindByID(id uint64) (*TurnModel, error) {
-	return tc.turnRepository.FindById(id)
+func (ts *TurnService) FindByID(id uint64) (*TurnModel, error) {
+	return ts.turnRepository.FindById(id)
+}
+
+func (ts *TurnService) Delete(id uint64) error {
+	return ts.turnRepository.Delete(id)
 }
 
 func (tc *TurnService) FindByRound(id uint64) ([]TurnModel, error) {
 	return tc.turnRepository.FindByRound(id)
 }
-func (tc *TurnService) Delete(id uint64) error {
-	return tc.turnRepository.Delete(id)
+func (ts *TurnService) Update(id uint64, request *UpdateTurnRequest) (*TurnModel, error) {
+	return ts.turnRepository.Update(id, request)
 }
 
 func (ts *TurnService) Store(turnId uint64, r io.Reader) error {

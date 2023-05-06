@@ -89,12 +89,34 @@ func (rs *RoundStorage) Create(request *CreateRoundRequest) (*RoundModel, error)
 	r := RoundModel{
 		GameID:      request.IdGame,
 		IdTestClass: request.IdTestClass,
+		Order:       request.Order,
 	}
 	if err := rs.db.Create(&r).Error; err != nil {
 		return nil, err
 	}
 
 	return &r, nil
+}
+
+func (rs *RoundStorage) Update(id uint64, ug *UpdateRoundRequest) (*RoundModel, error) {
+	tx := rs.db.Begin()
+	defer tx.Rollback()
+
+	var round RoundModel
+	err := tx.First(&round, id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrNotFound
+	} else if err != nil {
+		return nil, err
+	}
+
+	if err := rs.db.Model(&round).Updates(ug).Error; err != nil {
+		return nil, err
+	}
+
+	tx.Commit()
+
+	return &round, nil
 }
 
 func (rs *RoundStorage) FindById(id uint64) (*RoundModel, error) {
@@ -178,10 +200,32 @@ func (ts *TurnStorage) Create(request *CreateTurnRequest) (*TurnModel, error) {
 	t := TurnModel{
 		PlayerID: request.IdPlayer,
 		RoundID:  request.IdRound,
+		Scores:   request.Scores,
 	}
 	err := ts.db.Create(&t).Error
 
 	return &t, err
+}
+
+func (ts *TurnStorage) Update(id uint64, request *UpdateTurnRequest) (*TurnModel, error) {
+	tx := ts.db.Begin()
+	defer tx.Rollback()
+
+	var turn TurnModel
+	err := tx.First(&turn, id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrNotFound
+	} else if err != nil {
+		return nil, err
+	}
+
+	if err := ts.db.Model(&turn).Updates(request).Error; err != nil {
+		return nil, err
+	}
+
+	tx.Commit()
+
+	return &turn, nil
 }
 
 func (ts *TurnStorage) FindById(id uint64) (*TurnModel, error) {
