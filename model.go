@@ -36,7 +36,7 @@ type TurnModel struct {
 	UpdatedAt time.Time     `gorm:"autoUpdateTime"`
 	Metadata  MetadataModel `gorm:"foreignKey:TurnID"`
 	IsWinner  bool
-	PlayerID  string
+	PlayerID  uint64
 	RoundID   uint64
 }
 
@@ -45,7 +45,7 @@ func (t TurnModel) TableName() string {
 }
 
 type PlayerModel struct {
-	ID          string            `gorm:"primaryKey"`
+	ID          uint64            `gorm:"primaryKey"`
 	CreatedAt   time.Time         `gorm:"autoCreateTime"`
 	UpdatedAt   time.Time         `gorm:"autoUpdateTime"`
 	Turns       []TurnModel       `gorm:"foreignKey:PlayerID"`

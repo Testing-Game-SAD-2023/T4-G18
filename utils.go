@@ -29,6 +29,16 @@ func roundModelToDto(g *RoundModel) *RoundDto {
 	}
 }
 
+func turnModelToDto(t *TurnModel) *TurnDto {
+	return &TurnDto{
+		ID:          t.ID,	
+		IsWinner:  	 t.IsWinner,
+		CreatedAt:   t.CreatedAt,
+		UpdatedAt:   t.UpdatedAt,	
+		PlayerID:    t.PlayerID,
+	}
+}
+
 func writeJson(w http.ResponseWriter, statusCode int, v any) error {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
@@ -98,6 +108,10 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 	})
 
 	r.Route("/turns", func(r chi.Router) {
+		r.Get("/{id}", makeHTTPHandlerFunc(tc.findByID))
+		r.Post("/", makeHTTPHandlerFunc(tc.create))
+		r.Delete("/{id}", makeHTTPHandlerFunc(tc.delete))
+
 		r.Put("/{id}/files", makeHTTPHandlerFunc(tc.upload))
 		r.Get("/{id}/files", makeHTTPHandlerFunc(tc.download))
 	})

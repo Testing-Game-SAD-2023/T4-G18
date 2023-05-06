@@ -98,6 +98,18 @@ func NewTurnService(tr TurnRepository, dr string) *TurnService {
 	}
 }
 
+func (tc *TurnService) Create(request *CreateTurnRequest) (*TurnModel, error) {
+	return tc.turnRepository.Create(request)
+}
+
+func (tc *TurnService) FindByID(id uint64) (*TurnModel, error) {
+	return tc.turnRepository.FindById(id)
+}
+
+func (tc *TurnService) Delete(id uint64) error {
+	return tc.turnRepository.Delete(id)
+}
+
 func (ts *TurnService) Store(turnId uint64, r io.Reader) error {
 	dst, err := os.CreateTemp("", "")
 	if err != nil {

@@ -2,8 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
-
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -119,16 +117,6 @@ func NewTurnStorage(db *gorm.DB) *TurnStorage {
 	}
 }
 
-func (ts *TurnStorage) Create(request *CreateTurnRequest) (*TurnModel, error) {
-	return nil, fmt.Errorf("not implemented")
-}
-func (ts *TurnStorage) FindById(id uint64) (*TurnModel, error) {
-	return nil, fmt.Errorf("not implemented")
-}
-func (ts *TurnStorage) Delete(id uint64) error {
-	return fmt.Errorf("not implemented")
-}
-
 func (ts *TurnStorage) FindGameByTurn(id uint64) (*GameModel, error) {
 	var game GameModel
 	if err := ts.db.Preload("Rounds.Turns", "turn_id = ?", id).First(&game).Error; err != nil {
@@ -163,4 +151,33 @@ func (ts *TurnStorage) FindMetadataByTurn(turnId uint64) (*MetadataModel, error)
 	}
 
 	return &meta, nil
+}
+
+func (db *TurnStorage) Create(request *CreateTurnRequest) (*TurnModel, error) {
+	t := TurnModel{
+		PlayerID:      request.IdPlayer,
+		RoundID: 	   request.IdRound,
+	}
+	err := db.db.Create(&t).Error
+
+	return &t, err
+}
+
+func (db *TurnStorage) FindById(id uint64) (*TurnModel, error) {
+	var turn TurnModel
+	err := db.db.First(&turn, id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrNotFound
+	} else if err != nil {
+		return nil, err
+	}
+	return &turn, nil
+}
+
+func (db *TurnStorage) Delete(id uint64) error {
+	rowsAffected := db.db.Delete(&TurnModel{}, id).RowsAffected
+	if rowsAffected < 1 {
+		return ErrNotFound
+	}
+	return nil
 }
