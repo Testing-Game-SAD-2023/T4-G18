@@ -22,6 +22,8 @@ paths:
 
         get:
             summary: Reads a Game
+            tags:
+                - games
             responses:
                 "200":
                     description: The game corresponding to the provided `Id`
@@ -50,6 +52,8 @@ paths:
 
         put:
             summary: Updates a Game
+            tags:
+                - games
             requestBody:
                 required: true
                 content:
@@ -83,6 +87,8 @@ paths:
 
         delete:
             summary: Deletes a Game
+            tags:
+                - games
             responses:
                 "204":
                     description: Game deleted
@@ -107,6 +113,8 @@ paths:
 
     /games:
         post:
+            tags:
+                - games
             summary: Creates a Game
             requestBody:
                 required: true
@@ -150,6 +158,8 @@ paths:
                   $ref: "#/components/schemas/Id"
 
         get:
+            tags:
+                - rounds
             summary: Reads a Round
             responses:
                 "200":
@@ -179,6 +189,8 @@ paths:
 
         delete:
             summary: Deletes a Round
+            tags:
+                - rounds
             responses:
                 "204":
                     description: Round deleted
@@ -203,6 +215,8 @@ paths:
 
     /rounds:
         post:
+            tags:
+                - rounds
             summary: Creates a Round
             requestBody:
                 required: true
@@ -245,6 +259,8 @@ paths:
                   $ref: "#/components/schemas/Id"
 
         get:
+            tags:
+                - turns
             summary: Reads a Turn
             responses:
                 "200":
@@ -274,6 +290,8 @@ paths:
 
         delete:
             summary: Deletes a Turn
+            tags:
+                - turns
             responses:
                 "204":
                     description: Turn deleted
@@ -298,6 +316,8 @@ paths:
 
     /turns:
         post:
+            tags:
+                - turns
             summary: Creates a Turn
             requestBody:
                 required: true
