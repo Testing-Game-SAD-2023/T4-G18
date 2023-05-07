@@ -98,7 +98,7 @@ type TurnRepository interface {
 	Delete(id uint64) error
 	Update(id uint64, request *UpdateTurnRequest) (*TurnModel, error)
 	FindByRound(id uint64) ([]TurnModel, error)
-	FindGameByTurn(id uint64) (*GameModel, error)
+	FindGameIDByTurn(id uint64) (uint64, error)
 	UpdateMetadata(id uint64, path string) error
 	FindMetadataByTurn(id uint64) (*MetadataModel, error)
 }
@@ -150,7 +150,7 @@ func (ts *TurnService) Store(turnId uint64, r io.Reader) error {
 		zfile.Close()
 	}
 
-	game, err := ts.turnRepository.FindGameByTurn(turnId)
+	gameId, err := ts.turnRepository.FindGameIDByTurn(turnId)
 	if err != nil {
 		return err
 	}
@@ -158,7 +158,7 @@ func (ts *TurnService) Store(turnId uint64, r io.Reader) error {
 	year := time.Now().Year()
 	fname := path.Join(ts.dataDir,
 		strconv.FormatInt(int64(year), 10),
-		strconv.FormatUint(game.ID, 10),
+		strconv.FormatUint(gameId, 10),
 		strconv.FormatUint(turnId, 10)+".zip",
 	)
 

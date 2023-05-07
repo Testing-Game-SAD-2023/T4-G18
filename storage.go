@@ -167,15 +167,16 @@ func NewTurnStorage(db *gorm.DB) *TurnStorage {
 	}
 }
 
-func (ts *TurnStorage) FindGameByTurn(id uint64) (*GameModel, error) {
-	var game GameModel
-	if err := ts.db.Preload("Rounds.Turns", "turn_id = ?", id).First(&game).Error; err != nil {
+func (ts *TurnStorage) FindGameIDByTurn(id uint64) (uint64, error) {
+
+	var round RoundModel
+	if err := ts.db.Preload("Turns", ts.db.Where(&TurnModel{ID: id})).First(&round).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrNotFound
+			return 0, ErrNotFound
 		}
-		return nil, err
+		return 0, err
 	}
-	return &game, nil
+	return round.ID, nil
 
 }
 
@@ -185,6 +186,7 @@ func (ts *TurnStorage) UpdateMetadata(id uint64, path string) error {
 		TurnID: id,
 		Path:   path,
 	}
+
 	return ts.db.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "turn_id"}},
 		DoUpdates: clause.Assignments(map[string]interface{}{"path": path}),
