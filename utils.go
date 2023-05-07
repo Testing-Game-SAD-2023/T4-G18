@@ -97,13 +97,13 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 
 	r.Route("/games", func(r chi.Router) {
 		// Create game
-		r.Post("/", makeHTTPHandlerFunc(gc.create))
+		r.With(ContentType("application/json")).Post("/", makeHTTPHandlerFunc(gc.create))
 
 		//Get game
 		r.Get("/{id}", makeHTTPHandlerFunc(gc.findByID))
 
 		// Update game
-		r.Put("/{id}", makeHTTPHandlerFunc(gc.update))
+		r.With(ContentType("application/json")).Put("/{id}", makeHTTPHandlerFunc(gc.update))
 
 		// Delete game
 		r.Delete("/{id}", makeHTTPHandlerFunc(gc.delete))
@@ -114,8 +114,8 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 	r.Route("/rounds", func(r chi.Router) {
 		r.Get("/{id}", makeHTTPHandlerFunc(rc.findByID))
 		r.Get("/", makeHTTPHandlerFunc(rc.list))
-		r.Post("/", makeHTTPHandlerFunc(rc.create))
-		r.Put("/{id}", makeHTTPHandlerFunc(rc.update))
+		r.With(ContentType("application/json")).Post("/", makeHTTPHandlerFunc(rc.create))
+		r.With(ContentType("application/json")).Put("/{id}", makeHTTPHandlerFunc(rc.update))
 		r.Delete("/{id}", makeHTTPHandlerFunc(rc.delete))
 
 	})
@@ -124,9 +124,9 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 		r.Get("/{id}", makeHTTPHandlerFunc(tc.findByID))
 		r.Get("/", makeHTTPHandlerFunc(tc.list))
 		r.Get("/{id}/files", makeHTTPHandlerFunc(tc.download))
-		r.Post("/", makeHTTPHandlerFunc(tc.create))
-		r.Put("/{id}", makeHTTPHandlerFunc(tc.update))
-		r.Put("/{id}/files", makeHTTPHandlerFunc(tc.upload))
+		r.With(ContentType("application/json")).Post("/", makeHTTPHandlerFunc(tc.create))
+		r.With(ContentType("application/json")).Put("/{id}", makeHTTPHandlerFunc(tc.update))
+		r.With(ContentType("application/zip")).Put("/{id}/files", makeHTTPHandlerFunc(tc.upload))
 		r.Delete("/{id}", makeHTTPHandlerFunc(tc.delete))
 	})
 	return r
@@ -221,6 +221,18 @@ func Interval(next http.Handler) http.Handler {
 	}))
 }
 
+func ContentType(contentType string) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			cType := r.Header.Get("Content-Type")
+			if cType != contentType{
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
 func parseNumberWithDefault(s string, d int) (int, error) {
 	if s == "" {
 		return d, nil

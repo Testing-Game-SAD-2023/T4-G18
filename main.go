@@ -64,7 +64,15 @@ func run(c Configuration) error {
 		return err
 	}
 
-	if err := db.AutoMigrate(&GameModel{}, &RoundModel{}, &PlayerModel{}, &TurnModel{}, &MetadataModel{}, &PlayerGameModel{}); err != nil {
+	err = db.AutoMigrate(
+		&GameModel{},
+		&RoundModel{},
+		&PlayerModel{},
+		&TurnModel{},
+		&MetadataModel{},
+		&PlayerGameModel{})
+
+	if err != nil {
 		return err
 	}
 
@@ -85,6 +93,7 @@ func run(c Configuration) error {
 				AllowCredentials: false,
 				MaxAge:           300, // Maximum value not ignored by any of major browsers
 			}))
+
 			opts := mw.SwaggerUIOpts{SpecURL: "/public/postman/schemas/index.yaml"}
 			sh := mw.SwaggerUI(opts, nil)
 			r.Handle("/docs", sh)
@@ -98,26 +107,6 @@ func run(c Configuration) error {
 
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Logger)
-
-		// custom middleware to allow only json and multipart data in POST, PUT, PATCH requests
-		r.Use(func(next http.Handler) http.Handler {
-			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				cType := r.Header.Get("Content-Type")
-				switch r.Method {
-				case http.MethodPost, http.MethodPatch:
-					if cType != "application/json" {
-						w.WriteHeader(http.StatusUnsupportedMediaType)
-						return
-					}
-				case http.MethodPut:
-					if cType != "application/json" && cType != "application/zip" {
-						w.WriteHeader(http.StatusUnsupportedMediaType)
-						return
-					}
-				}
-				next.ServeHTTP(w, r)
-			})
-		})
 		var (
 			// game endpoint
 			gameStorage    = NewGameStorage(db)
