@@ -330,7 +330,7 @@ paths:
                                     type: integer
                                 idRound:
                                     type: integer
-                                score:
+                                scores:
                                     type: string
             responses:
                 "201":
