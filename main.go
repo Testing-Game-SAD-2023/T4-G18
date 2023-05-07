@@ -82,6 +82,10 @@ func run(c Configuration) error {
 
 	r := chi.NewRouter()
 
+	// serving Postman directory for documentation files
+	fs := http.FileServer(http.FS(postmanDir))
+	r.Mount("/public/", http.StripPrefix("/public/", fs))
+
 	if c.EnableSwagger {
 		r.Group(func(r chi.Router) {
 
@@ -97,10 +101,6 @@ func run(c Configuration) error {
 			opts := mw.SwaggerUIOpts{SpecURL: "/public/postman/schemas/index.yaml"}
 			sh := mw.SwaggerUI(opts, nil)
 			r.Handle("/docs", sh)
-
-			fs := http.FileServer(http.FS(postmanDir))
-			r.Mount("/public/", http.StripPrefix("/public/", fs))
-
 		})
 	}
 	r.Handle("/metrics", promhttp.Handler())
