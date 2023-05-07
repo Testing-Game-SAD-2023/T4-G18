@@ -78,6 +78,6 @@ type PaginatedResponse struct {
 type PaginationMetadata struct {
 	HasNext  bool  `json:"hasNext"`
 	Count    int64 `json:"count"`
-	Page     int   `json:"page"`
-	PageSize int   `json:"pageSize"`
+	Page     int64 `json:"page"`
+	PageSize int64 `json:"pageSize"`
 }

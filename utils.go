@@ -133,8 +133,8 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 }
 
 type PaginationParams struct {
-	page     int
-	pageSize int
+	page     int64
+	pageSize int64
 }
 
 type IntervalParams struct {
@@ -146,7 +146,7 @@ func PaginateScope(p *PaginationParams) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 
 		offset := (p.page - 1) * p.pageSize
-		return db.Offset(offset).Limit(p.pageSize)
+		return db.Offset(int(offset)).Limit(int(p.pageSize))
 	}
 }
 
@@ -233,12 +233,12 @@ func ContentType(contentType string) func(next http.Handler) http.Handler {
 		})
 	}
 }
-func parseNumberWithDefault(s string, d int) (int, error) {
+func parseNumberWithDefault(s string, d int64) (int64, error) {
 	if s == "" {
 		return d, nil
 	}
 
-	return strconv.Atoi(s)
+	return strconv.ParseInt(s, 10, 64)
 }
 
 func parseDateWithDefault(s string, t time.Time) (time.Time, error) {
