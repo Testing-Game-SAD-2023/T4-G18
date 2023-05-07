@@ -263,8 +263,8 @@ func (suite *TurnControllerSuite) SetupSuite() {
 	defer f.Close()
 	suite.NoError(err)
 	tr.
-		On("FindGameByTurn", uint64(1)).Return(&GameModel{ID: 1}, nil).
-		On("FindGameByTurn", mock.MatchedBy(func(id uint64) bool { return id != 1 })).Return(nil, ErrNotFound).
+		On("FindGameIDByTurn", uint64(1)).Return(1, nil).
+		On("FindGameIDByTurn", mock.MatchedBy(func(id uint64) bool { return id != 1 })).Return(0, ErrNotFound).
 		On("UpdateMetadata", uint64(1)).Return(nil).
 		On("UpdateMetadata", mock.MatchedBy(func(id uint64) bool { return id != 1 })).Return(ErrNotFound).
 		On("FindMetadataByTurn", uint64(1)).Return(&MetadataModel{Path: f.Name()}, nil).
@@ -437,14 +437,9 @@ func (ts *MockedTurnRepository) Update(id uint64, request *UpdateTurnRequest) (*
 	return nil, fmt.Errorf("not implemented")
 }
 
-func (m *MockedTurnRepository) FindGameByTurn(id uint64) (*GameModel, error) {
+func (m *MockedTurnRepository) FindGameIDByTurn(id uint64) (uint64, error) {
 	args := m.Called(id)
-	v := args.Get(0)
-
-	if v == nil {
-		return nil, args.Error(1)
-	}
-	return v.(*GameModel), args.Error(1)
+	return uint64(args.Int(0)), args.Error(1)
 
 }
 func (m *MockedTurnRepository) UpdateMetadata(id uint64, path string) error {
