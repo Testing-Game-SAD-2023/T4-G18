@@ -225,7 +225,7 @@ func ContentType(contentType string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			cType := r.Header.Get("Content-Type")
-			if cType != contentType{
+			if cType != contentType {
 				w.WriteHeader(http.StatusUnsupportedMediaType)
 				return
 			}
@@ -258,5 +258,14 @@ func makePaginatedResponse(v any, count int64, p *PaginationParams) *PaginatedRe
 			Page:     p.page,
 			PageSize: p.pageSize,
 		},
+	}
+}
+
+func handleDbError(err error) error {
+	switch {
+	case errors.Is(err, gorm.ErrRecordNotFound):
+		return ErrNotFound
+	default:
+		return err
 	}
 }
