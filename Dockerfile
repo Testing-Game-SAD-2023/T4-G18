@@ -7,7 +7,7 @@ COPY . .
 
 RUN CGO_ENABLED=0 go build -o build/game-repository
 
-FROM scratch
+FROM alpine 
 
 WORKDIR /app
 
