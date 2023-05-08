@@ -6,7 +6,7 @@ OUT_DIR=build
 .PHONY: build run dev
 
 ## build: builds the project in a single file executable in "build" directory
-build:
+build: clean
 	CGO_ENABLED=0 go build -o $(OUT_DIR)/$(APP_NAME) -ldflags "-X main.gitCommit=$(GIT_COMMIT)"
 
 ## run: run application
@@ -30,6 +30,10 @@ test:
 test-race:
 	go test -race ./...
 
+
+## clean: remove build files 
+clean:
+	rm -f build/*
 
 .PHONY: help
 ## help: prints this help message
