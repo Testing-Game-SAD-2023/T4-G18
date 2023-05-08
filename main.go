@@ -119,8 +119,9 @@ func run(c Configuration) error {
 			roundController = NewRoundController(roundService)
 
 			// turn endpoint
+			metadataStorage = NewMetadataStorage(db)
 			turnStorage    = NewTurnStorage(db)
-			turnService    = NewTurnService(turnStorage, c.DataDir)
+			turnService    = NewTurnService(turnStorage, metadataStorage, gameStorage, c.DataDir)
 			turnController = NewTurnController(turnService, c.BufferSize)
 		)
 

@@ -22,6 +22,7 @@ type GameRepository interface {
 	Delete(id uint64) error
 	Update(id uint64, ug *UpdateGameRequest) (*GameModel, error)
 	FindByInterval(i *IntervalParams, p *PaginationParams) ([]GameModel, int64, error)
+	FindByRound(id uint64)(*GameModel, error)
 }
 
 type GameService struct {
@@ -98,20 +99,26 @@ type TurnRepository interface {
 	Delete(id uint64) error
 	Update(id uint64, request *UpdateTurnRequest) (*TurnModel, error)
 	FindByRound(id uint64) ([]TurnModel, error)
-	FindGameIDByTurn(id uint64) (uint64, error)
-	UpdateMetadata(id uint64, path string) error
-	FindMetadataByTurn(id uint64) (*MetadataModel, error)
+}
+
+type MetadataRepository interface {
+	Upsert(id uint64, path string) error
+	FindByTurn(id uint64) (*MetadataModel, error)
 }
 
 type TurnService struct {
-	turnRepository TurnRepository
-	dataDir        string
+	turnRepository     TurnRepository
+	metadataRepository MetadataRepository
+	gameRepository     GameRepository
+	dataDir            string
 }
 
-func NewTurnService(tr TurnRepository, dr string) *TurnService {
+func NewTurnService(tr TurnRepository, mr MetadataRepository, gr GameRepository, dr string) *TurnService {
 	return &TurnService{
-		turnRepository: tr,
-		dataDir:        dr,
+		turnRepository:     tr,
+		metadataRepository: mr,
+		gameRepository:     gr,
+		dataDir:            dr,
 	}
 }
 
@@ -134,7 +141,15 @@ func (ts *TurnService) Update(id uint64, request *UpdateTurnRequest) (*TurnModel
 	return ts.turnRepository.Update(id, request)
 }
 
-func (ts *TurnService) Store(turnId uint64, r io.Reader) error {
+func (ts *TurnService) Store(id uint64, r io.Reader) error {
+	turn, err := ts.turnRepository.FindById(id)
+	if err != nil {
+		return err
+	}
+	game, err := ts.gameRepository.FindByRound(turn.RoundID)
+	if err != nil {
+		return err
+	}
 	dst, err := os.CreateTemp("", "")
 	if err != nil {
 		return err
@@ -150,16 +165,11 @@ func (ts *TurnService) Store(turnId uint64, r io.Reader) error {
 		zfile.Close()
 	}
 
-	gameId, err := ts.turnRepository.FindGameIDByTurn(turnId)
-	if err != nil {
-		return err
-	}
-
 	year := time.Now().Year()
 	fname := path.Join(ts.dataDir,
 		strconv.FormatInt(int64(year), 10),
-		strconv.FormatUint(gameId, 10),
-		strconv.FormatUint(turnId, 10)+".zip",
+		strconv.FormatUint(game.ID, 10),
+		strconv.FormatUint(id, 10)+".zip",
 	)
 
 	dir := path.Dir(fname)
@@ -171,11 +181,11 @@ func (ts *TurnService) Store(turnId uint64, r io.Reader) error {
 		return err
 	}
 
-	return ts.turnRepository.UpdateMetadata(turnId, fname)
+	return ts.metadataRepository.Upsert(id, fname)
 }
 
-func (ts *TurnService) GetTurnFile(turnId uint64) (*os.File, error) {
-	m, err := ts.turnRepository.FindMetadataByTurn(turnId)
+func (ts *TurnService) GetTurnFile(id uint64) (*os.File, error) {
+	m, err := ts.metadataRepository.FindByTurn(id)
 	if err != nil {
 		return nil, err
 	}

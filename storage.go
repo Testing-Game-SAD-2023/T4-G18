@@ -53,6 +53,16 @@ func (gs *GameStorage) FindByInterval(i *IntervalParams, p *PaginationParams) ([
 	return games, n, nil
 }
 
+func (gs *GameStorage) FindByRound(id uint64) (*GameModel, error) {
+
+	var game GameModel
+	if err := gs.db.Preload("Rounds", "id = ?", id).First(&game).Error; err != nil {
+		return nil, ErrNotFound
+	}
+
+	return &game, nil
+}
+
 func (gs *GameStorage) Delete(id uint64) error {
 	rowsAffected := gs.db.Delete(&GameModel{}, id).RowsAffected
 	if rowsAffected < 1 {
@@ -167,43 +177,8 @@ func NewTurnStorage(db *gorm.DB) *TurnStorage {
 	}
 }
 
-func (ts *TurnStorage) FindGameIDByTurn(id uint64) (uint64, error) {
 
-	var round RoundModel
-	if err := ts.db.Preload("Turns", ts.db.Where(&TurnModel{ID: id})).First(&round).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return 0, ErrNotFound
-		}
-		return 0, err
-	}
-	return round.ID, nil
 
-}
-
-func (ts *TurnStorage) UpdateMetadata(id uint64, path string) error {
-
-	meta := MetadataModel{
-		TurnID: id,
-		Path:   path,
-	}
-
-	return ts.db.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "turn_id"}},
-		DoUpdates: clause.Assignments(map[string]interface{}{"path": path}),
-	}).Create(&meta).Error
-}
-
-func (ts *TurnStorage) FindMetadataByTurn(turnId uint64) (*MetadataModel, error) {
-	var meta MetadataModel
-	if err := ts.db.First(&meta, "turn_id = ?", turnId).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrNotFound
-		}
-		return nil, err
-	}
-
-	return &meta, nil
-}
 
 func (ts *TurnStorage) Create(request *CreateTurnRequest) (*TurnModel, error) {
 	t := TurnModel{
@@ -266,4 +241,40 @@ func (ts *TurnStorage) Delete(id uint64) error {
 		return ErrNotFound
 	}
 	return nil
+}
+
+
+type MetadataStorage struct {
+	db *gorm.DB
+}
+
+func NewMetadataStorage(db *gorm.DB) *MetadataStorage {
+	return &MetadataStorage{
+		db: db,
+	}
+}
+
+func (ms *MetadataStorage) Upsert(id uint64, path string) error {
+
+	meta := MetadataModel{
+		TurnID: id,
+		Path:   path,
+	}
+
+	return ms.db.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "turn_id"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"path": path}),
+	}).Create(&meta).Error
+}
+
+func (ms *MetadataStorage) FindByTurn(id uint64) (*MetadataModel, error) {
+	var meta MetadataModel
+	if err := ms.db.First(&meta, "turn_id = ?", id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrNotFound
+		}
+		return nil, err
+	}
+
+	return &meta, nil
 }

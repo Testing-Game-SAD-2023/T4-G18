@@ -250,6 +250,17 @@ func (gr *MockedGameRepository) FindByInterval(i *IntervalParams, p *PaginationP
 	return nil, 0, fmt.Errorf("not implemented")
 }
 
+func (gr *MockedGameRepository) FindByRound(id uint64) (*GameModel, error) {
+	args := gr.Called(id)
+	v := args.Get(0)
+
+	if v == nil {
+		return nil, args.Error(1)
+	}
+	return v.(*GameModel), args.Error(1)
+
+}
+
 type TurnControllerSuite struct {
 	suite.Suite
 	tServer *httptest.Server
@@ -258,20 +269,30 @@ type TurnControllerSuite struct {
 
 func (suite *TurnControllerSuite) SetupSuite() {
 	tr := new(MockedTurnRepository)
+	mr := new(MockedMetadataRepository)
+	gr := new(MockedGameRepository)
 	f, err := os.CreateTemp(suite.tmpDir, "")
-	f.Write([]byte("hello"))
-	defer f.Close()
 	suite.NoError(err)
+	_, err = f.Write([]byte("hello"))
+	suite.NoError(err)
+	defer f.Close()
+
 	tr.
-		On("FindGameIDByTurn", uint64(1)).Return(1, nil).
-		On("FindGameIDByTurn", mock.MatchedBy(func(id uint64) bool { return id != 1 })).Return(0, ErrNotFound).
-		On("UpdateMetadata", uint64(1)).Return(nil).
-		On("UpdateMetadata", mock.MatchedBy(func(id uint64) bool { return id != 1 })).Return(ErrNotFound).
-		On("FindMetadataByTurn", uint64(1)).Return(&MetadataModel{Path: f.Name()}, nil).
-		On("FindMetadataByTurn", mock.MatchedBy(func(id uint64) bool { return id != 1 })).Return(nil, ErrNotFound)
+		On("FindById", uint64(1)).Return(&TurnModel{ID: 1}, nil).
+		On("FindById", mock.MatchedBy(func(id uint64) bool { return id != 1 })).Return(nil, ErrNotFound)
+
+	mr.
+		On("Upsert", uint64(1)).Return(nil).
+		On("Upsert", mock.MatchedBy(func(id uint64) bool { return id != 1 })).Return(ErrNotFound).
+		On("FindByTurn", uint64(1)).Return(&MetadataModel{Path: f.Name()}, nil).
+		On("FindByTurn", mock.MatchedBy(func(id uint64) bool { return id != 1 })).Return(nil, ErrNotFound)
+
+	gr.
+		On("FindByRound", uint64(1)).Return(&GameModel{ID: 1}, nil).
+		On("FindByRound", mock.MatchedBy(func(id uint64) bool { return id != 1 })).Return(&GameModel{ID: 1}, nil)
 
 	suite.tmpDir = os.TempDir()
-	service := NewTurnService(tr, suite.tmpDir)
+	service := NewTurnService(tr, mr, gr, suite.tmpDir)
 	controller := NewTurnController(service, 512)
 
 	r := chi.NewMux()
@@ -421,34 +442,39 @@ type MockedTurnRepository struct {
 	mock.Mock
 }
 
-func (ts *MockedTurnRepository) Create(request *CreateTurnRequest) (*TurnModel, error) {
+func (m *MockedTurnRepository) Create(request *CreateTurnRequest) (*TurnModel, error) {
 	return nil, fmt.Errorf("not implemented")
 }
-func (ts *MockedTurnRepository) FindById(id uint64) (*TurnModel, error) {
-	return nil, fmt.Errorf("not implemented")
+func (m *MockedTurnRepository) FindById(id uint64) (*TurnModel, error) {
+	args := m.Called(id)
+	v := args.Get(0)
+
+	if v == nil {
+		return nil, args.Error(1)
+	}
+	return v.(*TurnModel), args.Error(1)
 }
-func (ts *MockedTurnRepository) Delete(id uint64) error {
+func (m *MockedTurnRepository) Delete(id uint64) error {
 	return fmt.Errorf("not implemented")
 }
-func (ts *MockedTurnRepository) FindByRound(id uint64) ([]TurnModel, error) {
+func (m *MockedTurnRepository) FindByRound(id uint64) ([]TurnModel, error) {
 	return nil, fmt.Errorf("not implemented")
 }
-func (ts *MockedTurnRepository) Update(id uint64, request *UpdateTurnRequest) (*TurnModel, error) {
+func (m *MockedTurnRepository) Update(id uint64, request *UpdateTurnRequest) (*TurnModel, error) {
 	return nil, fmt.Errorf("not implemented")
 }
 
-func (m *MockedTurnRepository) FindGameIDByTurn(id uint64) (uint64, error) {
-	args := m.Called(id)
-	return uint64(args.Int(0)), args.Error(1)
-
+type MockedMetadataRepository struct {
+	mock.Mock
 }
-func (m *MockedTurnRepository) UpdateMetadata(id uint64, path string) error {
+
+func (m *MockedMetadataRepository) Upsert(id uint64, path string) error {
 	args := m.Called(id)
 	return args.Error(0)
 
 }
 
-func (m *MockedTurnRepository) FindMetadataByTurn(id uint64) (*MetadataModel, error) {
+func (m *MockedMetadataRepository) FindByTurn(id uint64) (*MetadataModel, error) {
 	args := m.Called(id)
 	v := args.Get(0)
 
