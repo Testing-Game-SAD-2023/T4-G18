@@ -300,8 +300,6 @@ paths:
                             properties:
                                 scores:
                                     type: string
-                                currentRound:
-                                    type: integer
             responses:
                 "200":
                     description: Updated
