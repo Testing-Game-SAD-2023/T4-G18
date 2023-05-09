@@ -82,22 +82,18 @@ func run(c Configuration) error {
 
 	r := chi.NewRouter()
 
-	// serving Postman directory for documentation files
-	fs := http.FileServer(http.FS(postmanDir))
-	r.Mount("/public/", http.StripPrefix("/public/", fs))
+	// basic cors
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "Accept", "Authorization"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}))
 
 	if c.EnableSwagger {
 		r.Group(func(r chi.Router) {
-
-			r.Use(cors.Handler(cors.Options{
-				AllowedOrigins:   []string{"https://*", "http://*"},
-				AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-				AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-				ExposedHeaders:   []string{"Link"},
-				AllowCredentials: false,
-				MaxAge:           300, // Maximum value not ignored by any of major browsers
-			}))
-
 			opts := mw.SwaggerUIOpts{SpecURL: "/public/postman/schemas/index.yaml"}
 			sh := mw.SwaggerUI(opts, nil)
 			r.Handle("/docs", sh)
@@ -106,10 +102,18 @@ func run(c Configuration) error {
 			})
 		})
 	}
+
+	// serving Postman directory for documentation files
+	fs := http.FileServer(http.FS(postmanDir))
+	r.Mount("/public/", http.StripPrefix("/public/", fs))
+
+	// metrics endpoint
 	r.Handle("/metrics", promhttp.Handler())
 
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Logger)
+		r.Use(middleware.Recoverer)
+
 		var (
 			// game endpoint
 			gameStorage    = NewGameStorage(db)
