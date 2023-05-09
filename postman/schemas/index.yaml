@@ -550,7 +550,7 @@ paths:
                 - turns
             parameters:
                 - in: query
-                  name: roundID
+                  name: roundId
                   description: Id of the round
                   schema:
                       type: integer
