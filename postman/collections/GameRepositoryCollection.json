@@ -1,0 +1,2862 @@
+{
+	"info": {
+		"_postman_id": "a2cfb267-3b9f-4763-82f4-61ad4044e59b",
+		"name": "GameRepositoryCollection",
+		"description": "Game Repository REST API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_uid": "26804152-a2cfb267-3b9f-4763-82f4-61ad4044e59b"
+	},
+	"item": [
+		{
+			"name": "turns",
+			"item": [
+				{
+					"name": "{id}",
+					"item": [
+						{
+							"name": "files",
+							"item": [
+								{
+									"name": "Upload turn files",
+									"id": "a428008f-e2ba-4666-baa9-246e003dee0b",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/zip"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "file",
+											"file": {}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/turns/:id/files",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"turns",
+												":id",
+												"files"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "<long>"
+												}
+											]
+										},
+										"description": "Upload turn files as a zip"
+									},
+									"response": [
+										{
+											"id": "0e7e9d2d-ca09-41ab-89d7-41e3f6fc9922",
+											"name": "File uploaded successfully",
+											"originalRequest": {
+												"method": "PUT",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/zip"
+													}
+												],
+												"body": {
+													"mode": "file",
+													"file": {}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/turns/:id/files",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"turns",
+														":id",
+														"files"
+													],
+													"variable": [
+														{
+															"key": "id"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": []
+										},
+										{
+											"id": "725b64bd-f7fa-4f27-aea4-2a1f8d107d5f",
+											"name": "Bad request",
+											"originalRequest": {
+												"method": "PUT",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/zip"
+													}
+												],
+												"body": {
+													"mode": "file",
+													"file": {}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/turns/:id/files",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"turns",
+														":id",
+														"files"
+													],
+													"variable": [
+														{
+															"key": "id"
+														}
+													]
+												}
+											},
+											"status": "Bad Request",
+											"code": 400,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"message\": \"<string>\"\n}"
+										},
+										{
+											"id": "66abeb99-fedd-4281-a0c0-992beb49c378",
+											"name": "No Turn found for the provided `Id`",
+											"originalRequest": {
+												"method": "PUT",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/zip"
+													}
+												],
+												"body": {
+													"mode": "file",
+													"file": {}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/turns/:id/files",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"turns",
+														":id",
+														"files"
+													],
+													"variable": [
+														{
+															"key": "id"
+														}
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"message\": \"<string>\"\n}"
+										},
+										{
+											"id": "174df2ba-2cf9-4e78-9c36-5d274e377560",
+											"name": "Internal server error",
+											"originalRequest": {
+												"method": "PUT",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/zip"
+													}
+												],
+												"body": {
+													"mode": "file",
+													"file": {}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/turns/:id/files",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"turns",
+														":id",
+														"files"
+													],
+													"variable": [
+														{
+															"key": "id"
+														}
+													]
+												}
+											},
+											"status": "Internal Server Error",
+											"code": 500,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"message\": \"<string>\"\n}"
+										}
+									]
+								},
+								{
+									"name": "Download turn files",
+									"id": "77ad1bc4-adb4-4948-bc7d-85e9f18137a2",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/zip"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/turns/:id/files",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"turns",
+												":id",
+												"files"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "<long>"
+												}
+											]
+										},
+										"description": "Download turn files as a zip"
+									},
+									"response": [
+										{
+											"id": "97e4e651-e633-4f58-97a4-a4b604871434",
+											"name": "Bad request",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "{{baseUrl}}/turns/:id/files",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"turns",
+														":id",
+														"files"
+													],
+													"variable": [
+														{
+															"key": "id"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/zip"
+												}
+											],
+											"cookie": [],
+											"body": "<string>"
+										},
+										{
+											"id": "bad4befa-33a9-4ef8-ab80-ef09b8def88f",
+											"name": "Bad request",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "{{baseUrl}}/turns/:id/files",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"turns",
+														":id",
+														"files"
+													],
+													"variable": [
+														{
+															"key": "id"
+														}
+													]
+												}
+											},
+											"status": "Bad Request",
+											"code": 400,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"message\": \"<string>\"\n}"
+										},
+										{
+											"id": "ae902e8b-cadc-45e3-aef4-e5a253a9b52f",
+											"name": "No Turn found for the provided `Id`",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "{{baseUrl}}/turns/:id/files",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"turns",
+														":id",
+														"files"
+													],
+													"variable": [
+														{
+															"key": "id"
+														}
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"message\": \"<string>\"\n}"
+										},
+										{
+											"id": "fa0c33e9-2f79-4907-886f-15a1afdb158c",
+											"name": "Internal server error",
+											"originalRequest": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "{{baseUrl}}/turns/:id/files",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"turns",
+														":id",
+														"files"
+													],
+													"variable": [
+														{
+															"key": "id"
+														}
+													]
+												}
+											},
+											"status": "Internal Server Error",
+											"code": 500,
+											"_postman_previewlanguage": "json",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"message\": \"<string>\"\n}"
+										}
+									]
+								}
+							],
+							"id": "0761f720-143e-4f3a-9af4-4379a7fe8f53"
+						},
+						{
+							"name": "Retrieve a turn",
+							"id": "c0f81447-58cd-45c3-a6c8-c917c8ecab4e",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/turns/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turns",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "<long>"
+										}
+									]
+								},
+								"description": "Retrieve a turn by id"
+							},
+							"response": [
+								{
+									"id": "d92c0a89-88ea-47e7-94f4-896fa930a60d",
+									"name": "The Turn corresponding to the provided `Id`",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/turns/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"turns",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"id\": \"<long>\",\n  \"isWinner\": \"<boolean>\",\n  \"createdAt\": \"<dateTime>\",\n  \"updatedAt\": \"<dateTime>\",\n  \"idPlayer\": \"<integer>\",\n  \"scores\": \"<string>\"\n}"
+								},
+								{
+									"id": "021b528d-42a3-4676-99de-dac273c2898b",
+									"name": "Bad request",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/turns/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"turns",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								},
+								{
+									"id": "bc271140-21d5-494d-8b6f-4ec21c9cb1ee",
+									"name": "No Turn found for the provided `Id`",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/turns/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"turns",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								},
+								{
+									"id": "0a009fb5-726e-4a43-bbd3-c7fd841ff92d",
+									"name": "Internal server error",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/turns/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"turns",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Update a turn",
+							"id": "65330510-0ec7-42ca-b7b3-587dcfb9c9f6",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"scores\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/turns/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turns",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "<long>"
+										}
+									]
+								},
+								"description": "Update a turn by id"
+							},
+							"response": [
+								{
+									"id": "2aab57d2-d5b5-4b68-b80b-68fc39711098",
+									"name": "Updated",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"scores\": \"<string>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/turns/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"turns",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"id\": \"<long>\",\n  \"isWinner\": \"<boolean>\",\n  \"createdAt\": \"<dateTime>\",\n  \"updatedAt\": \"<dateTime>\",\n  \"idPlayer\": \"<integer>\",\n  \"scores\": \"<string>\"\n}"
+								},
+								{
+									"id": "28515e06-6b52-4a9c-af04-81edd3072bdb",
+									"name": "Bad request",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"scores\": \"<string>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/turns/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"turns",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								},
+								{
+									"id": "f4b2bd42-a1a0-4cff-8d59-6c6840b1df1b",
+									"name": "Not found",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"scores\": \"<string>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/turns/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"turns",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								},
+								{
+									"id": "1fbe9308-9d26-4f23-8dcc-f48ff3177c81",
+									"name": "Internal server error",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"scores\": \"<string>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/turns/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"turns",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Delete a turn",
+							"id": "848a2241-8ae5-48e9-8b59-2fa1e2aae06a",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/turns/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turns",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "<long>"
+										}
+									]
+								},
+								"description": "Delete a turn by id"
+							},
+							"response": [
+								{
+									"id": "736a1ad8-1cfc-438f-995d-170c8dbb71a6",
+									"name": "Turn deleted",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/turns/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"turns",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "No Content",
+									"code": 204,
+									"_postman_previewlanguage": "text",
+									"header": [],
+									"cookie": []
+								},
+								{
+									"id": "13450892-2b3f-4acb-ad90-f58366ee7c3d",
+									"name": "Bad request",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/turns/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"turns",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								},
+								{
+									"id": "75021a68-aef1-406b-a0b6-b739bad56b2e",
+									"name": "No Turn found for the provided `Id`",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/turns/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"turns",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								},
+								{
+									"id": "87a408a3-f33c-4901-98e2-3f794cdeeebb",
+									"name": "Internal server error",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/turns/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"turns",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								}
+							]
+						}
+					],
+					"id": "50dbfe08-d624-491c-b564-41fbfbb5b156"
+				},
+				{
+					"name": "Retrieve turns in a round",
+					"id": "5ee57b98-fa2d-4476-a294-81fd62c9b3b2",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/turns?roundID=<long>",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"turns"
+							],
+							"query": [
+								{
+									"description": "(Required) Id of the round",
+									"key": "roundID",
+									"value": "<long>"
+								}
+							]
+						},
+						"description": "Retrieve all turns in a round"
+					},
+					"response": [
+						{
+							"id": "60c27546-8496-46a4-a3fd-bda9498c1f4e",
+							"name": "List of turns",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/turns?roundID=<long>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turns"
+									],
+									"query": [
+										{
+											"description": "(Required) Id of the round",
+											"key": "roundID",
+											"value": "<long>"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"id\": \"<long>\",\n    \"isWinner\": \"<boolean>\",\n    \"createdAt\": \"<dateTime>\",\n    \"updatedAt\": \"<dateTime>\",\n    \"idPlayer\": \"<integer>\",\n    \"scores\": \"<string>\"\n  },\n  {\n    \"id\": \"<long>\",\n    \"isWinner\": \"<boolean>\",\n    \"createdAt\": \"<dateTime>\",\n    \"updatedAt\": \"<dateTime>\",\n    \"idPlayer\": \"<integer>\",\n    \"scores\": \"<string>\"\n  }\n]"
+						},
+						{
+							"id": "50ee892b-7e89-4735-9541-2bde60c78ab6",
+							"name": "Invalid round id",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/turns?roundID=<long>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turns"
+									],
+									"query": [
+										{
+											"description": "(Required) Id of the round",
+											"key": "roundID",
+											"value": "<long>"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"id": "af1703a5-3949-49d6-89f1-20a275ffc5bd",
+							"name": "No round found for the provided id",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/turns?roundID=<long>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turns"
+									],
+									"query": [
+										{
+											"description": "(Required) Id of the round",
+											"key": "roundID",
+											"value": "<long>"
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"id": "e4db899c-6621-4cd5-bb5e-1b897b340553",
+							"name": "Internal server error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/turns?roundID=<long>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turns"
+									],
+									"query": [
+										{
+											"description": "(Required) Id of the round",
+											"key": "roundID",
+											"value": "<long>"
+										}
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Create a turn",
+					"id": "e80ef8e5-5d05-48bb-9cff-ccbbaa2dc685",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idPlayer\": \"<long>\",\n  \"idRound\": \"<long>\",\n  \"scores\": \"<string>\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/turns",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"turns"
+							]
+						},
+						"description": "Create a turn in the system"
+					},
+					"response": [
+						{
+							"id": "41023cdb-655d-4f40-bf34-a8ad34b93e9c",
+							"name": "Created",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idPlayer\": \"<long>\",\n  \"idRound\": \"<long>\",\n  \"scores\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/turns",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turns"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": \"<long>\",\n  \"isWinner\": \"<boolean>\",\n  \"createdAt\": \"<dateTime>\",\n  \"updatedAt\": \"<dateTime>\",\n  \"idPlayer\": \"<integer>\",\n  \"scores\": \"<string>\"\n}"
+						},
+						{
+							"id": "34ff792a-d066-42f3-8363-24f96fb8cd03",
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idPlayer\": \"<long>\",\n  \"idRound\": \"<long>\",\n  \"scores\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/turns",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turns"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"id": "28b4c038-c89f-498c-8a46-23ef6414cf92",
+							"name": "Internal server error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idPlayer\": \"<long>\",\n  \"idRound\": \"<long>\",\n  \"scores\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/turns",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turns"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				}
+			],
+			"id": "8c151c5f-165b-4278-8113-612aec961418"
+		},
+		{
+			"name": "rounds",
+			"item": [
+				{
+					"name": "{id}",
+					"item": [
+						{
+							"name": "Retrieve a round",
+							"id": "7ed7eb5f-fe4b-44df-9c9c-912f85edf746",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/rounds/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rounds",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "<long>"
+										}
+									]
+								},
+								"description": "Retrieve a round by id"
+							},
+							"response": [
+								{
+									"id": "e3878f71-97bb-4c0e-aeaa-aa459c0d3733",
+									"name": "The Round corresponding to the provided `Id`",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/rounds/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"rounds",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"id\": \"<long>\",\n  \"idTestClass\": \"<string>\",\n  \"createdAt\": \"<dateTime>\",\n  \"updatedAt\": \"<dateTime>\"\n}"
+								},
+								{
+									"id": "6c34fc93-3621-40a2-984b-3834921f21ef",
+									"name": "Bad request",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/rounds/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"rounds",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								},
+								{
+									"id": "4d359d57-85f8-4b75-a72b-01a9251fda0c",
+									"name": "No Round found for the provided `Id`",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/rounds/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"rounds",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								},
+								{
+									"id": "2fe5cc0b-6f5f-4d42-8884-441ed553cf2d",
+									"name": "Internal server error",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/rounds/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"rounds",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Delete a round",
+							"id": "a96e81bc-07ef-4111-883e-0e2f4632644f",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/rounds/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rounds",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "<long>"
+										}
+									]
+								},
+								"description": "Delete a round by id"
+							},
+							"response": [
+								{
+									"id": "34e47dc4-83e1-43fe-bc90-462e39677ea4",
+									"name": "Round deleted",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/rounds/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"rounds",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "No Content",
+									"code": 204,
+									"_postman_previewlanguage": "text",
+									"header": [],
+									"cookie": []
+								},
+								{
+									"id": "b1adaec3-f307-4cb4-a1da-881d72a9a616",
+									"name": "Bad request",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/rounds/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"rounds",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								},
+								{
+									"id": "2402f5fb-1043-42da-8553-4651b0987ad8",
+									"name": "No Round found for the provided `Id`",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/rounds/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"rounds",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								},
+								{
+									"id": "0d712b28-3254-43b3-a728-97856983bdc3",
+									"name": "Internal server error",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/rounds/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"rounds",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								}
+							]
+						}
+					],
+					"id": "18cdbd6e-16c5-4f5c-ac8b-e22fbc1030c9"
+				},
+				{
+					"name": "Creates a round",
+					"id": "601c32c1-18f7-4edb-a65f-7d3596c3761d",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idGame\": \"<long>\",\n  \"idTestClass\": \"<string>\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/rounds",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"rounds"
+							]
+						},
+						"description": "Create a round"
+					},
+					"response": [
+						{
+							"id": "1577dbeb-a0a7-4d2d-9eb5-0e47866feabc",
+							"name": "Created",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idGame\": \"<long>\",\n  \"idTestClass\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/rounds",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rounds"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": \"<long>\",\n  \"idTestClass\": \"<string>\",\n  \"createdAt\": \"<dateTime>\",\n  \"updatedAt\": \"<dateTime>\"\n}"
+						},
+						{
+							"id": "f2204b13-d304-40e5-b611-db08d5c5d87d",
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idGame\": \"<long>\",\n  \"idTestClass\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/rounds",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rounds"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"id": "ae821be0-8436-4e04-b404-a38fe5f88306",
+							"name": "Internal server error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idGame\": \"<long>\",\n  \"idTestClass\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/rounds",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rounds"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Retrieve rounds per game",
+					"id": "7fb6ead0-c9b8-4af0-8875-9d2a1c4b2ebb",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/rounds?gameId=<long>",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"rounds"
+							],
+							"query": [
+								{
+									"description": "(Required) Id of the game",
+									"key": "gameId",
+									"value": "<long>"
+								}
+							]
+						},
+						"description": "Retrieve all rounds given a game id"
+					},
+					"response": [
+						{
+							"id": "4b0a2670-abf8-4efc-a202-f161ccf55506",
+							"name": "List of rounds",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/rounds?gameId=<long>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rounds"
+									],
+									"query": [
+										{
+											"description": "(Required) Id of the game",
+											"key": "gameId",
+											"value": "<long>"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"id\": \"<long>\",\n    \"idTestClass\": \"<string>\",\n    \"createdAt\": \"<dateTime>\",\n    \"updatedAt\": \"<dateTime>\"\n  },\n  {\n    \"id\": \"<long>\",\n    \"idTestClass\": \"<string>\",\n    \"createdAt\": \"<dateTime>\",\n    \"updatedAt\": \"<dateTime>\"\n  }\n]"
+						},
+						{
+							"id": "3e3d29c4-ed9b-442d-bf19-0dc75396853c",
+							"name": "Invalid game id",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/rounds?gameId=<long>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rounds"
+									],
+									"query": [
+										{
+											"description": "(Required) Id of the game",
+											"key": "gameId",
+											"value": "<long>"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"id": "bb4d06f9-2a5f-4760-9089-68bca36779dc",
+							"name": "No game found for the provided id",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/rounds?gameId=<long>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rounds"
+									],
+									"query": [
+										{
+											"description": "(Required) Id of the game",
+											"key": "gameId",
+											"value": "<long>"
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"id": "bd8af835-7169-4d0a-b4c6-cc72c68fd28f",
+							"name": "Internal server error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/rounds?gameId=<long>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rounds"
+									],
+									"query": [
+										{
+											"description": "(Required) Id of the game",
+											"key": "gameId",
+											"value": "<long>"
+										}
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				}
+			],
+			"id": "4ae3f5e0-802c-4579-85f2-5a75f7341367"
+		},
+		{
+			"name": "games",
+			"item": [
+				{
+					"name": "{id}",
+					"item": [
+						{
+							"name": "Retrieve a game by id",
+							"id": "7a3f8309-80ec-46be-81d1-783099e17ab9",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/games/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"games",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "<long>"
+										}
+									]
+								},
+								"description": "Retrieve a game by id"
+							},
+							"response": [
+								{
+									"id": "75affd4f-d104-40a7-809a-64c34cc88d10",
+									"name": "The game corresponding to the provided `Id`",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/games/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"games",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"id\": \"<long>\",\n  \"currentRound\": \"<integer>\",\n  \"createdAt\": \"<dateTime>\",\n  \"updatedAt\": \"<dateTime>\",\n  \"playersCount\": \"<integer>\",\n  \"name\": \"<string>\"\n}"
+								},
+								{
+									"id": "aae7ab8d-309c-465f-8e45-37a41f57ada2",
+									"name": "Bad request",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/games/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"games",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								},
+								{
+									"id": "be3acefb-842a-4c6c-89c6-ca76896369d0",
+									"name": "No game found for the provided `Id`",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/games/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"games",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								},
+								{
+									"id": "e8db043b-974e-46a6-b276-3525e17a4eb3",
+									"name": "Internal server error",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/games/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"games",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Update a game",
+							"id": "e340f6ae-9b56-4f3c-842e-fe6e9f4a8aee",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"<string>\",\n  \"currentRound\": \"<integer>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/games/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"games",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "<long>"
+										}
+									]
+								},
+								"description": "Update a game by id"
+							},
+							"response": [
+								{
+									"id": "af303621-c4d5-46eb-9d97-eae23ce4edb4",
+									"name": "Updated",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"name\": \"<string>\",\n  \"currentRound\": \"<integer>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/games/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"games",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"id\": \"<long>\",\n  \"currentRound\": \"<integer>\",\n  \"createdAt\": \"<dateTime>\",\n  \"updatedAt\": \"<dateTime>\",\n  \"playersCount\": \"<integer>\",\n  \"name\": \"<string>\"\n}"
+								},
+								{
+									"id": "7ea3838e-d46d-4971-93fa-7491a6e2e336",
+									"name": "Bad request",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"name\": \"<string>\",\n  \"currentRound\": \"<integer>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/games/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"games",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								},
+								{
+									"id": "85b62881-0214-4002-95ff-945411545537",
+									"name": "Internal server error",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"name\": \"<string>\",\n  \"currentRound\": \"<integer>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/games/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"games",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Delete a Game",
+							"id": "a409da73-e062-42ce-a849-fd21793b7464",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/games/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"games",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "<long>"
+										}
+									]
+								},
+								"description": "Delete a game by id"
+							},
+							"response": [
+								{
+									"id": "9212fe0b-1ebd-4b6c-aff9-3dfb2b41a16c",
+									"name": "Game deleted",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/games/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"games",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "No Content",
+									"code": 204,
+									"_postman_previewlanguage": "text",
+									"header": [],
+									"cookie": []
+								},
+								{
+									"id": "ea546b62-6357-433d-b2b7-b40e0e335b73",
+									"name": "Bad request",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/games/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"games",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								},
+								{
+									"id": "c85ed556-b183-4551-8d8a-c7b5a205ed84",
+									"name": "No game found for the provided `Id`",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/games/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"games",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								},
+								{
+									"id": "ba309956-2e9f-4d03-bf81-5c20ce43ccf3",
+									"name": "Internal server error",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/games/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"games",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"<string>\"\n}"
+								}
+							]
+						}
+					],
+					"id": "911c654f-97af-4a14-ab71-cdfbbd29cf53"
+				},
+				{
+					"name": "Create a Game",
+					"id": "27df35ea-714a-451a-8e90-89d42e90c93a",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"playersCount\": \"<integer>\",\n  \"name\": \"<string>\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/games",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"games"
+							]
+						},
+						"description": "Create a game"
+					},
+					"response": [
+						{
+							"id": "06815f75-ff4e-42e6-bc55-52c9acc0646d",
+							"name": "Created",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"playersCount\": \"<integer>\",\n  \"name\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/games",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"games"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": \"<long>\",\n  \"currentRound\": \"<integer>\",\n  \"createdAt\": \"<dateTime>\",\n  \"updatedAt\": \"<dateTime>\",\n  \"playersCount\": \"<integer>\",\n  \"name\": \"<string>\"\n}"
+						},
+						{
+							"id": "130fa252-ec95-46b5-a2ec-c83e2c9b0b45",
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"playersCount\": \"<integer>\",\n  \"name\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/games",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"games"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"id": "289a8381-d568-4ef9-a475-60be432113d6",
+							"name": "Internal server error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"playersCount\": \"<integer>\",\n  \"name\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/games",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"games"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Retrieve games by date interval",
+					"id": "a3b37dde-ae61-441c-8b91-beaa04270b4d",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/games?startDate=2022-01-30&endDate=2023-12-31&page=1&pageSize=100",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"games"
+							],
+							"query": [
+								{
+									"description": "First date for the interval. Must bee in YYYY-MM-DD format",
+									"key": "startDate",
+									"value": "2022-01-30"
+								},
+								{
+									"description": "Last date for the interval. Must bee in YYYY-MM-DD format",
+									"key": "endDate",
+									"value": "2023-12-31"
+								},
+								{
+									"description": "Page number to retrieve",
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"description": "Number of items per page",
+									"key": "pageSize",
+									"value": "100"
+								}
+							]
+						},
+						"description": "Retrieve games in the system within an interval and paginated. Default interval is current day."
+					},
+					"response": [
+						{
+							"id": "b1bbe3b4-d4c1-4d4b-b31f-d1038edea31e",
+							"name": "Games in the inteval",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/games?startDate=2022-01-30&endDate=2023-12-31&page=1&pageSize=100",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"games"
+									],
+									"query": [
+										{
+											"description": "First date for the interval. Must bee in YYYY-MM-DD format",
+											"key": "startDate",
+											"value": "2022-01-30"
+										},
+										{
+											"description": "Last date for the interval. Must bee in YYYY-MM-DD format",
+											"key": "endDate",
+											"value": "2023-12-31"
+										},
+										{
+											"description": "Page number to retrieve",
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"description": "Number of items per page",
+											"key": "pageSize",
+											"value": "100"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"metadata\": {\n    \"hasNext\": \"<boolean>\",\n    \"count\": \"<long>\",\n    \"page\": \"<long>\",\n    \"pageSize\": \"<long>\"\n  },\n  \"data\": [\n    {\n      \"id\": \"<long>\",\n      \"currentRound\": \"<integer>\",\n      \"createdAt\": \"<dateTime>\",\n      \"updatedAt\": \"<dateTime>\",\n      \"playersCount\": \"<integer>\",\n      \"name\": \"<string>\"\n    },\n    {\n      \"id\": \"<long>\",\n      \"currentRound\": \"<integer>\",\n      \"createdAt\": \"<dateTime>\",\n      \"updatedAt\": \"<dateTime>\",\n      \"playersCount\": \"<integer>\",\n      \"name\": \"<string>\"\n    }\n  ]\n}"
+						}
+					]
+				}
+			],
+			"id": "5adf4008-f634-4ff0-9e26-fd1db0cbdc46"
+		}
+	],
+	"variable": [
+		{
+			"id": "f7d59137-70af-4911-8524-13eec9498d60",
+			"key": "baseUrl",
+			"value": "https://sad.capass.org"
+		}
+	]
+}
