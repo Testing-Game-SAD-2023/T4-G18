@@ -1008,7 +1008,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/turns?roundID=<long>",
+							"raw": "{{baseUrl}}/turns?roundId=<long>",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -1019,6 +1019,12 @@
 								{
 									"description": "(Required) Id of the round",
 									"key": "roundID",
+									"value": "<long>",
+									"disabled": true
+								},
+								{
+									"description": "(Required) Id of the round",
+									"key": "roundId",
 									"value": "<long>"
 								}
 							]
