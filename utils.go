@@ -254,7 +254,7 @@ func makePaginatedResponse(v any, count int64, p *PaginationParams) *PaginatedRe
 		Data: v,
 		Metadata: PaginationMetadata{
 			Count:    count,
-			HasNext:  (count - int64(p.page*p.pageSize)) > 0,
+			HasNext:  (count - p.page*p.pageSize) > 0,
 			Page:     p.page,
 			PageSize: p.pageSize,
 		},
