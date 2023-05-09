@@ -99,7 +99,7 @@ func NewRoundStorage(db *gorm.DB) *RoundStorage {
 func (rs *RoundStorage) Create(request *CreateRoundRequest) (*RoundModel, error) {
 	r := RoundModel{
 		GameID:      request.GameId,
-		testClassId: request.TestClassId,
+		TestClassId: request.TestClassId,
 		Order:       request.Order,
 	}
 	if err := rs.db.Create(&r).Error; err != nil {

@@ -23,7 +23,7 @@ type RoundModel struct {
 	UpdatedAt   time.Time   `gorm:"autoUpdateTime"`
 	CreatedAt   time.Time   `gorm:"autoCreateTime"`
 	Turns       []TurnModel `gorm:"foreignKey:RoundID"`
-	testClassId string      `gorm:"not null"`
+	TestClassId string      `gorm:"not null"`
 	GameID      int64       `gorm:"not null"`
 }
 
