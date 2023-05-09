@@ -37,7 +37,7 @@ func roundModelToDto(g *RoundModel) *RoundDto {
 		Order:       g.Order,
 		CreatedAt:   g.CreatedAt,
 		UpdatedAt:   g.UpdatedAt,
-		TestClassId: g.IdTestClass,
+		TestClassId: g.testClassId,
 	}
 }
 
