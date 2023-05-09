@@ -2,13 +2,13 @@ openapi: "3.0.0"
 info:
     version: "0.0.1"
     title: "Game Repository API"
-    description: CRUD on Game Repository
+    description: Game Repository REST API
 
 servers:
     - url: https://sad.capass.org
       description: Stage server (public available)
     - url: http://localhost:3000
-      description: Local server (used for development)
+      description: Local server (used for  localdevelopment)
 
 paths:
     /games/{id}:
@@ -67,6 +67,10 @@ paths:
                                     type: string
                                 currentRound:
                                     type: integer
+                        example:
+                            name: "New Game name"
+                            currentRound: 2
+                        
             responses:
                 "200":
                     description: Updated
@@ -131,6 +135,9 @@ paths:
                                     type: integer
                                 name:
                                     type: string
+                        example:
+                            name: Game name
+                            playersCount: 5
 
             responses:
                 "201":
@@ -151,6 +158,55 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+        get:
+            tags:
+                - games
+            summary: Retrieve games by date interval
+            description: Retrieve games in the system within an interval and paginated. Default interval is current day.
+            parameters:
+                - in: query
+                  name: startDate
+                  description: First date for the interval. Must bee in YYYY-MM-DD format
+                  schema:
+                      type: string
+                      format: date
+                      default: "2022-01-30"
+                  required: false
+                  example: 
+                - in: query
+                  name: endDate
+                  description: Last date for the interval. Must bee in YYYY-MM-DD format
+                  schema:
+                      type: string
+                      format: date
+                      default: "2023-12-31"
+                  required: false
+                - in: query
+                  name: page
+                  description: Page number to retrieve
+                  schema:
+                      type: integer
+                      format: int64
+                      minimum: 1
+                      default: 1
+                  required: false
+                - in: query
+                  name: pageSize
+                  description: Number of items per page
+                  schema:
+                      type: integer
+                      format: int64
+                      minimum: 10
+                      default: 100
+                  required: false
+            responses:
+                "200":
+                    description: Games in the inteval
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/GetGamesResponse"
+                               
 
     /rounds/{id}:
         parameters:
@@ -237,6 +293,9 @@ paths:
                                     format: int64
                                 idTestClass:
                                     type: string
+                        example:
+                            idGame: 1
+                            idTestClass: "a_test_class.java"
             responses:
                 "201":
                     description: Created
@@ -352,6 +411,9 @@ paths:
                             properties:
                                 scores:
                                     type: string
+                        example:
+                            scores: "a new score in JSON format"
+                           
             responses:
                 "200":
                     description: Updated
@@ -535,11 +597,16 @@ paths:
                             properties:
                                 idPlayer:
                                     type: integer
+                                    format: int64
                                 idRound:
                                     type: integer
                                     format: int64
                                 scores:
                                     type: string
+                        example:
+                            idPlayer: 1
+                            idRound: 1
+                            scores: "score example"
             responses:
                 "201":
                     description: Created
@@ -564,13 +631,6 @@ components:
     schemas:
         Game:
             type: object
-            required:
-                - id
-                - currentRound
-                - createdAt
-                - updatedAt
-                - playersCount
-                - name
             properties:
                 id:
                     type: integer
@@ -590,11 +650,6 @@ components:
 
         Round:
             type: object
-            required:
-                - id
-                - idTestClass
-                - createdAt
-                - updatedAt
             properties:
                 id:
                     type: integer
@@ -610,13 +665,6 @@ components:
 
         Turn:
             type: object
-            required:
-                - id
-                - isWinner
-                - createdAt
-                - updatedAt
-                - idPlayer
-                - scores
             properties:
                 id:
                     type: integer
@@ -636,8 +684,29 @@ components:
 
         Error:
             type: "object"
-            required:
-                - message
             properties:
                 message:
                     type: string
+        
+        GetGamesResponse:
+            type: "object"
+            properties:
+                metadata:
+                    type: object
+                    properties:
+                        hasNext:
+                            type: boolean
+                        count:
+                            type: integer
+                            format: int64
+                        page:
+                            type: integer
+                            format: int64
+                        pageSize:
+                            type: integer
+                            format: int64
+                data:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Game'
+

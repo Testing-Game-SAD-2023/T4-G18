@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "0b5c15da-3ded-4084-a741-316d0fdfe619",
-		"name": "GameCollectionRepository",
-		"description": "CRUD on Game Repository",
+		"_postman_id": "a2cfb267-3b9f-4763-82f4-61ad4044e59b",
+		"name": "GameRepositoryCollection",
+		"description": "Game Repository REST API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_uid": "26804152-0b5c15da-3ded-4084-a741-316d0fdfe619"
+		"_uid": "26804152-a2cfb267-3b9f-4763-82f4-61ad4044e59b"
 	},
 	"item": [
 		{
@@ -18,7 +18,7 @@
 							"item": [
 								{
 									"name": "Upload turn files",
-									"id": "0977bd32-f5cd-44a9-8c6a-2dc0071521d2",
+									"id": "a428008f-e2ba-4666-baa9-246e003dee0b",
 									"protocolProfileBehavior": {
 										"disableBodyPruning": true
 									},
@@ -34,6 +34,10 @@
 												"value": "application/json"
 											}
 										],
+										"body": {
+											"mode": "file",
+											"file": {}
+										},
 										"url": {
 											"raw": "{{baseUrl}}/turns/:id/files",
 											"host": [
@@ -47,14 +51,15 @@
 											"variable": [
 												{
 													"key": "id",
-													"value": "<integer>"
+													"value": "<long>"
 												}
 											]
-										}
+										},
+										"description": "Upload turn files as a zip"
 									},
 									"response": [
 										{
-											"id": "f721769e-37a8-46ec-a561-d41f2aacf545",
+											"id": "0e7e9d2d-ca09-41ab-89d7-41e3f6fc9922",
 											"name": "File uploaded successfully",
 											"originalRequest": {
 												"method": "PUT",
@@ -92,7 +97,7 @@
 											"cookie": []
 										},
 										{
-											"id": "87ed68c7-fb8b-428b-a491-48a0f5340aeb",
+											"id": "725b64bd-f7fa-4f27-aea4-2a1f8d107d5f",
 											"name": "Bad request",
 											"originalRequest": {
 												"method": "PUT",
@@ -136,7 +141,7 @@
 											"body": "{\n  \"message\": \"<string>\"\n}"
 										},
 										{
-											"id": "d450d3f9-469c-4caf-8685-957c3eec2de7",
+											"id": "66abeb99-fedd-4281-a0c0-992beb49c378",
 											"name": "No Turn found for the provided `Id`",
 											"originalRequest": {
 												"method": "PUT",
@@ -180,7 +185,7 @@
 											"body": "{\n  \"message\": \"<string>\"\n}"
 										},
 										{
-											"id": "35e6923b-93fb-4e81-8755-770aa9d48717",
+											"id": "174df2ba-2cf9-4e78-9c36-5d274e377560",
 											"name": "Internal server error",
 											"originalRequest": {
 												"method": "PUT",
@@ -227,7 +232,7 @@
 								},
 								{
 									"name": "Download turn files",
-									"id": "ef325098-36f5-4a01-80d0-8ee3efd6dc0d",
+									"id": "77ad1bc4-adb4-4948-bc7d-85e9f18137a2",
 									"protocolProfileBehavior": {
 										"disableBodyPruning": true
 									},
@@ -252,14 +257,15 @@
 											"variable": [
 												{
 													"key": "id",
-													"value": "<integer>"
+													"value": "<long>"
 												}
 											]
-										}
+										},
+										"description": "Download turn files as a zip"
 									},
 									"response": [
 										{
-											"id": "16355db0-394e-4799-b68a-41e8afda4ec9",
+											"id": "97e4e651-e633-4f58-97a4-a4b604871434",
 											"name": "Bad request",
 											"originalRequest": {
 												"method": "GET",
@@ -294,7 +300,7 @@
 											"body": "<string>"
 										},
 										{
-											"id": "ea49e956-95b7-427c-8cca-0a3baa258ba8",
+											"id": "bad4befa-33a9-4ef8-ab80-ef09b8def88f",
 											"name": "Bad request",
 											"originalRequest": {
 												"method": "GET",
@@ -329,7 +335,7 @@
 											"body": "{\n  \"message\": \"<string>\"\n}"
 										},
 										{
-											"id": "008d2813-d8a1-4027-8adc-ddb7389f2091",
+											"id": "ae902e8b-cadc-45e3-aef4-e5a253a9b52f",
 											"name": "No Turn found for the provided `Id`",
 											"originalRequest": {
 												"method": "GET",
@@ -364,7 +370,7 @@
 											"body": "{\n  \"message\": \"<string>\"\n}"
 										},
 										{
-											"id": "0a5fbaf3-946a-426e-a564-5f9e59cdb856",
+											"id": "fa0c33e9-2f79-4907-886f-15a1afdb158c",
 											"name": "Internal server error",
 											"originalRequest": {
 												"method": "GET",
@@ -401,11 +407,11 @@
 									]
 								}
 							],
-							"id": "4d4c5fd6-12c5-4b2b-b2ef-230f1382b2c3"
+							"id": "0761f720-143e-4f3a-9af4-4379a7fe8f53"
 						},
 						{
 							"name": "Retrieve a turn",
-							"id": "9234d624-250e-458c-8f4a-5b1abbd505f6",
+							"id": "c0f81447-58cd-45c3-a6c8-c917c8ecab4e",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -429,14 +435,15 @@
 									"variable": [
 										{
 											"key": "id",
-											"value": "<integer>"
+											"value": "<long>"
 										}
 									]
-								}
+								},
+								"description": "Retrieve a turn by id"
 							},
 							"response": [
 								{
-									"id": "8de00530-a3e8-4051-9d80-5e98d8d8ebab",
+									"id": "d92c0a89-88ea-47e7-94f4-896fa930a60d",
 									"name": "The Turn corresponding to the provided `Id`",
 									"originalRequest": {
 										"method": "GET",
@@ -459,7 +466,7 @@
 									},
 									"status": "OK",
 									"code": 200,
-									"_postman_previewlanguage": "Text",
+									"_postman_previewlanguage": "json",
 									"header": [
 										{
 											"key": "Content-Type",
@@ -470,7 +477,7 @@
 									"body": "{\n  \"id\": \"<long>\",\n  \"isWinner\": \"<boolean>\",\n  \"createdAt\": \"<dateTime>\",\n  \"updatedAt\": \"<dateTime>\",\n  \"idPlayer\": \"<integer>\",\n  \"scores\": \"<string>\"\n}"
 								},
 								{
-									"id": "0cc2121d-3a9a-4560-81f5-9f3aca39aa55",
+									"id": "021b528d-42a3-4676-99de-dac273c2898b",
 									"name": "Bad request",
 									"originalRequest": {
 										"method": "GET",
@@ -504,7 +511,7 @@
 									"body": "{\n  \"message\": \"<string>\"\n}"
 								},
 								{
-									"id": "9094f0e7-4925-4f38-97a5-9e0fb626b124",
+									"id": "bc271140-21d5-494d-8b6f-4ec21c9cb1ee",
 									"name": "No Turn found for the provided `Id`",
 									"originalRequest": {
 										"method": "GET",
@@ -538,7 +545,7 @@
 									"body": "{\n  \"message\": \"<string>\"\n}"
 								},
 								{
-									"id": "d6ea32cd-461e-4df5-8a0b-3593573bb0f8",
+									"id": "0a009fb5-726e-4a43-bbd3-c7fd841ff92d",
 									"name": "Internal server error",
 									"originalRequest": {
 										"method": "GET",
@@ -575,7 +582,7 @@
 						},
 						{
 							"name": "Update a turn",
-							"id": "bf057bbb-ab1f-4138-b6d3-cfc731c767c8",
+							"id": "65330510-0ec7-42ca-b7b3-587dcfb9c9f6",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -591,6 +598,16 @@
 										"value": "application/json"
 									}
 								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"scores\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
 								"url": {
 									"raw": "{{baseUrl}}/turns/:id",
 									"host": [
@@ -603,14 +620,15 @@
 									"variable": [
 										{
 											"key": "id",
-											"value": "<integer>"
+											"value": "<long>"
 										}
 									]
-								}
+								},
+								"description": "Update a turn by id"
 							},
 							"response": [
 								{
-									"id": "12d6006b-8876-40ee-a7e4-d05cdb114550",
+									"id": "2aab57d2-d5b5-4b68-b80b-68fc39711098",
 									"name": "Updated",
 									"originalRequest": {
 										"method": "PUT",
@@ -648,7 +666,7 @@
 									},
 									"status": "OK",
 									"code": 200,
-									"_postman_previewlanguage": "Text",
+									"_postman_previewlanguage": "json",
 									"header": [
 										{
 											"key": "Content-Type",
@@ -659,7 +677,7 @@
 									"body": "{\n  \"id\": \"<long>\",\n  \"isWinner\": \"<boolean>\",\n  \"createdAt\": \"<dateTime>\",\n  \"updatedAt\": \"<dateTime>\",\n  \"idPlayer\": \"<integer>\",\n  \"scores\": \"<string>\"\n}"
 								},
 								{
-									"id": "e8a0b971-4e0f-4628-8cbc-38db94a31060",
+									"id": "28515e06-6b52-4a9c-af04-81edd3072bdb",
 									"name": "Bad request",
 									"originalRequest": {
 										"method": "PUT",
@@ -708,7 +726,7 @@
 									"body": "{\n  \"message\": \"<string>\"\n}"
 								},
 								{
-									"id": "7b0467c9-4932-426c-805d-da45452fef8c",
+									"id": "f4b2bd42-a1a0-4cff-8d59-6c6840b1df1b",
 									"name": "Not found",
 									"originalRequest": {
 										"method": "PUT",
@@ -757,7 +775,7 @@
 									"body": "{\n  \"message\": \"<string>\"\n}"
 								},
 								{
-									"id": "f179b1b1-cc54-4efa-8e18-be7d0bdfa70f",
+									"id": "1fbe9308-9d26-4f23-8dcc-f48ff3177c81",
 									"name": "Internal server error",
 									"originalRequest": {
 										"method": "PUT",
@@ -809,7 +827,7 @@
 						},
 						{
 							"name": "Delete a turn",
-							"id": "2d9b854a-9211-4fef-b4b7-48c7dcb0a006",
+							"id": "848a2241-8ae5-48e9-8b59-2fa1e2aae06a",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -833,14 +851,15 @@
 									"variable": [
 										{
 											"key": "id",
-											"value": "<integer>"
+											"value": "<long>"
 										}
 									]
-								}
+								},
+								"description": "Delete a turn by id"
 							},
 							"response": [
 								{
-									"id": "b204bf4e-4d99-43d2-a079-6479b779f00a",
+									"id": "736a1ad8-1cfc-438f-995d-170c8dbb71a6",
 									"name": "Turn deleted",
 									"originalRequest": {
 										"method": "DELETE",
@@ -868,7 +887,7 @@
 									"cookie": []
 								},
 								{
-									"id": "f301dd4f-7c72-47a5-8aa7-e4f20924e003",
+									"id": "13450892-2b3f-4acb-ad90-f58366ee7c3d",
 									"name": "Bad request",
 									"originalRequest": {
 										"method": "DELETE",
@@ -902,7 +921,7 @@
 									"body": "{\n  \"message\": \"<string>\"\n}"
 								},
 								{
-									"id": "2fb32253-cec4-48f5-852e-4812fdba90ba",
+									"id": "75021a68-aef1-406b-a0b6-b739bad56b2e",
 									"name": "No Turn found for the provided `Id`",
 									"originalRequest": {
 										"method": "DELETE",
@@ -936,7 +955,7 @@
 									"body": "{\n  \"message\": \"<string>\"\n}"
 								},
 								{
-									"id": "bfb1d747-c751-4611-b189-2ba4ee15ec45",
+									"id": "87a408a3-f33c-4901-98e2-3f794cdeeebb",
 									"name": "Internal server error",
 									"originalRequest": {
 										"method": "DELETE",
@@ -972,175 +991,11 @@
 							]
 						}
 					],
-					"id": "08ef0728-4a09-4ace-bd32-5e0550a0eb18"
-				},
-				{
-					"name": "Create a turn",
-					"id": "d4d5e018-06c6-48f4-ae17-c651f935c300",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"idPlayer\": \"<integer>\",\n  \"idRound\": \"<long>\",\n  \"scores\": \"<string>\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/turns",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"turns"
-							]
-						}
-					},
-					"response": [
-						{
-							"id": "3619cb48-af51-41f9-9193-b8695a45211c",
-							"name": "Created",
-							"originalRequest": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"idPlayer\": \"<integer>\",\n  \"idRound\": \"<integer>\",\n  \"scores\": \"<string>\"\n}",
-									"options": {
-										"raw": {
-											"headerFamily": "json",
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/turns",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"turns"
-									]
-								}
-							},
-							"status": "Created",
-							"code": 201,
-							"_postman_previewlanguage": "Text",
-							"header": [
-								{
-									"key": "Content-Type",
-									"value": "application/json"
-								}
-							],
-							"cookie": [],
-							"body": "{\n  \"id\": \"<long>\",\n  \"isWinner\": \"<boolean>\",\n  \"createdAt\": \"<dateTime>\",\n  \"updatedAt\": \"<dateTime>\",\n  \"idPlayer\": \"<integer>\",\n  \"scores\": \"<string>\"\n}"
-						},
-						{
-							"id": "3287708a-03b2-47da-89ed-f356852a1ecf",
-							"name": "Bad request",
-							"originalRequest": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"idPlayer\": \"<integer>\",\n  \"idRound\": \"<integer>\",\n  \"scores\": \"<string>\"\n}",
-									"options": {
-										"raw": {
-											"headerFamily": "json",
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/turns",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"turns"
-									]
-								}
-							},
-							"status": "Bad Request",
-							"code": 400,
-							"_postman_previewlanguage": "json",
-							"header": [
-								{
-									"key": "Content-Type",
-									"value": "application/json"
-								}
-							],
-							"cookie": [],
-							"body": "{\n  \"message\": \"<string>\"\n}"
-						},
-						{
-							"id": "2a53d59f-8558-4e37-a176-19a4ffbeae90",
-							"name": "Internal server error",
-							"originalRequest": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"idPlayer\": \"<integer>\",\n  \"idRound\": \"<integer>\",\n  \"scores\": \"<string>\"\n}",
-									"options": {
-										"raw": {
-											"headerFamily": "json",
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/turns",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"turns"
-									]
-								}
-							},
-							"status": "Internal Server Error",
-							"code": 500,
-							"_postman_previewlanguage": "json",
-							"header": [
-								{
-									"key": "Content-Type",
-									"value": "application/json"
-								}
-							],
-							"cookie": [],
-							"body": "{\n  \"message\": \"<string>\"\n}"
-						}
-					]
+					"id": "50dbfe08-d624-491c-b564-41fbfbb5b156"
 				},
 				{
 					"name": "Retrieve turns in a round",
-					"id": "17df652d-dc46-4deb-8238-d86fc604eb75",
+					"id": "5ee57b98-fa2d-4476-a294-81fd62c9b3b2",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -1172,7 +1027,7 @@
 					},
 					"response": [
 						{
-							"id": "0c85478b-b1f9-413f-a123-fc18c2d64617",
+							"id": "60c27546-8496-46a4-a3fd-bda9498c1f4e",
 							"name": "List of turns",
 							"originalRequest": {
 								"method": "GET",
@@ -1196,7 +1051,7 @@
 							},
 							"status": "OK",
 							"code": 200,
-							"_postman_previewlanguage": "Text",
+							"_postman_previewlanguage": "json",
 							"header": [
 								{
 									"key": "Content-Type",
@@ -1204,10 +1059,10 @@
 								}
 							],
 							"cookie": [],
-							"body": "[\n  {\n    \"id\": -2738623,\n    \"isWinner\": false,\n    \"createdAt\": \"1974-02-03T19:39:09.411Z\",\n    \"updatedAt\": \"2017-07-04T17:29:41.265Z\",\n    \"idPlayer\": -36259192,\n    \"scores\": \"mollit incididunt sed\"\n  },\n  {\n    \"id\": -36615101,\n    \"isWinner\": false,\n    \"createdAt\": \"1945-12-07T03:17:42.095Z\",\n    \"updatedAt\": \"1955-09-09T11:38:27.160Z\",\n    \"idPlayer\": 93331626,\n    \"scores\": \"deserunt\"\n  }\n]"
+							"body": "[\n  {\n    \"id\": \"<long>\",\n    \"isWinner\": \"<boolean>\",\n    \"createdAt\": \"<dateTime>\",\n    \"updatedAt\": \"<dateTime>\",\n    \"idPlayer\": \"<integer>\",\n    \"scores\": \"<string>\"\n  },\n  {\n    \"id\": \"<long>\",\n    \"isWinner\": \"<boolean>\",\n    \"createdAt\": \"<dateTime>\",\n    \"updatedAt\": \"<dateTime>\",\n    \"idPlayer\": \"<integer>\",\n    \"scores\": \"<string>\"\n  }\n]"
 						},
 						{
-							"id": "fe322200-bcf9-40a4-bce5-232cbae39b69",
+							"id": "50ee892b-7e89-4735-9541-2bde60c78ab6",
 							"name": "Invalid round id",
 							"originalRequest": {
 								"method": "GET",
@@ -1231,7 +1086,7 @@
 							},
 							"status": "Bad Request",
 							"code": 400,
-							"_postman_previewlanguage": "Text",
+							"_postman_previewlanguage": "json",
 							"header": [
 								{
 									"key": "Content-Type",
@@ -1239,10 +1094,10 @@
 								}
 							],
 							"cookie": [],
-							"body": "{\n  \"message\": \"consequat laboris ipsum\"\n}"
+							"body": "{\n  \"message\": \"<string>\"\n}"
 						},
 						{
-							"id": "b0399ae3-8771-4a76-a322-d1d8f91acd5e",
+							"id": "af1703a5-3949-49d6-89f1-20a275ffc5bd",
 							"name": "No round found for the provided id",
 							"originalRequest": {
 								"method": "GET",
@@ -1266,7 +1121,7 @@
 							},
 							"status": "Not Found",
 							"code": 404,
-							"_postman_previewlanguage": "Text",
+							"_postman_previewlanguage": "json",
 							"header": [
 								{
 									"key": "Content-Type",
@@ -1274,10 +1129,10 @@
 								}
 							],
 							"cookie": [],
-							"body": "{\n  \"message\": \"consequat laboris ipsum\"\n}"
+							"body": "{\n  \"message\": \"<string>\"\n}"
 						},
 						{
-							"id": "c461cafc-015d-408d-9cf8-2e43dcbde571",
+							"id": "e4db899c-6621-4cd5-bb5e-1b897b340553",
 							"name": "Internal server error",
 							"originalRequest": {
 								"method": "GET",
@@ -1301,7 +1156,7 @@
 							},
 							"status": "Internal Server Error",
 							"code": 500,
-							"_postman_previewlanguage": "Text",
+							"_postman_previewlanguage": "json",
 							"header": [
 								{
 									"key": "Content-Type",
@@ -1309,12 +1164,183 @@
 								}
 							],
 							"cookie": [],
-							"body": "{\n  \"message\": \"consequat laboris ipsum\"\n}"
+							"body": "{\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Create a turn",
+					"id": "e80ef8e5-5d05-48bb-9cff-ccbbaa2dc685",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idPlayer\": \"<long>\",\n  \"idRound\": \"<long>\",\n  \"scores\": \"<string>\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/turns",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"turns"
+							]
+						},
+						"description": "Create a turn in the system"
+					},
+					"response": [
+						{
+							"id": "41023cdb-655d-4f40-bf34-a8ad34b93e9c",
+							"name": "Created",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idPlayer\": \"<long>\",\n  \"idRound\": \"<long>\",\n  \"scores\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/turns",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turns"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": \"<long>\",\n  \"isWinner\": \"<boolean>\",\n  \"createdAt\": \"<dateTime>\",\n  \"updatedAt\": \"<dateTime>\",\n  \"idPlayer\": \"<integer>\",\n  \"scores\": \"<string>\"\n}"
+						},
+						{
+							"id": "34ff792a-d066-42f3-8363-24f96fb8cd03",
+							"name": "Bad request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idPlayer\": \"<long>\",\n  \"idRound\": \"<long>\",\n  \"scores\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/turns",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turns"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"id": "28b4c038-c89f-498c-8a46-23ef6414cf92",
+							"name": "Internal server error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idPlayer\": \"<long>\",\n  \"idRound\": \"<long>\",\n  \"scores\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/turns",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turns"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"<string>\"\n}"
 						}
 					]
 				}
 			],
-			"id": "1dd33cbd-eba1-4d3b-ac8e-ab1536469e5d"
+			"id": "8c151c5f-165b-4278-8113-612aec961418"
 		},
 		{
 			"name": "rounds",
@@ -1324,7 +1350,7 @@
 					"item": [
 						{
 							"name": "Retrieve a round",
-							"id": "81554186-26e3-454c-ae95-289098ccc189",
+							"id": "7ed7eb5f-fe4b-44df-9c9c-912f85edf746",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -1348,14 +1374,15 @@
 									"variable": [
 										{
 											"key": "id",
-											"value": "<integer>"
+											"value": "<long>"
 										}
 									]
-								}
+								},
+								"description": "Retrieve a round by id"
 							},
 							"response": [
 								{
-									"id": "8798c4ca-75cc-49a6-bb56-53093763563e",
+									"id": "e3878f71-97bb-4c0e-aeaa-aa459c0d3733",
 									"name": "The Round corresponding to the provided `Id`",
 									"originalRequest": {
 										"method": "GET",
@@ -1378,7 +1405,7 @@
 									},
 									"status": "OK",
 									"code": 200,
-									"_postman_previewlanguage": "Text",
+									"_postman_previewlanguage": "json",
 									"header": [
 										{
 											"key": "Content-Type",
@@ -1389,7 +1416,7 @@
 									"body": "{\n  \"id\": \"<long>\",\n  \"idTestClass\": \"<string>\",\n  \"createdAt\": \"<dateTime>\",\n  \"updatedAt\": \"<dateTime>\"\n}"
 								},
 								{
-									"id": "ce240986-12df-469d-8f4d-efe90d9269d6",
+									"id": "6c34fc93-3621-40a2-984b-3834921f21ef",
 									"name": "Bad request",
 									"originalRequest": {
 										"method": "GET",
@@ -1423,7 +1450,7 @@
 									"body": "{\n  \"message\": \"<string>\"\n}"
 								},
 								{
-									"id": "b486d5c0-5f6d-44e7-a9c5-5b35082bfc31",
+									"id": "4d359d57-85f8-4b75-a72b-01a9251fda0c",
 									"name": "No Round found for the provided `Id`",
 									"originalRequest": {
 										"method": "GET",
@@ -1457,7 +1484,7 @@
 									"body": "{\n  \"message\": \"<string>\"\n}"
 								},
 								{
-									"id": "eba4406a-5172-4535-b47a-454a70f749ec",
+									"id": "2fe5cc0b-6f5f-4d42-8884-441ed553cf2d",
 									"name": "Internal server error",
 									"originalRequest": {
 										"method": "GET",
@@ -1494,7 +1521,7 @@
 						},
 						{
 							"name": "Delete a round",
-							"id": "a2a821b2-2b5d-462d-99c6-71f8918fb5f7",
+							"id": "a96e81bc-07ef-4111-883e-0e2f4632644f",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -1518,14 +1545,15 @@
 									"variable": [
 										{
 											"key": "id",
-											"value": "<integer>"
+											"value": "<long>"
 										}
 									]
-								}
+								},
+								"description": "Delete a round by id"
 							},
 							"response": [
 								{
-									"id": "2b93d73b-2c5a-4930-81ac-5a8e06bb84b2",
+									"id": "34e47dc4-83e1-43fe-bc90-462e39677ea4",
 									"name": "Round deleted",
 									"originalRequest": {
 										"method": "DELETE",
@@ -1553,7 +1581,7 @@
 									"cookie": []
 								},
 								{
-									"id": "1603a405-403a-450f-bdce-9c8bfb0126e7",
+									"id": "b1adaec3-f307-4cb4-a1da-881d72a9a616",
 									"name": "Bad request",
 									"originalRequest": {
 										"method": "DELETE",
@@ -1587,7 +1615,7 @@
 									"body": "{\n  \"message\": \"<string>\"\n}"
 								},
 								{
-									"id": "81de7422-ff12-482f-80f2-869e3cc784d7",
+									"id": "2402f5fb-1043-42da-8553-4651b0987ad8",
 									"name": "No Round found for the provided `Id`",
 									"originalRequest": {
 										"method": "DELETE",
@@ -1621,7 +1649,7 @@
 									"body": "{\n  \"message\": \"<string>\"\n}"
 								},
 								{
-									"id": "8578d644-6bfb-474f-95c4-9f27cf7096a9",
+									"id": "0d712b28-3254-43b3-a728-97856983bdc3",
 									"name": "Internal server error",
 									"originalRequest": {
 										"method": "DELETE",
@@ -1657,11 +1685,11 @@
 							]
 						}
 					],
-					"id": "19342015-af36-4282-9596-c0468bc936ac"
+					"id": "18cdbd6e-16c5-4f5c-ac8b-e22fbc1030c9"
 				},
 				{
 					"name": "Creates a round",
-					"id": "0a7f08ca-abf6-4a3f-8fee-48e25ad0edfc",
+					"id": "601c32c1-18f7-4edb-a65f-7d3596c3761d",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -1679,7 +1707,13 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"idGame\": \"<long>\",\n  \"idTestClass\": \"<string>\"\n}"
+							"raw": "{\n  \"idGame\": \"<long>\",\n  \"idTestClass\": \"<string>\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/rounds",
@@ -1689,11 +1723,12 @@
 							"path": [
 								"rounds"
 							]
-						}
+						},
+						"description": "Create a round"
 					},
 					"response": [
 						{
-							"id": "962892ed-d956-44cf-bbec-b946871ebacb",
+							"id": "1577dbeb-a0a7-4d2d-9eb5-0e47866feabc",
 							"name": "Created",
 							"originalRequest": {
 								"method": "POST",
@@ -1705,7 +1740,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"idGame\": \"<integer>\",\n  \"idTestClass\": \"<string>\"\n}",
+									"raw": "{\n  \"idGame\": \"<long>\",\n  \"idTestClass\": \"<string>\"\n}",
 									"options": {
 										"raw": {
 											"headerFamily": "json",
@@ -1725,7 +1760,7 @@
 							},
 							"status": "Created",
 							"code": 201,
-							"_postman_previewlanguage": "Text",
+							"_postman_previewlanguage": "json",
 							"header": [
 								{
 									"key": "Content-Type",
@@ -1736,7 +1771,7 @@
 							"body": "{\n  \"id\": \"<long>\",\n  \"idTestClass\": \"<string>\",\n  \"createdAt\": \"<dateTime>\",\n  \"updatedAt\": \"<dateTime>\"\n}"
 						},
 						{
-							"id": "6cf6ce8a-1240-48d0-811c-13e14ed49562",
+							"id": "f2204b13-d304-40e5-b611-db08d5c5d87d",
 							"name": "Bad request",
 							"originalRequest": {
 								"method": "POST",
@@ -1748,7 +1783,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"idGame\": \"<integer>\",\n  \"idTestClass\": \"<string>\"\n}",
+									"raw": "{\n  \"idGame\": \"<long>\",\n  \"idTestClass\": \"<string>\"\n}",
 									"options": {
 										"raw": {
 											"headerFamily": "json",
@@ -1779,7 +1814,7 @@
 							"body": "{\n  \"message\": \"<string>\"\n}"
 						},
 						{
-							"id": "adbb6710-12a7-4bf3-a066-ab3b4be2f8d5",
+							"id": "ae821be0-8436-4e04-b404-a38fe5f88306",
 							"name": "Internal server error",
 							"originalRequest": {
 								"method": "POST",
@@ -1791,7 +1826,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"idGame\": \"<integer>\",\n  \"idTestClass\": \"<string>\"\n}",
+									"raw": "{\n  \"idGame\": \"<long>\",\n  \"idTestClass\": \"<string>\"\n}",
 									"options": {
 										"raw": {
 											"headerFamily": "json",
@@ -1825,7 +1860,7 @@
 				},
 				{
 					"name": "Retrieve rounds per game",
-					"id": "9f642f46-4612-4f32-8749-00bbf37f32c8",
+					"id": "7fb6ead0-c9b8-4af0-8875-9d2a1c4b2ebb",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -1852,17 +1887,18 @@
 									"value": "<long>"
 								}
 							]
-						}
+						},
+						"description": "Retrieve all rounds given a game id"
 					},
 					"response": [
 						{
-							"id": "16e73ffe-c54f-4e2e-abc5-88df5a55424f",
-							"name": "Bad request",
+							"id": "4b0a2670-abf8-4efc-a202-f161ccf55506",
+							"name": "List of rounds",
 							"originalRequest": {
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/rounds?gameId=<integer>",
+									"raw": "{{baseUrl}}/rounds?gameId=<long>",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -1873,14 +1909,49 @@
 										{
 											"description": "(Required) Id of the game",
 											"key": "gameId",
-											"value": "<integer>"
+											"value": "<long>"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"id\": \"<long>\",\n    \"idTestClass\": \"<string>\",\n    \"createdAt\": \"<dateTime>\",\n    \"updatedAt\": \"<dateTime>\"\n  },\n  {\n    \"id\": \"<long>\",\n    \"idTestClass\": \"<string>\",\n    \"createdAt\": \"<dateTime>\",\n    \"updatedAt\": \"<dateTime>\"\n  }\n]"
+						},
+						{
+							"id": "3e3d29c4-ed9b-442d-bf19-0dc75396853c",
+							"name": "Invalid game id",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/rounds?gameId=<long>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rounds"
+									],
+									"query": [
+										{
+											"description": "(Required) Id of the game",
+											"key": "gameId",
+											"value": "<long>"
 										}
 									]
 								}
 							},
 							"status": "Bad Request",
 							"code": 400,
-							"_postman_previewlanguage": "Text",
+							"_postman_previewlanguage": "json",
 							"header": [
 								{
 									"key": "Content-Type",
@@ -1888,16 +1959,16 @@
 								}
 							],
 							"cookie": [],
-							"body": "{\n  \"message\": \"i\"\n}"
+							"body": "{\n  \"message\": \"<string>\"\n}"
 						},
 						{
-							"id": "9e3f597c-2869-46ed-a4f4-bb40f343e756",
-							"name": "Internal server error",
+							"id": "bb4d06f9-2a5f-4760-9089-68bca36779dc",
+							"name": "No game found for the provided id",
 							"originalRequest": {
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/rounds?gameId=<integer>",
+									"raw": "{{baseUrl}}/rounds?gameId=<long>",
 									"host": [
 										"{{baseUrl}}"
 									],
@@ -1908,14 +1979,49 @@
 										{
 											"description": "(Required) Id of the game",
 											"key": "gameId",
-											"value": "<integer>"
+											"value": "<long>"
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"id": "bd8af835-7169-4d0a-b4c6-cc72c68fd28f",
+							"name": "Internal server error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/rounds?gameId=<long>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rounds"
+									],
+									"query": [
+										{
+											"description": "(Required) Id of the game",
+											"key": "gameId",
+											"value": "<long>"
 										}
 									]
 								}
 							},
 							"status": "Internal Server Error",
 							"code": 500,
-							"_postman_previewlanguage": "Text",
+							"_postman_previewlanguage": "json",
 							"header": [
 								{
 									"key": "Content-Type",
@@ -1923,68 +2029,12 @@
 								}
 							],
 							"cookie": [],
-							"body": "{\n  \"message\": \"i\"\n}"
-						},
-						{
-							"id": "f0380466-db1e-48bf-a801-3185a35355d3",
-							"name": "List of rounds",
-							"originalRequest": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/rounds",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"rounds"
-									]
-								}
-							},
-							"status": "OK",
-							"code": 200,
-							"_postman_previewlanguage": "Text",
-							"header": [
-								{
-									"key": "Content-Type",
-									"value": "application/json"
-								}
-							],
-							"cookie": [],
-							"body": "[\n  {\n    \"id\": -62616303,\n    \"idTestClass\": \"nis\",\n    \"createdAt\": \"2018-02-07T09:47:39.943Z\",\n    \"updatedAt\": \"2018-01-10T11:25:40.436Z\"\n  },\n  {\n    \"id\": -35539005,\n    \"idTestClass\": \"sit deserunt non laboris exercitation\",\n    \"createdAt\": \"1975-06-17T09:48:12.427Z\",\n    \"updatedAt\": \"1975-11-07T22:09:11.573Z\"\n  }\n]"
-						},
-						{
-							"id": "f74ae499-5c8f-4286-ab82-1d1e509e2f9d",
-							"name": "No game found for the provided id",
-							"originalRequest": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrl}}/rounds",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"rounds"
-									]
-								}
-							},
-							"status": "Not Found",
-							"code": 404,
-							"_postman_previewlanguage": "Text",
-							"header": [
-								{
-									"key": "Content-Type",
-									"value": "application/json"
-								}
-							],
-							"cookie": [],
-							"body": "{\n  \"message\": \"consequat laboris ipsum\"\n}"
+							"body": "{\n  \"message\": \"<string>\"\n}"
 						}
 					]
 				}
 			],
-			"id": "2e29a0e6-4902-42cb-95ff-92775d96e22e"
+			"id": "4ae3f5e0-802c-4579-85f2-5a75f7341367"
 		},
 		{
 			"name": "games",
@@ -1994,7 +2044,7 @@
 					"item": [
 						{
 							"name": "Retrieve a game by id",
-							"id": "f12349db-db63-41e0-8ee4-ff9437567cb8",
+							"id": "7a3f8309-80ec-46be-81d1-783099e17ab9",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -2018,14 +2068,15 @@
 									"variable": [
 										{
 											"key": "id",
-											"value": "<integer>"
+											"value": "<long>"
 										}
 									]
-								}
+								},
+								"description": "Retrieve a game by id"
 							},
 							"response": [
 								{
-									"id": "b7c86c48-b0bb-4cd5-88e6-99c7fb5a862c",
+									"id": "75affd4f-d104-40a7-809a-64c34cc88d10",
 									"name": "The game corresponding to the provided `Id`",
 									"originalRequest": {
 										"method": "GET",
@@ -2048,7 +2099,7 @@
 									},
 									"status": "OK",
 									"code": 200,
-									"_postman_previewlanguage": "Text",
+									"_postman_previewlanguage": "json",
 									"header": [
 										{
 											"key": "Content-Type",
@@ -2059,7 +2110,7 @@
 									"body": "{\n  \"id\": \"<long>\",\n  \"currentRound\": \"<integer>\",\n  \"createdAt\": \"<dateTime>\",\n  \"updatedAt\": \"<dateTime>\",\n  \"playersCount\": \"<integer>\",\n  \"name\": \"<string>\"\n}"
 								},
 								{
-									"id": "3a7db1f6-78db-4e70-9564-65d4db00a9eb",
+									"id": "aae7ab8d-309c-465f-8e45-37a41f57ada2",
 									"name": "Bad request",
 									"originalRequest": {
 										"method": "GET",
@@ -2093,7 +2144,7 @@
 									"body": "{\n  \"message\": \"<string>\"\n}"
 								},
 								{
-									"id": "381ad1cb-009b-4a64-820c-0ebadf39983b",
+									"id": "be3acefb-842a-4c6c-89c6-ca76896369d0",
 									"name": "No game found for the provided `Id`",
 									"originalRequest": {
 										"method": "GET",
@@ -2127,7 +2178,7 @@
 									"body": "{\n  \"message\": \"<string>\"\n}"
 								},
 								{
-									"id": "d69f3838-5d77-483e-b592-62cba9326ee5",
+									"id": "e8db043b-974e-46a6-b276-3525e17a4eb3",
 									"name": "Internal server error",
 									"originalRequest": {
 										"method": "GET",
@@ -2164,7 +2215,7 @@
 						},
 						{
 							"name": "Update a game",
-							"id": "a25a9dfb-68da-4646-8b03-5ee17dbd3a00",
+							"id": "e340f6ae-9b56-4f3c-842e-fe6e9f4a8aee",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -2180,6 +2231,16 @@
 										"value": "application/json"
 									}
 								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"<string>\",\n  \"currentRound\": \"<integer>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
 								"url": {
 									"raw": "{{baseUrl}}/games/:id",
 									"host": [
@@ -2192,14 +2253,15 @@
 									"variable": [
 										{
 											"key": "id",
-											"value": "<integer>"
+											"value": "<long>"
 										}
 									]
-								}
+								},
+								"description": "Update a game by id"
 							},
 							"response": [
 								{
-									"id": "44d386b9-6464-4e25-8a68-4ce8fcee5cfe",
+									"id": "af303621-c4d5-46eb-9d97-eae23ce4edb4",
 									"name": "Updated",
 									"originalRequest": {
 										"method": "PUT",
@@ -2211,7 +2273,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"name\": \"<integer>\",\n  \"currentRound\": \"<integer>\"\n}",
+											"raw": "{\n  \"name\": \"<string>\",\n  \"currentRound\": \"<integer>\"\n}",
 											"options": {
 												"raw": {
 													"headerFamily": "json",
@@ -2237,7 +2299,7 @@
 									},
 									"status": "OK",
 									"code": 200,
-									"_postman_previewlanguage": "Text",
+									"_postman_previewlanguage": "json",
 									"header": [
 										{
 											"key": "Content-Type",
@@ -2248,7 +2310,7 @@
 									"body": "{\n  \"id\": \"<long>\",\n  \"currentRound\": \"<integer>\",\n  \"createdAt\": \"<dateTime>\",\n  \"updatedAt\": \"<dateTime>\",\n  \"playersCount\": \"<integer>\",\n  \"name\": \"<string>\"\n}"
 								},
 								{
-									"id": "7161921d-34b8-4464-afbc-d32ebaa17e64",
+									"id": "7ea3838e-d46d-4971-93fa-7491a6e2e336",
 									"name": "Bad request",
 									"originalRequest": {
 										"method": "PUT",
@@ -2260,7 +2322,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"name\": \"<integer>\",\n  \"currentRound\": \"<integer>\"\n}",
+											"raw": "{\n  \"name\": \"<string>\",\n  \"currentRound\": \"<integer>\"\n}",
 											"options": {
 												"raw": {
 													"headerFamily": "json",
@@ -2297,7 +2359,7 @@
 									"body": "{\n  \"message\": \"<string>\"\n}"
 								},
 								{
-									"id": "52d56898-76ba-4475-800a-0629ebadb593",
+									"id": "85b62881-0214-4002-95ff-945411545537",
 									"name": "Internal server error",
 									"originalRequest": {
 										"method": "PUT",
@@ -2309,7 +2371,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"name\": \"<integer>\",\n  \"currentRound\": \"<integer>\"\n}",
+											"raw": "{\n  \"name\": \"<string>\",\n  \"currentRound\": \"<integer>\"\n}",
 											"options": {
 												"raw": {
 													"headerFamily": "json",
@@ -2349,7 +2411,7 @@
 						},
 						{
 							"name": "Delete a Game",
-							"id": "f77a9e90-9dff-4464-9fb5-8c11791d393a",
+							"id": "a409da73-e062-42ce-a849-fd21793b7464",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -2373,14 +2435,15 @@
 									"variable": [
 										{
 											"key": "id",
-											"value": "<integer>"
+											"value": "<long>"
 										}
 									]
-								}
+								},
+								"description": "Delete a game by id"
 							},
 							"response": [
 								{
-									"id": "fb90d7c8-2b23-41a2-aeba-de7e5dae987e",
+									"id": "9212fe0b-1ebd-4b6c-aff9-3dfb2b41a16c",
 									"name": "Game deleted",
 									"originalRequest": {
 										"method": "DELETE",
@@ -2408,7 +2471,7 @@
 									"cookie": []
 								},
 								{
-									"id": "8af1a4a5-191f-41bb-9c5a-f433f4b95531",
+									"id": "ea546b62-6357-433d-b2b7-b40e0e335b73",
 									"name": "Bad request",
 									"originalRequest": {
 										"method": "DELETE",
@@ -2442,7 +2505,7 @@
 									"body": "{\n  \"message\": \"<string>\"\n}"
 								},
 								{
-									"id": "ba422220-3ded-4c2b-a064-a3730b50f47e",
+									"id": "c85ed556-b183-4551-8d8a-c7b5a205ed84",
 									"name": "No game found for the provided `Id`",
 									"originalRequest": {
 										"method": "DELETE",
@@ -2476,7 +2539,7 @@
 									"body": "{\n  \"message\": \"<string>\"\n}"
 								},
 								{
-									"id": "75b2c672-eba3-49b3-8e7e-707b323a9dc9",
+									"id": "ba309956-2e9f-4d03-bf81-5c20ce43ccf3",
 									"name": "Internal server error",
 									"originalRequest": {
 										"method": "DELETE",
@@ -2512,11 +2575,11 @@
 							]
 						}
 					],
-					"id": "5c05a861-6b81-4b1e-9464-6b0f749344db"
+					"id": "911c654f-97af-4a14-ab71-cdfbbd29cf53"
 				},
 				{
 					"name": "Create a Game",
-					"id": "8e0f37d7-242d-455a-9f93-17c04fb3c265",
+					"id": "27df35ea-714a-451a-8e90-89d42e90c93a",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -2532,6 +2595,16 @@
 								"value": "application/json"
 							}
 						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"playersCount\": \"<integer>\",\n  \"name\": \"<string>\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "{{baseUrl}}/games",
 							"host": [
@@ -2540,11 +2613,12 @@
 							"path": [
 								"games"
 							]
-						}
+						},
+						"description": "Create a game"
 					},
 					"response": [
 						{
-							"id": "48de28be-05c9-45d5-aaff-e967bd477863",
+							"id": "06815f75-ff4e-42e6-bc55-52c9acc0646d",
 							"name": "Created",
 							"originalRequest": {
 								"method": "POST",
@@ -2576,7 +2650,7 @@
 							},
 							"status": "Created",
 							"code": 201,
-							"_postman_previewlanguage": "Text",
+							"_postman_previewlanguage": "json",
 							"header": [
 								{
 									"key": "Content-Type",
@@ -2587,7 +2661,7 @@
 							"body": "{\n  \"id\": \"<long>\",\n  \"currentRound\": \"<integer>\",\n  \"createdAt\": \"<dateTime>\",\n  \"updatedAt\": \"<dateTime>\",\n  \"playersCount\": \"<integer>\",\n  \"name\": \"<string>\"\n}"
 						},
 						{
-							"id": "4c4b8492-d682-4aec-8ab2-d8929d2dff0c",
+							"id": "130fa252-ec95-46b5-a2ec-c83e2c9b0b45",
 							"name": "Bad request",
 							"originalRequest": {
 								"method": "POST",
@@ -2630,7 +2704,7 @@
 							"body": "{\n  \"message\": \"<string>\"\n}"
 						},
 						{
-							"id": "be2c2fce-87fb-4b93-b924-eb09562a6373",
+							"id": "289a8381-d568-4ef9-a475-60be432113d6",
 							"name": "Internal server error",
 							"originalRequest": {
 								"method": "POST",
@@ -2673,17 +2747,116 @@
 							"body": "{\n  \"message\": \"<string>\"\n}"
 						}
 					]
+				},
+				{
+					"name": "Retrieve games by date interval",
+					"id": "a3b37dde-ae61-441c-8b91-beaa04270b4d",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/games?startDate=2022-01-30&endDate=2023-12-31&page=1&pageSize=100",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"games"
+							],
+							"query": [
+								{
+									"description": "First date for the interval. Must bee in YYYY-MM-DD format",
+									"key": "startDate",
+									"value": "2022-01-30"
+								},
+								{
+									"description": "Last date for the interval. Must bee in YYYY-MM-DD format",
+									"key": "endDate",
+									"value": "2023-12-31"
+								},
+								{
+									"description": "Page number to retrieve",
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"description": "Number of items per page",
+									"key": "pageSize",
+									"value": "100"
+								}
+							]
+						},
+						"description": "Retrieve games in the system within an interval and paginated. Default interval is current day."
+					},
+					"response": [
+						{
+							"id": "b1bbe3b4-d4c1-4d4b-b31f-d1038edea31e",
+							"name": "Games in the inteval",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/games?startDate=2022-01-30&endDate=2023-12-31&page=1&pageSize=100",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"games"
+									],
+									"query": [
+										{
+											"description": "First date for the interval. Must bee in YYYY-MM-DD format",
+											"key": "startDate",
+											"value": "2022-01-30"
+										},
+										{
+											"description": "Last date for the interval. Must bee in YYYY-MM-DD format",
+											"key": "endDate",
+											"value": "2023-12-31"
+										},
+										{
+											"description": "Page number to retrieve",
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"description": "Number of items per page",
+											"key": "pageSize",
+											"value": "100"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"metadata\": {\n    \"hasNext\": \"<boolean>\",\n    \"count\": \"<long>\",\n    \"page\": \"<long>\",\n    \"pageSize\": \"<long>\"\n  },\n  \"data\": [\n    {\n      \"id\": \"<long>\",\n      \"currentRound\": \"<integer>\",\n      \"createdAt\": \"<dateTime>\",\n      \"updatedAt\": \"<dateTime>\",\n      \"playersCount\": \"<integer>\",\n      \"name\": \"<string>\"\n    },\n    {\n      \"id\": \"<long>\",\n      \"currentRound\": \"<integer>\",\n      \"createdAt\": \"<dateTime>\",\n      \"updatedAt\": \"<dateTime>\",\n      \"playersCount\": \"<integer>\",\n      \"name\": \"<string>\"\n    }\n  ]\n}"
+						}
+					]
 				}
 			],
-			"id": "04bb5732-a533-4d7f-93fa-5af795d0b556"
+			"id": "5adf4008-f634-4ff0-9e26-fd1db0cbdc46"
 		}
 	],
 	"variable": [
 		{
-			"id": "988cc73c-7cf3-4475-a0f4-76b36c3815d4",
+			"id": "f7d59137-70af-4911-8524-13eec9498d60",
 			"key": "baseUrl",
-			"value": "https://sad.capass.org",
-			"type": "string"
+			"value": "https://sad.capass.org"
 		}
 	]
 }
