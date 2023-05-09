@@ -19,14 +19,14 @@ type CreateGameRequest struct {
 }
 
 type CreateRoundRequest struct {
-	IdGame      uint64 `json:"idGame"`
+	IdGame      int64  `json:"idGame"`
 	IdTestClass string `json:"idTestClass"`
 	Order       int    `json:"order"`
 }
 
 type CreateTurnRequest struct {
-	IdPlayer uint64 `json:"idPlayer"`
-	IdRound  uint64 `json:"idRound"`
+	IdPlayer int64  `json:"idPlayer"`
+	IdRound  int64  `json:"idRound"`
 	Scores   string `json:"scores"`
 }
 
@@ -45,7 +45,7 @@ type UpdateGameRequest struct {
 }
 
 type GameDto struct {
-	ID           uint64    `json:"id"`
+	ID           int64     `json:"id"`
 	CurrentRound int       `json:"currentRound"`
 	CreatedAt    time.Time `json:"createdAt"`
 	UpdatedAt    time.Time `json:"updatedAt"`
@@ -54,7 +54,7 @@ type GameDto struct {
 }
 
 type RoundDto struct {
-	ID          uint64    `json:"id"`
+	ID          int64     `json:"id"`
 	Order       int       `json:"order"`
 	IdTestClass string    `json:"idTestClass"`
 	CreatedAt   time.Time `json:"createdAt"`
@@ -62,11 +62,11 @@ type RoundDto struct {
 }
 
 type TurnDto struct {
-	ID        uint64    `json:"id"`
+	ID        int64     `json:"id"`
 	IsWinner  bool      `json:"isWinner"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
-	PlayerID  uint64    `json:"idPlayer"`
+	PlayerID  int64     `json:"idPlayer"`
 	Scores    string    `json:"scores"`
 }
 

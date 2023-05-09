@@ -42,7 +42,7 @@ func (gc *GameController) create(w http.ResponseWriter, r *http.Request) error {
 
 func (gc *GameController) findByID(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
 	if err != nil {
 		return ApiError{
@@ -62,7 +62,7 @@ func (gc *GameController) findByID(w http.ResponseWriter, r *http.Request) error
 
 func (gc *GameController) delete(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
 	if err != nil {
 		return ApiError{
@@ -80,7 +80,7 @@ func (gc *GameController) delete(w http.ResponseWriter, r *http.Request) error {
 
 func (gc *GameController) update(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
 	if err != nil {
 		return ApiError{
@@ -156,7 +156,7 @@ func (rc *RoundController) create(w http.ResponseWriter, r *http.Request) error 
 
 func (rc *RoundController) update(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
 	if err != nil {
 		return ApiError{
@@ -183,7 +183,7 @@ func (rc *RoundController) update(w http.ResponseWriter, r *http.Request) error 
 
 func (rc *RoundController) findByID(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
 	if err != nil {
 		return ApiError{
@@ -203,7 +203,7 @@ func (rc *RoundController) findByID(w http.ResponseWriter, r *http.Request) erro
 
 func (rh *RoundController) delete(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
 	if err != nil {
 		return ApiError{
@@ -220,7 +220,7 @@ func (rh *RoundController) delete(w http.ResponseWriter, r *http.Request) error 
 }
 
 func (rc *RoundController) list(w http.ResponseWriter, r *http.Request) error {
-	id, err := strconv.ParseUint(r.URL.Query().Get("gameId"), 10, 64)
+	id, err := strconv.ParseInt(r.URL.Query().Get("gameId"), 10, 64)
 
 	if err != nil {
 		return ApiError{
@@ -277,7 +277,7 @@ func (tc *TurnController) create(w http.ResponseWriter, r *http.Request) error {
 
 func (tc *TurnController) update(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
 	if err != nil {
 		return ApiError{
@@ -304,7 +304,7 @@ func (tc *TurnController) update(w http.ResponseWriter, r *http.Request) error {
 
 func (tc *TurnController) findByID(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
 	if err != nil {
 		return ApiError{
@@ -324,7 +324,7 @@ func (tc *TurnController) findByID(w http.ResponseWriter, r *http.Request) error
 
 func (tc *TurnController) delete(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
 	if err != nil {
 		return ApiError{
@@ -342,7 +342,7 @@ func (tc *TurnController) delete(w http.ResponseWriter, r *http.Request) error {
 
 func (tc *TurnController) upload(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
 	if err != nil {
 		return ApiError{
@@ -360,7 +360,7 @@ func (tc *TurnController) upload(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (tc *TurnController) download(w http.ResponseWriter, r *http.Request) error {
-	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
 	if err != nil {
 		return ApiError{
@@ -393,7 +393,7 @@ func (tc *TurnController) download(w http.ResponseWriter, r *http.Request) error
 }
 
 func (tc *TurnController) list(w http.ResponseWriter, r *http.Request) error {
-	id, err := strconv.ParseUint(r.URL.Query().Get("roundId"), 10, 64)
+	id, err := strconv.ParseInt(r.URL.Query().Get("roundId"), 10, 64)
 
 	if err != nil {
 		return ApiError{

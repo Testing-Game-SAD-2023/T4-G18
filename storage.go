@@ -25,7 +25,7 @@ func (gs *GameStorage) Create(request *CreateGameRequest) (*GameModel, error) {
 	return &g, err
 }
 
-func (gs *GameStorage) FindById(id uint64) (*GameModel, error) {
+func (gs *GameStorage) FindById(id int64) (*GameModel, error) {
 	var game GameModel
 	err := gs.db.First(&game, id).Error
 	if err != nil {
@@ -49,7 +49,7 @@ func (gs *GameStorage) FindByInterval(i *IntervalParams, p *PaginationParams) ([
 	return games, n, nil
 }
 
-func (gs *GameStorage) FindByRound(id uint64) (*GameModel, error) {
+func (gs *GameStorage) FindByRound(id int64) (*GameModel, error) {
 
 	var game GameModel
 	if err := gs.db.Preload("Rounds", "id = ?", id).First(&game).Error; err != nil {
@@ -59,7 +59,7 @@ func (gs *GameStorage) FindByRound(id uint64) (*GameModel, error) {
 	return &game, nil
 }
 
-func (gs *GameStorage) Delete(id uint64) error {
+func (gs *GameStorage) Delete(id int64) error {
 	rowsAffected := gs.db.Delete(&GameModel{}, id).RowsAffected
 	if rowsAffected < 1 {
 		return ErrNotFound
@@ -67,7 +67,7 @@ func (gs *GameStorage) Delete(id uint64) error {
 	return nil
 }
 
-func (gs *GameStorage) Update(id uint64, ug *UpdateGameRequest) (*GameModel, error) {
+func (gs *GameStorage) Update(id int64, ug *UpdateGameRequest) (*GameModel, error) {
 	tx := gs.db.Begin()
 	defer tx.Rollback()
 
@@ -109,7 +109,7 @@ func (rs *RoundStorage) Create(request *CreateRoundRequest) (*RoundModel, error)
 	return &r, nil
 }
 
-func (rs *RoundStorage) Update(id uint64, ug *UpdateRoundRequest) (*RoundModel, error) {
+func (rs *RoundStorage) Update(id int64, ug *UpdateRoundRequest) (*RoundModel, error) {
 	tx := rs.db.Begin()
 	defer tx.Rollback()
 
@@ -128,7 +128,7 @@ func (rs *RoundStorage) Update(id uint64, ug *UpdateRoundRequest) (*RoundModel, 
 	return &round, nil
 }
 
-func (rs *RoundStorage) FindById(id uint64) (*RoundModel, error) {
+func (rs *RoundStorage) FindById(id int64) (*RoundModel, error) {
 	var round RoundModel
 
 	if err := rs.db.First(&round, id).Error; err != nil {
@@ -137,7 +137,7 @@ func (rs *RoundStorage) FindById(id uint64) (*RoundModel, error) {
 	return &round, nil
 }
 
-func (rs *RoundStorage) FindByGame(id uint64) ([]RoundModel, error) {
+func (rs *RoundStorage) FindByGame(id int64) ([]RoundModel, error) {
 	var rounds []RoundModel
 
 	if err := rs.db.Find(&rounds).Error; err != nil {
@@ -146,7 +146,7 @@ func (rs *RoundStorage) FindByGame(id uint64) ([]RoundModel, error) {
 	return rounds, nil
 }
 
-func (rs *RoundStorage) Delete(id uint64) error {
+func (rs *RoundStorage) Delete(id int64) error {
 	rowsAffected := rs.db.Delete(&RoundModel{}, id).RowsAffected
 	if rowsAffected < 1 {
 		return ErrNotFound
@@ -175,7 +175,7 @@ func (ts *TurnStorage) Create(request *CreateTurnRequest) (*TurnModel, error) {
 	return &t, err
 }
 
-func (ts *TurnStorage) Update(id uint64, request *UpdateTurnRequest) (*TurnModel, error) {
+func (ts *TurnStorage) Update(id int64, request *UpdateTurnRequest) (*TurnModel, error) {
 	tx := ts.db.Begin()
 	defer tx.Rollback()
 
@@ -194,7 +194,7 @@ func (ts *TurnStorage) Update(id uint64, request *UpdateTurnRequest) (*TurnModel
 	return &turn, nil
 }
 
-func (ts *TurnStorage) FindById(id uint64) (*TurnModel, error) {
+func (ts *TurnStorage) FindById(id int64) (*TurnModel, error) {
 	var turn TurnModel
 
 	if err := ts.db.First(&turn, id).Error; err != nil {
@@ -203,7 +203,7 @@ func (ts *TurnStorage) FindById(id uint64) (*TurnModel, error) {
 	return &turn, nil
 }
 
-func (ts *TurnStorage) FindByRound(id uint64) ([]TurnModel, error) {
+func (ts *TurnStorage) FindByRound(id int64) ([]TurnModel, error) {
 	var turns []TurnModel
 
 	if err := ts.db.Where(&TurnModel{RoundID: id}).Find(&turns).Error; err != nil {
@@ -212,7 +212,7 @@ func (ts *TurnStorage) FindByRound(id uint64) ([]TurnModel, error) {
 	return turns, nil
 }
 
-func (ts *TurnStorage) Delete(id uint64) error {
+func (ts *TurnStorage) Delete(id int64) error {
 	rowsAffected := ts.db.Delete(&TurnModel{}, id).RowsAffected
 	if rowsAffected < 1 {
 		return ErrNotFound
@@ -230,7 +230,7 @@ func NewMetadataStorage(db *gorm.DB) *MetadataStorage {
 	}
 }
 
-func (ms *MetadataStorage) Upsert(id uint64, path string) error {
+func (ms *MetadataStorage) Upsert(id int64, path string) error {
 
 	meta := MetadataModel{
 		TurnID: id,
@@ -245,7 +245,7 @@ func (ms *MetadataStorage) Upsert(id uint64, path string) error {
 	)
 }
 
-func (ms *MetadataStorage) FindByTurn(id uint64) (*MetadataModel, error) {
+func (ms *MetadataStorage) FindByTurn(id int64) (*MetadataModel, error) {
 	var meta MetadataModel
 	if err := ms.db.First(&meta, "turn_id = ?", id).Error; err != nil {
 		return nil, handleDbError(err)
