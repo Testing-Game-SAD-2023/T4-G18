@@ -1837,7 +1837,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "8ca163ae-f9e7-4264-9204-2d8b47d4ecf2",
+				"id": "b0ab3cad-1eff-47ec-a4c9-09f2fe3579fd",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1847,7 +1847,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "6e9dc896-519b-4af8-bf33-5d966edb7847",
+				"id": "52104472-69c1-4a8a-ad17-3c4f8ae91df0",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -1857,7 +1857,7 @@
 	],
 	"variable": [
 		{
-			"id": "0b2b44e0-4dc1-4d4f-9155-51b1460894f9",
+			"id": "d6334f76-c5f9-44cc-a99b-da728a496947",
 			"key": "baseUrl",
 			"value": "https://sad.capass.org",
 			"type": "string"

@@ -287,6 +287,46 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+        put:
+            summary: Updates a Turn
+            tags:
+                - turns
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                scores:
+                                    type: string
+                                currentRound:
+                                    type: integer
+            responses:
+                "200":
+                    description: Updated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Turn"
+                "400":
+                    description: Bad request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "404":
+                    description: Not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "500":
+                    description: Internal server error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
 
         delete:
             summary: Deletes a Turn
