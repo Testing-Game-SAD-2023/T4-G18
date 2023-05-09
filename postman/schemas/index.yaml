@@ -288,14 +288,14 @@ paths:
                         schema:
                             type: object
                             properties:
-                                idGame:
+                                gameId:
                                     type: integer
                                     format: int64
-                                idTestClass:
+                                testClassId:
                                     type: string
                         example:
-                            idGame: 1
-                            idTestClass: "a_test_class.java"
+                            gameId: 1
+                            testClassId: "a_test_class.java"
             responses:
                 "201":
                     description: Created
@@ -595,17 +595,17 @@ paths:
                         schema:
                             type: object
                             properties:
-                                idPlayer:
+                                playerId:
                                     type: integer
                                     format: int64
-                                idRound:
+                                roundId:
                                     type: integer
                                     format: int64
                                 scores:
                                     type: string
                         example:
-                            idPlayer: 1
-                            idRound: 1
+                            playerId: 1
+                            roundId: 1
                             scores: "score example"
             responses:
                 "201":
@@ -654,7 +654,7 @@ components:
                 id:
                     type: integer
                     format: int64
-                idTestClass:
+                testClassId:
                     type: string
                 createdAt:
                     type: string
@@ -677,7 +677,7 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
-                idPlayer:
+                playerId:
                     type: integer
                 scores:
                     type: string
