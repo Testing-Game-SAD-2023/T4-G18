@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"path/filepath"
 	"strconv"
 	"time"
 )
@@ -106,23 +107,32 @@ type MetadataRepository interface {
 	FindByTurn(id int64) (*MetadataModel, error)
 }
 
+type PlayerRepository interface {
+	FindById(id int64) (*PlayerModel, error)
+}
+
 type TurnService struct {
 	turnRepository     TurnRepository
 	metadataRepository MetadataRepository
 	gameRepository     GameRepository
+	playerRepository   PlayerRepository
 	dataDir            string
 }
 
-func NewTurnService(tr TurnRepository, mr MetadataRepository, gr GameRepository, dr string) *TurnService {
+func NewTurnService(tr TurnRepository, mr MetadataRepository, gr GameRepository, pr PlayerRepository, dr string) *TurnService {
 	return &TurnService{
 		turnRepository:     tr,
 		metadataRepository: mr,
 		gameRepository:     gr,
+		playerRepository:   pr,
 		dataDir:            dr,
 	}
 }
 
 func (ts *TurnService) Create(request *CreateTurnRequest) (*TurnModel, error) {
+	if _, err := ts.playerRepository.FindById(request.PlayerId); err != nil {
+		return nil, err
+	}
 	return ts.turnRepository.Create(request)
 }
 
@@ -184,11 +194,16 @@ func (ts *TurnService) Store(id int64, r io.Reader) error {
 	return ts.metadataRepository.Upsert(id, fname)
 }
 
-func (ts *TurnService) GetTurnFile(id int64) (*os.File, error) {
+func (ts *TurnService) GetTurnFile(id int64) (string, io.ReadCloser, error) {
 	m, err := ts.metadataRepository.FindByTurn(id)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
-	return os.Open(m.Path)
+	f, err := os.Open(m.Path)
 
+	if err != nil {
+		return "", nil, err
+	}
+
+	return filepath.Base(m.Path), f, nil
 }

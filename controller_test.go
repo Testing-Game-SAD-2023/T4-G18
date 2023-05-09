@@ -292,7 +292,7 @@ func (suite *TurnControllerSuite) SetupSuite() {
 		On("FindByRound", mock.MatchedBy(func(id int64) bool { return id != 1 })).Return(&GameModel{ID: 1}, nil)
 
 	suite.tmpDir = os.TempDir()
-	service := NewTurnService(tr, mr, gr, suite.tmpDir)
+	service := NewTurnService(tr, mr, gr, nil, suite.tmpDir)
 	controller := NewTurnController(service, 512)
 
 	r := chi.NewMux()

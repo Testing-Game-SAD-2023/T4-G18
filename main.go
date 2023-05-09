@@ -102,7 +102,7 @@ func run(c Configuration) error {
 			sh := mw.SwaggerUI(opts, nil)
 			r.Handle("/docs", sh)
 			r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-					http.Redirect(w, r, "/docs", http.StatusMovedPermanently)
+				http.Redirect(w, r, "/docs", http.StatusMovedPermanently)
 			})
 		})
 	}
@@ -123,9 +123,10 @@ func run(c Configuration) error {
 
 			// turn endpoint
 			metadataStorage = NewMetadataStorage(db)
-			turnStorage    = NewTurnStorage(db)
-			turnService    = NewTurnService(turnStorage, metadataStorage, gameStorage, c.DataDir)
-			turnController = NewTurnController(turnService, c.BufferSize)
+			turnStorage     = NewTurnStorage(db)
+			playerStorage   = NewPlayerStorage(db)
+			turnService     = NewTurnService(turnStorage, metadataStorage, gameStorage, playerStorage, c.DataDir)
+			turnController  = NewTurnController(turnService, c.BufferSize)
 		)
 
 		r.Mount(c.ApiPrefix, setupRoutes(
@@ -143,6 +144,7 @@ func makeDefaults(c *Configuration) {
 	if c.ApiPrefix == "" {
 		c.ApiPrefix = "/"
 	}
+
 	if c.ListenAddress == "" {
 		c.ListenAddress = "localhost:3000"
 	}
@@ -150,6 +152,7 @@ func makeDefaults(c *Configuration) {
 	if c.DataDir == "" {
 		c.DataDir = "data"
 	}
+
 	if c.BufferSize <= 0 {
 		c.BufferSize = 512
 	}

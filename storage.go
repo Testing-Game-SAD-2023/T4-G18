@@ -98,8 +98,8 @@ func NewRoundStorage(db *gorm.DB) *RoundStorage {
 
 func (rs *RoundStorage) Create(request *CreateRoundRequest) (*RoundModel, error) {
 	r := RoundModel{
-		GameID:      request.IdGame,
-		IdTestClass: request.IdTestClass,
+		GameID:      request.GameId,
+		IdTestClass: request.TestClassId,
 		Order:       request.Order,
 	}
 	if err := rs.db.Create(&r).Error; err != nil {
@@ -166,8 +166,8 @@ func NewTurnStorage(db *gorm.DB) *TurnStorage {
 
 func (ts *TurnStorage) Create(request *CreateTurnRequest) (*TurnModel, error) {
 	t := TurnModel{
-		PlayerID: request.IdPlayer,
-		RoundID:  request.IdRound,
+		PlayerID: request.PlayerId,
+		RoundID:  request.RoundId,
 		Scores:   request.Scores,
 	}
 	err := ts.db.Create(&t).Error
@@ -252,4 +252,23 @@ func (ms *MetadataStorage) FindByTurn(id int64) (*MetadataModel, error) {
 	}
 
 	return &meta, nil
+}
+
+type PlayerStorage struct {
+	db *gorm.DB
+}
+
+func NewPlayerStorage(db *gorm.DB) *PlayerStorage {
+	return &PlayerStorage{
+		db: db,
+	}
+}
+
+func (ps *PlayerStorage) FindById(id int64) (*PlayerModel, error) {
+	var player PlayerModel
+
+	if err := ps.db.First(&player, id).Error; err != nil {
+		return nil, handleDbError(err)
+	}
+	return &player, nil
 }

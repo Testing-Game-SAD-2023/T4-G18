@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -369,13 +370,14 @@ func (tc *TurnController) download(w http.ResponseWriter, r *http.Request) error
 		}
 	}
 
-	f, err := tc.service.GetTurnFile(id)
+	fname, f, err := tc.service.GetTurnFile(id)
 	if err != nil {
 		return makeApiError(err)
 	}
 	defer f.Close()
 
 	w.Header().Set("Content-Type", "application/zip")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", fname))
 	b := make([]byte, tc.bufferSize)
 	for {
 		n, err := f.Read(b)
