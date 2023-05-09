@@ -620,6 +620,12 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "404":
+                    description: No round or player found for the provided id
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
                 "500":
                     description: Internal server error
                     content:
