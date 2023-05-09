@@ -18,10 +18,11 @@ paths:
               in: path
               required: true
               schema:
-                  $ref: "#/components/schemas/Id"
-
+                  type: integer
+                  format: int64
         get:
-            summary: Reads a Game
+            summary: Retrieve a game by id
+            description: Retrieve a game by id
             tags:
                 - games
             responses:
@@ -51,7 +52,8 @@ paths:
                                 $ref: "#/components/schemas/Error"
 
         put:
-            summary: Updates a Game
+            summary: Update a game
+            description: Update a game by id
             tags:
                 - games
             requestBody:
@@ -62,7 +64,7 @@ paths:
                             type: object
                             properties:
                                 name:
-                                    type: integer
+                                    type: string
                                 currentRound:
                                     type: integer
             responses:
@@ -86,7 +88,8 @@ paths:
                                 $ref: "#/components/schemas/Error"
 
         delete:
-            summary: Deletes a Game
+            summary: Delete a Game
+            description: Delete a game by id
             tags:
                 - games
             responses:
@@ -115,7 +118,8 @@ paths:
         post:
             tags:
                 - games
-            summary: Creates a Game
+            summary: Create a Game
+            description: Create a game
             requestBody:
                 required: true
                 content:
@@ -155,12 +159,13 @@ paths:
               in: path
               required: true
               schema:
-                  $ref: "#/components/schemas/Id"
-
+                  type: integer
+                  format: int64
         get:
+            summary: Retrieve a round
+            description: Retrieve a round by id
             tags:
                 - rounds
-            summary: Reads a Round
             responses:
                 "200":
                     description: The Round corresponding to the provided `Id`
@@ -188,7 +193,8 @@ paths:
                                 $ref: "#/components/schemas/Error"
 
         delete:
-            summary: Deletes a Round
+            summary: Delete a round
+            description: Delete a round by id
             tags:
                 - rounds
             responses:
@@ -215,9 +221,10 @@ paths:
 
     /rounds:
         post:
+            summary: Creates a round
+            description: Create a round
             tags:
                 - rounds
-            summary: Creates a Round
             requestBody:
                 required: true
                 content:
@@ -227,6 +234,7 @@ paths:
                             properties:
                                 idGame:
                                     type: integer
+                                    format: int64
                                 idTestClass:
                                     type: string
             responses:
@@ -248,6 +256,47 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+        get:
+            summary: Retrieve rounds per game
+            description: Retrieve all rounds given a game id
+            tags:
+                - rounds
+            parameters:
+                - in: query
+                  name: gameId
+                  description: Id of the game
+                  schema:
+                      type: integer
+                      format: int64
+                  required: true
+
+            responses:
+                "200":
+                    description: List of rounds
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/Round"
+                "404":
+                    description: No game found for the provided id
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "400":
+                    description: Invalid game id
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "500":
+                    description: Internal server error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
 
     /turns/{id}:
         parameters:
@@ -256,12 +305,14 @@ paths:
               in: path
               required: true
               schema:
-                  $ref: "#/components/schemas/Id"
+                  type: integer
+                  format: int64
 
         get:
+            summary: Retrieve a turn
+            description: Retrieve a turn by id
             tags:
                 - turns
-            summary: Reads a Turn
             responses:
                 "200":
                     description: The Turn corresponding to the provided `Id`
@@ -288,7 +339,8 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
         put:
-            summary: Updates a Turn
+            summary: Update a turn
+            description: Update a turn by id
             tags:
                 - turns
             requestBody:
@@ -327,7 +379,8 @@ paths:
                                 $ref: "#/components/schemas/Error"
 
         delete:
-            summary: Deletes a Turn
+            summary: Delete a turn
+            description: Delete a turn by id
             tags:
                 - turns
             responses:
@@ -352,11 +405,127 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
+    /turns/{id}/files:
+        parameters:
+            - name: id
+              description: Turn identifier
+              in: path
+              required: true
+              schema:
+                  type: integer
+                  format: int64
+        put:
+            summary: Upload turn files
+            description: Upload turn files as a zip
+            tags:
+                - turns
+            requestBody:
+                required: true
+                content:
+                    application/zip:
+                        schema:
+                            type: string
+                            format: binary
+            responses:
+                "200":
+                    description: File uploaded successfully
+                "400":
+                    description: Bad request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "404":
+                    description: No Turn found for the provided `Id`
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "500":
+                    description: Internal server error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+        get:
+            summary: Download turn files
+            description: Download turn files as a zip
+            tags:
+                - turns
+            responses:
+                "200":
+                    description: Bad request
+                    content:
+                        application/zip:
+                            schema:
+                                type: string
+                                format: binary
+
+                "400":
+                    description: Bad request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "404":
+                    description: No Turn found for the provided `Id`
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "500":
+                    description: Internal server error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
     /turns:
+        get:
+            summary: Retrieve turns in a round
+            description: Retrieve all turns in a round
+            tags:
+                - turns
+            parameters:
+                - in: query
+                  name: roundID
+                  description: Id of the round
+                  schema:
+                      type: integer
+                      format: int64
+                  required: true
+            responses:
+                "200":
+                    description: List of turns
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/Turn"
+                "404":
+                    description: No round found for the provided id
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "400":
+                    description: Invalid round id
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "500":
+                    description: Internal server error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
         post:
             tags:
                 - turns
-            summary: Creates a Turn
+            summary: Create a turn
+            description: Create a turn in the system
             requestBody:
                 required: true
                 content:
@@ -368,6 +537,7 @@ paths:
                                     type: integer
                                 idRound:
                                     type: integer
+                                    format: int64
                                 scores:
                                     type: string
             responses:
@@ -392,10 +562,6 @@ paths:
 
 components:
     schemas:
-        Id:
-            description: The unique identifier
-            type: integer
-
         Game:
             type: object
             required:
@@ -407,7 +573,8 @@ components:
                 - name
             properties:
                 id:
-                    $ref: "#/components/schemas/Id"
+                    type: integer
+                    format: int64
                 currentRound:
                     type: integer
                 createdAt:
@@ -428,10 +595,10 @@ components:
                 - idTestClass
                 - createdAt
                 - updatedAt
-
             properties:
                 id:
-                    $ref: "#/components/schemas/Id"
+                    type: integer
+                    format: int64
                 idTestClass:
                     type: string
                 createdAt:
@@ -452,7 +619,8 @@ components:
                 - scores
             properties:
                 id:
-                    $ref: "#/components/schemas/Id"
+                    type: integer
+                    format: int64
                 isWinner:
                     type: boolean
                 createdAt:
