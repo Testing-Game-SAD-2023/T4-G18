@@ -101,6 +101,9 @@ func run(c Configuration) error {
 			opts := mw.SwaggerUIOpts{SpecURL: "/public/postman/schemas/index.yaml"}
 			sh := mw.SwaggerUI(opts, nil)
 			r.Handle("/docs", sh)
+			r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+					http.Redirect(w, r, "/docs", http.StatusMovedPermanently)
+			})
 		})
 	}
 	r.Handle("/metrics", promhttp.Handler())
