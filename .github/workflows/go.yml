@@ -6,8 +6,20 @@ name: Go
 on:
   push:
     branches: [ "master" ]
+    paths-ignore:
+      - 'README.md'
+      - 'vendor/**'
+      - 'postman/**'
+      - '.postman/**'
+      
   pull_request:
     branches: [ "master" ]
+    paths-ignore:
+      - 'README.md'
+      - 'vendor/**'
+      - 'postman/**'
+      - '.postman/**'
+      
   workflow_dispatch:
 
 
