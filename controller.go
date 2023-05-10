@@ -7,8 +7,6 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-
-	"github.com/go-chi/chi/v5"
 )
 
 type GameController struct {
@@ -43,14 +41,8 @@ func (gc *GameController) create(w http.ResponseWriter, r *http.Request) error {
 
 func (gc *GameController) findByID(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	id := r.Context().Value(idParamKey).(int64)
 
-	if err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid game id",
-		}
-	}
 	g, err := gc.service.FindByID(id)
 
 	if err != nil {
@@ -63,14 +55,7 @@ func (gc *GameController) findByID(w http.ResponseWriter, r *http.Request) error
 
 func (gc *GameController) delete(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-
-	if err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid game id",
-		}
-	}
+	id := r.Context().Value(idParamKey).(int64)
 
 	if err := gc.service.Delete(id); err != nil {
 		return makeApiError(err)
@@ -81,14 +66,7 @@ func (gc *GameController) delete(w http.ResponseWriter, r *http.Request) error {
 
 func (gc *GameController) update(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-
-	if err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid game id",
-		}
-	}
+	id := r.Context().Value(idParamKey).(int64)
 
 	var rq UpdateGameRequest
 	if err := json.NewDecoder(r.Body).Decode(&rq); err != nil {
@@ -157,14 +135,7 @@ func (rc *RoundController) create(w http.ResponseWriter, r *http.Request) error 
 
 func (rc *RoundController) update(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-
-	if err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid round id",
-		}
-	}
+	id := r.Context().Value(idParamKey).(int64)
 
 	var rq UpdateRoundRequest
 	if err := json.NewDecoder(r.Body).Decode(&rq); err != nil {
@@ -184,14 +155,8 @@ func (rc *RoundController) update(w http.ResponseWriter, r *http.Request) error 
 
 func (rc *RoundController) findByID(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	id := r.Context().Value(idParamKey).(int64)
 
-	if err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid round id",
-		}
-	}
 	round, err := rc.service.FindByID(id)
 
 	if err != nil {
@@ -204,14 +169,7 @@ func (rc *RoundController) findByID(w http.ResponseWriter, r *http.Request) erro
 
 func (rh *RoundController) delete(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-
-	if err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid round id",
-		}
-	}
+	id := r.Context().Value(idParamKey).(int64)
 
 	if err := rh.service.Delete(id); err != nil {
 		return makeApiError(err)
@@ -278,14 +236,7 @@ func (tc *TurnController) create(w http.ResponseWriter, r *http.Request) error {
 
 func (tc *TurnController) update(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-
-	if err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid turn id",
-		}
-	}
+	id := r.Context().Value(idParamKey).(int64)
 
 	var rq UpdateTurnRequest
 	if err := json.NewDecoder(r.Body).Decode(&rq); err != nil {
@@ -305,14 +256,8 @@ func (tc *TurnController) update(w http.ResponseWriter, r *http.Request) error {
 
 func (tc *TurnController) findByID(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	id := r.Context().Value(idParamKey).(int64)
 
-	if err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid turn id",
-		}
-	}
 	turn, err := tc.service.FindByID(id)
 
 	if err != nil {
@@ -325,14 +270,7 @@ func (tc *TurnController) findByID(w http.ResponseWriter, r *http.Request) error
 
 func (tc *TurnController) delete(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-
-	if err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid turn id",
-		}
-	}
+	id := r.Context().Value(idParamKey).(int64)
 
 	if err := tc.service.Delete(id); err != nil {
 		return makeApiError(err)
@@ -343,14 +281,8 @@ func (tc *TurnController) delete(w http.ResponseWriter, r *http.Request) error {
 
 func (tc *TurnController) upload(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	id := r.Context().Value(idParamKey).(int64)
 
-	if err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid round id",
-		}
-	}
 	if err := tc.service.Store(id, r.Body); err != nil {
 		return makeApiError(err)
 	}
@@ -361,14 +293,7 @@ func (tc *TurnController) upload(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (tc *TurnController) download(w http.ResponseWriter, r *http.Request) error {
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-
-	if err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid round id",
-		}
-	}
+	id := r.Context().Value(idParamKey).(int64)
 
 	fname, f, err := tc.service.GetTurnFile(id)
 	if err != nil {
