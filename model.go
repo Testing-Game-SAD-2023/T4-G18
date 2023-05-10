@@ -41,7 +41,15 @@ func (rm *RoundModel) BeforeUpdate(tx *gorm.DB) error {
 	var round RoundModel
 
 	err := tx.Where(&RoundModel{GameID: rm.GameID}).
-		Order("order").
+		Order(clause.OrderBy{
+			Columns: []clause.OrderByColumn{
+				{
+					Column: clause.Column{
+						Name: "order",
+					},
+				},
+			},
+		}).
 		Last(&round).Error
 
 	if err != nil {
