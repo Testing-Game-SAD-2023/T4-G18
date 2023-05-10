@@ -15,10 +15,10 @@ func NewGameStorage(db *gorm.DB) *GameStorage {
 	}
 }
 
-func (gs *GameStorage) Create(request *CreateGameRequest) (*GameModel, error) {
+func (gs *GameStorage) Create(r *CreateGameRequest) (*GameModel, error) {
 	g := GameModel{
-		PlayersCount: request.PlayersCount,
-		Name:         request.Name,
+		PlayersCount: r.PlayersCount,
+		Name:         r.Name,
 	}
 	err := gs.db.Create(&g).Error
 
@@ -37,15 +37,9 @@ func (gs *GameStorage) FindById(id int64) (*GameModel, error) {
 func (gs *GameStorage) FindByInterval(i *IntervalParams, p *PaginationParams) ([]GameModel, int64, error) {
 	var games []GameModel
 	var n int64
-	tx := gs.db.Begin()
-	defer tx.Rollback()
-	if err := tx.Model(&GameModel{}).Count(&n).Error; err != nil {
+	if err := gs.db.Scopes(IntervalScope(i), PaginatedScope(p)).Find(&games).Count(&n).Error; err != nil {
 		return nil, 0, handleDbError(err)
 	}
-	if err := tx.Scopes(PaginateScope(p), IntervalScope(i)).Find(&games).Error; err != nil {
-		return nil, 0, handleDbError(err)
-	}
-	tx.Commit()
 	return games, n, nil
 }
 
@@ -67,7 +61,7 @@ func (gs *GameStorage) Delete(id int64) error {
 	return nil
 }
 
-func (gs *GameStorage) Update(id int64, ug *UpdateGameRequest) (*GameModel, error) {
+func (gs *GameStorage) Update(id int64, r *UpdateGameRequest) (*GameModel, error) {
 	tx := gs.db.Begin()
 	defer tx.Rollback()
 
@@ -77,7 +71,7 @@ func (gs *GameStorage) Update(id int64, ug *UpdateGameRequest) (*GameModel, erro
 		return nil, handleDbError(err)
 	}
 
-	if err := gs.db.Model(&game).Updates(ug).Error; err != nil {
+	if err := gs.db.Model(&game).Updates(r).Error; err != nil {
 		return nil, handleDbError(err)
 	}
 
@@ -96,20 +90,20 @@ func NewRoundStorage(db *gorm.DB) *RoundStorage {
 	}
 }
 
-func (rs *RoundStorage) Create(request *CreateRoundRequest) (*RoundModel, error) {
-	r := RoundModel{
-		GameID:      request.GameId,
-		TestClassId: request.TestClassId,
-		Order:       request.Order,
+func (rs *RoundStorage) Create(r *CreateRoundRequest) (*RoundModel, error) {
+	round := RoundModel{
+		GameID:      r.GameId,
+		TestClassId: r.TestClassId,
+		Order:       r.Order,
 	}
-	if err := rs.db.Create(&r).Error; err != nil {
+	if err := rs.db.Create(&round).Error; err != nil {
 		return nil, handleDbError(err)
 	}
 
-	return &r, nil
+	return &round, nil
 }
 
-func (rs *RoundStorage) Update(id int64, ur *UpdateRoundRequest) (*RoundModel, error) {
+func (rs *RoundStorage) Update(id int64, r *UpdateRoundRequest) (*RoundModel, error) {
 	tx := rs.db.Begin()
 	defer tx.Rollback()
 
@@ -119,7 +113,7 @@ func (rs *RoundStorage) Update(id int64, ur *UpdateRoundRequest) (*RoundModel, e
 		return nil, handleDbError(err)
 	}
 
-	if err := rs.db.Model(&round).Updates(ur).Error; err != nil {
+	if err := rs.db.Model(&round).Updates(r).Error; err != nil {
 		return nil, handleDbError(err)
 	}
 
@@ -164,18 +158,18 @@ func NewTurnStorage(db *gorm.DB) *TurnStorage {
 	}
 }
 
-func (ts *TurnStorage) Create(request *CreateTurnRequest) (*TurnModel, error) {
-	t := TurnModel{
-		PlayerID: request.PlayerId,
-		RoundID:  request.RoundId,
-		Scores:   request.Scores,
+func (ts *TurnStorage) Create(r *CreateTurnRequest) (*TurnModel, error) {
+	turn := TurnModel{
+		PlayerID: r.PlayerId,
+		RoundID:  r.RoundId,
+		Scores:   r.Scores,
 	}
-	err := ts.db.Create(&t).Error
+	err := ts.db.Create(&turn).Error
 
-	return &t, err
+	return &turn, err
 }
 
-func (ts *TurnStorage) Update(id int64, request *UpdateTurnRequest) (*TurnModel, error) {
+func (ts *TurnStorage) Update(id int64, r *UpdateTurnRequest) (*TurnModel, error) {
 	tx := ts.db.Begin()
 	defer tx.Rollback()
 
@@ -185,7 +179,7 @@ func (ts *TurnStorage) Update(id int64, request *UpdateTurnRequest) (*TurnModel,
 		return nil, handleDbError(err)
 	}
 
-	if err := ts.db.Model(&turn).Updates(request).Error; err != nil {
+	if err := ts.db.Model(&turn).Updates(r).Error; err != nil {
 		return nil, err
 	}
 

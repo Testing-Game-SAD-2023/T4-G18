@@ -110,7 +110,7 @@ type IntervalParams struct {
 	endDate   time.Time
 }
 
-func PaginateScope(p *PaginationParams) func(db *gorm.DB) *gorm.DB {
+func PaginatedScope(p *PaginationParams) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		offset := (p.page - 1) * p.pageSize
 		return db.Offset(int(offset)).Limit(int(p.pageSize))
