@@ -70,7 +70,7 @@ paths:
                         example:
                             name: "New Game name"
                             currentRound: 2
-                        
+
             responses:
                 "200":
                     description: Updated
@@ -172,7 +172,7 @@ paths:
                       format: date
                       default: "2022-01-30"
                   required: false
-                  example: 
+                  example:
                 - in: query
                   name: endDate
                   description: Last date for the interval. Must bee in YYYY-MM-DD format
@@ -206,7 +206,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/GetGamesResponse"
-                               
 
     /rounds/{id}:
         parameters:
@@ -288,7 +287,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-
 
         delete:
             summary: Delete a round
@@ -457,9 +455,12 @@ paths:
                             properties:
                                 scores:
                                     type: string
+                                isWinner:
+                                    type: boolean
                         example:
                             scores: "a new score in JSON format"
-                           
+                            isWinner: true
+
             responses:
                 "200":
                     description: Updated
@@ -741,7 +742,7 @@ components:
             properties:
                 message:
                     type: string
-        
+
         GetGamesResponse:
             type: "object"
             properties:
@@ -762,5 +763,4 @@ components:
                 data:
                     type: array
                     items:
-                        $ref: '#/components/schemas/Game'
-
+                        $ref: "#/components/schemas/Game"
