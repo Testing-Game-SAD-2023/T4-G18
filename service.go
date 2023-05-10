@@ -13,9 +13,10 @@ import (
 )
 
 var (
-	ErrNotFound   = errors.New("not found")
-	ErrBadRequest = errors.New("bad request")
-	ErrNotAZip    = errors.New("file is not a valid zip")
+	ErrNotFound          = errors.New("not found")
+	ErrBadRequest        = errors.New("bad request")
+	ErrNotAZip           = errors.New("file is not a valid zip")
+	ErrInvalidRoundOrder = errors.New("invalid round order")
 )
 
 type GameRepository interface {

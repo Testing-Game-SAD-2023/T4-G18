@@ -1,6 +1,12 @@
 package main
 
-import "time"
+import (
+	"fmt"
+	"time"
+
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+)
 
 type GameModel struct {
 	CurrentRound int   `gorm:"default:1"`
@@ -13,7 +19,7 @@ type GameModel struct {
 	PlayersCount int
 }
 
-func (g GameModel) TableName() string {
+func (GameModel) TableName() string {
 	return "games"
 }
 
@@ -27,8 +33,60 @@ type RoundModel struct {
 	GameID      int64       `gorm:"not null"`
 }
 
-func (g RoundModel) TableName() string {
+func (RoundModel) TableName() string {
 	return "rounds"
+}
+
+func (rm *RoundModel) BeforeUpdate(tx *gorm.DB) error {
+	var round RoundModel
+
+	err := tx.Where(&RoundModel{GameID: rm.GameID}).
+		Order("order").
+		Last(&round).Error
+
+	if err != nil {
+		return err
+	}
+
+	if (rm.Order - round.Order) != 1 {
+		return fmt.Errorf("%w: last round has order %d; expected %d",
+			ErrInvalidRoundOrder,
+			round.Order,
+			round.Order+1,
+		)
+	}
+
+	return nil
+}
+
+func (rm *RoundModel) BeforeCreate(tx *gorm.DB) error {
+	var round RoundModel
+
+	err := tx.Where(&RoundModel{GameID: rm.GameID}).
+		Order(clause.OrderBy{
+			Columns: []clause.OrderByColumn{
+				{
+					Column: clause.Column{
+						Name: "order",
+					},
+				},
+			},
+		}).
+		Last(&round).Error
+
+	if err != nil {
+		return err
+	}
+
+	if (rm.Order - round.Order) != 1 {
+		return fmt.Errorf("%w: last round has order %d; expected %d",
+			ErrInvalidRoundOrder,
+			round.Order,
+			round.Order+1,
+		)
+	}
+
+	return nil
 }
 
 type TurnModel struct {
@@ -42,7 +100,7 @@ type TurnModel struct {
 	RoundID   int64         `gorm:"index:idx_playerturn;unique;not null"`
 }
 
-func (t TurnModel) TableName() string {
+func (TurnModel) TableName() string {
 	return "turns"
 }
 
@@ -55,7 +113,7 @@ type PlayerModel struct {
 	PlayerGames []PlayerGameModel `gorm:"foreignKey:PlayerID"`
 }
 
-func (p PlayerModel) TableName() string {
+func (PlayerModel) TableName() string {
 	return "players"
 }
 
@@ -67,7 +125,7 @@ type MetadataModel struct {
 	Path      string    `gorm:"unique;not null"`
 }
 
-func (t MetadataModel) TableName() string {
+func (MetadataModel) TableName() string {
 	return "metadata"
 }
 
@@ -80,6 +138,6 @@ type PlayerGameModel struct {
 	GameID    int64     `gorm:"index:idx_playergame;unique;not null"`
 }
 
-func (t PlayerGameModel) TableName() string {
+func (PlayerGameModel) TableName() string {
 	return "player_game"
 }
