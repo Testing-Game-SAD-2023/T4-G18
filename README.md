@@ -2,7 +2,7 @@
 Implemented endpoint are:
 * games:
     - GET /games/{id} retrieve a game by ID;
-    - GET /games?pageSize=<integer>&page=<integer>&startDate=<YYYY-MM-DD>&endDate=<YYYY-MM-DD> retrieve a game by ID;
+    - GET /games?pageSize=<integer>&page=<integer>&startDate=<YYYY-MM-DD>&endDate=<YYYY-MM-DD> list games in interval with pagination;
     - POST /games create a game;
     - DELETE /games/{id} delete a game;
     - PUT /games/{id} update an existing game;
@@ -34,7 +34,7 @@ make help
 ```
 
 ### Documentation
-A swagger UI can be enabled setting `enableSwagger` to True in configuration file. Also, OpenAPI3 specification and a Postman collection are available in [`postman`](/postman) directory.
+A swagger UI can be enabled setting `enableSwagger` to True in configuration file. Also, OpenAPI3 specification and a Postman collection are available in [`postman`](/postman) directory. When executing locally, SwaggerUI is available at http://<YOU_LISTEN_ADDRESS>/docs.
 
 ### Testing
 Unit testing is provided using mocking of storage class in order to not depend of a real database. Tests can be 

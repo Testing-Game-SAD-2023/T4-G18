@@ -76,6 +76,7 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 
 		// List turn
 		r.Get("/", makeHTTPHandlerFunc(tc.list))
+
 		// Create turn
 		r.With(ContentType("application/json")).
 			Post("/", makeHTTPHandlerFunc(tc.create))
