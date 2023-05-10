@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -14,8 +15,8 @@ type GameModel struct {
 	Name         string
 	CreatedAt    time.Time         `gorm:"autoCreateTime"`
 	UpdatedAt    time.Time         `gorm:"autoUpdateTime"`
-	Rounds       []RoundModel      `gorm:"foreignKey:GameID"`
-	PlayerGame   []PlayerGameModel `gorm:"foreignKey:GameID"`
+	Rounds       []RoundModel      `gorm:"foreignKey:GameID;constraint:OnDelete:CASCADE;"`
+	PlayerGame   []PlayerGameModel `gorm:"foreignKey:GameID;constraint:OnDelete:CASCADE;"`
 	PlayersCount int
 }
 
@@ -28,7 +29,7 @@ type RoundModel struct {
 	Order       int         `gorm:"not null;default:1"`
 	UpdatedAt   time.Time   `gorm:"autoUpdateTime"`
 	CreatedAt   time.Time   `gorm:"autoCreateTime"`
-	Turns       []TurnModel `gorm:"foreignKey:RoundID"`
+	Turns       []TurnModel `gorm:"foreignKey:RoundID;constraint:OnDelete:CASCADE;"`
 	TestClassId string      `gorm:"not null"`
 	GameID      int64       `gorm:"not null"`
 }
@@ -41,22 +42,26 @@ func (rm *RoundModel) BeforeUpdate(tx *gorm.DB) error {
 	var round RoundModel
 
 	err := tx.Where(&RoundModel{GameID: rm.GameID}).
-		Order(clause.OrderBy{
+		Clauses(clause.OrderBy{
 			Columns: []clause.OrderByColumn{
 				{
 					Column: clause.Column{
-						Name: "order",
+						Table: round.TableName(),
+						Name:  "order",
 					},
+					Desc: true,
 				},
 			},
 		}).
-		Last(&round).Error
+		Last(&round).
+		Error
 
 	if err != nil {
 		return err
 	}
 
-	if (rm.Order - round.Order) != 1 {
+	r := tx.Statement.Dest.(*UpdateRoundRequest)
+	if (r.Order - round.Order) != 1 {
 		return fmt.Errorf("%w: last round has order %d; expected %d",
 			ErrInvalidRoundOrder,
 			round.Order,
@@ -77,12 +82,19 @@ func (rm *RoundModel) BeforeCreate(tx *gorm.DB) error {
 					Column: clause.Column{
 						Name: "order",
 					},
+					Desc: true,
 				},
 			},
 		}).
-		Last(&round).Error
+		Last(&round).
+		Error
 
-	if err != nil {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		if rm.Order == 1 {
+			return nil
+		}
+		return fmt.Errorf("%w: first round must have order 1", ErrInvalidRoundOrder)
+	} else if err != nil {
 		return err
 	}
 
@@ -101,7 +113,7 @@ type TurnModel struct {
 	ID        int64         `gorm:"primaryKey;autoIncrement"`
 	CreatedAt time.Time     `gorm:"autoCreateTime"`
 	UpdatedAt time.Time     `gorm:"autoUpdateTime"`
-	Metadata  MetadataModel `gorm:"foreignKey:TurnID"`
+	Metadata  MetadataModel `gorm:"foreignKey:TurnID;constraint:OnDelete:SET NULL;"`
 	Scores    string        `gorm:"default:null"`
 	IsWinner  bool          `gorm:"default:false"`
 	PlayerID  int64         `gorm:"index:idx_playerturn;unique;not null"`
@@ -117,8 +129,8 @@ type PlayerModel struct {
 	AccountID   string            `gorm:"unique"`
 	CreatedAt   time.Time         `gorm:"autoCreateTime"`
 	UpdatedAt   time.Time         `gorm:"autoUpdateTime"`
-	Turns       []TurnModel       `gorm:"foreignKey:PlayerID"`
-	PlayerGames []PlayerGameModel `gorm:"foreignKey:PlayerID"`
+	Turns       []TurnModel       `gorm:"foreignKey:PlayerID;constraint:OnDelete:SET NULL;"`
+	PlayerGames []PlayerGameModel `gorm:"foreignKey:PlayerID;constraint:OnDelete:SET NULL;"`
 }
 
 func (PlayerModel) TableName() string {
@@ -129,7 +141,7 @@ type MetadataModel struct {
 	ID        int64     `gorm:"primaryKey;autoIncrement"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
-	TurnID    int64     `gorm:"unique;not null"`
+	TurnID    int64     `gorm:"unique"`
 	Path      string    `gorm:"unique;not null"`
 }
 

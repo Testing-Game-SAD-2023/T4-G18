@@ -20,64 +20,72 @@ func (gs *GameStorage) Create(r *CreateGameRequest) (*GameModel, error) {
 		PlayersCount: r.PlayersCount,
 		Name:         r.Name,
 	}
-	err := gs.db.Create(&g).Error
+	err := gs.db.
+		Create(&g).
+		Error
 
-	return &g, err
+	return &g, handleDbError(err)
 }
 
 func (gs *GameStorage) FindById(id int64) (*GameModel, error) {
 	var game GameModel
-	err := gs.db.First(&game, id).Error
-	if err != nil {
-		return nil, handleDbError(err)
-	}
-	return &game, nil
+	err := gs.db.
+		First(&game, id).
+		Error
+
+	return &game, handleDbError(err)
 }
 
 func (gs *GameStorage) FindByInterval(i *IntervalParams, p *PaginationParams) ([]GameModel, int64, error) {
 	var games []GameModel
 	var n int64
-	if err := gs.db.Scopes(IntervalScope(i), PaginatedScope(p)).Find(&games).Count(&n).Error; err != nil {
-		return nil, 0, handleDbError(err)
-	}
-	return games, n, nil
+
+	err := gs.db.
+		Scopes(Intervaled(i), Paginated(p)).
+		Find(&games).
+		Count(&n).
+		Error
+
+	return games, n, handleDbError(err)
 }
 
 func (gs *GameStorage) FindByRound(id int64) (*GameModel, error) {
 
 	var game GameModel
-	if err := gs.db.Preload("Rounds", &RoundModel{ID: id}).First(&game).Error; err != nil {
-		return nil, ErrNotFound
-	}
 
-	return &game, nil
+	err := gs.db.
+		Preload("Rounds", &RoundModel{ID: id}).
+		First(&game).
+		Error
+
+	return &game, handleDbError(err)
 }
 
 func (gs *GameStorage) Delete(id int64) error {
-	rowsAffected := gs.db.Delete(&GameModel{}, id).RowsAffected
-	if rowsAffected < 1 {
+	db := gs.db.
+		Where(&GameModel{ID: id}).
+		Delete(&GameModel{})
+
+	if db.Error != nil {
+		return handleDbError(db.Error)
+	} else if db.RowsAffected < 1 {
 		return ErrNotFound
 	}
 	return nil
 }
 
 func (gs *GameStorage) Update(id int64, r *UpdateGameRequest) (*GameModel, error) {
-	tx := gs.db.Begin()
-	defer tx.Rollback()
 
 	var game GameModel
 
-	if err := tx.First(&game, id).Error; err != nil {
-		return nil, handleDbError(err)
-	}
+	err := gs.db.
+		Model(&game).
+		Clauses(clause.Returning{}).
+		Where(&GameModel{ID: id}).
+		Updates(r).
+		Error
 
-	if err := gs.db.Model(&game).Updates(r).Error; err != nil {
-		return nil, handleDbError(err)
-	}
-
-	tx.Commit()
-
-	return &game, nil
+	return &game, handleDbError(err)
 }
 
 type RoundStorage struct {
@@ -91,61 +99,77 @@ func NewRoundStorage(db *gorm.DB) *RoundStorage {
 }
 
 func (rs *RoundStorage) Create(r *CreateRoundRequest) (*RoundModel, error) {
+
 	round := RoundModel{
+		Order:       r.Order,
 		GameID:      r.GameId,
 		TestClassId: r.TestClassId,
-		Order:       r.Order,
 	}
-	if err := rs.db.Create(&round).Error; err != nil {
-		return nil, handleDbError(err)
-	}
+	err := rs.db.
+		Create(&round).
+		Error
 
-	return &round, nil
+	return &round, handleDbError(err)
 }
 
 func (rs *RoundStorage) Update(id int64, r *UpdateRoundRequest) (*RoundModel, error) {
-	tx := rs.db.Begin()
-	defer tx.Rollback()
 
 	var round RoundModel
 
-	if err := tx.First(&round, id).Error; err != nil {
-		return nil, handleDbError(err)
-	}
+	err := rs.db.
+		Model(&round).
+		Clauses(clause.Returning{}).
+		Where(&RoundModel{ID: id}).
+		Updates(r).
+		Error
 
-	if err := rs.db.Model(&round).Updates(r).Error; err != nil {
-		return nil, handleDbError(err)
-	}
-
-	tx.Commit()
-
-	return &round, nil
+	return &round, handleDbError(err)
 }
 
 func (rs *RoundStorage) FindById(id int64) (*RoundModel, error) {
 	var round RoundModel
 
-	if err := rs.db.First(&round, id).Error; err != nil {
-		return nil, handleDbError(err)
-	}
-	return &round, nil
+	err := rs.db.
+		First(&round, id).
+		Error
+
+	return &round, handleDbError(err)
 }
 
 func (rs *RoundStorage) FindByGame(id int64) ([]RoundModel, error) {
 	var rounds []RoundModel
 
-	if err := rs.db.Find(&rounds).Error; err != nil {
-		return nil, handleDbError(err)
-	}
-	return rounds, nil
+	err := rs.db.
+		Scopes(OrderBy("order")).
+		Find(&rounds).
+		Error
+
+	return rounds, handleDbError(err)
 }
 
 func (rs *RoundStorage) Delete(id int64) error {
-	rowsAffected := rs.db.Delete(&RoundModel{}, id).RowsAffected
-	if rowsAffected < 1 {
-		return ErrNotFound
-	}
-	return nil
+	return rs.db.Transaction(func(tx *gorm.DB) error {
+		var round RoundModel
+		db := rs.db.
+			Where(&RoundModel{ID: id}).
+			Clauses(clause.Returning{}).
+			Delete(&round)
+
+		if db.Error != nil {
+			return handleDbError(db.Error)
+		} else if db.RowsAffected < 1 {
+			return ErrNotFound
+		}
+
+		err := rs.db.
+			Model(&RoundModel{}).
+			Where(&RoundModel{GameID: round.GameID}).
+			Where("\"order\" > ?", round.Order).
+			UpdateColumn("order", gorm.Expr("\"order\" - ?", 1)).
+			Error
+
+		return handleDbError(err)
+	})
 }
 
 type TurnStorage struct {
@@ -159,59 +183,68 @@ func NewTurnStorage(db *gorm.DB) *TurnStorage {
 }
 
 func (ts *TurnStorage) Create(r *CreateTurnRequest) (*TurnModel, error) {
+
 	turn := TurnModel{
 		PlayerID: r.PlayerId,
-		RoundID:  r.RoundId,
 		Scores:   r.Scores,
+		RoundID:  r.RoundId,
 	}
-	err := ts.db.Create(&turn).Error
+	err := ts.db.
+		Create(&turn).
+		Error
 
-	return &turn, err
+	return &turn, handleDbError(err)
 }
 
 func (ts *TurnStorage) Update(id int64, r *UpdateTurnRequest) (*TurnModel, error) {
-	tx := ts.db.Begin()
-	defer tx.Rollback()
 
 	var turn TurnModel
 
-	if err := tx.First(&turn, id).Error; err != nil {
-		return nil, handleDbError(err)
-	}
+	err := ts.db.
+		Model(&turn).
+		Clauses(clause.Returning{}).
+		Where(&TurnModel{ID: id}).
+		Updates(r).
+		Error
 
-	if err := ts.db.Model(&turn).Updates(r).Error; err != nil {
-		return nil, err
-	}
-
-	tx.Commit()
-
-	return &turn, nil
+	return &turn, handleDbError(err)
 }
 
 func (ts *TurnStorage) FindById(id int64) (*TurnModel, error) {
 	var turn TurnModel
 
-	if err := ts.db.First(&turn, id).Error; err != nil {
-		return nil, handleDbError(err)
-	}
-	return &turn, nil
+	err := ts.db.
+		First(&turn, id).
+		Error
+
+	return &turn, handleDbError(err)
 }
 
 func (ts *TurnStorage) FindByRound(id int64) ([]TurnModel, error) {
 	var turns []TurnModel
 
-	if err := ts.db.Where(&TurnModel{RoundID: id}).Find(&turns).Error; err != nil {
-		return nil, handleDbError(err)
-	}
-	return turns, nil
+	err := ts.db.
+		Where(&TurnModel{RoundID: id}).
+		Find(&turns).
+		Error
+
+	return turns, handleDbError(err)
 }
 
 func (ts *TurnStorage) Delete(id int64) error {
-	rowsAffected := ts.db.Delete(&TurnModel{}, id).RowsAffected
-	if rowsAffected < 1 {
+
+	db := ts.db.
+		Where(&TurnModel{ID: id}).
+		Delete(&TurnModel{})
+
+	if db.Error != nil {
+		return db.Error
+	} else if db.RowsAffected < 1 {
 		return ErrNotFound
 	}
+
 	return nil
+
 }
 
 type MetadataStorage struct {
@@ -225,27 +258,30 @@ func NewMetadataStorage(db *gorm.DB) *MetadataStorage {
 }
 
 func (ms *MetadataStorage) Upsert(id int64, path string) error {
+	var meta MetadataModel
 
-	meta := MetadataModel{
-		TurnID: id,
-		Path:   path,
-	}
+	err := ms.db.Model(&meta).
+		Clauses(
+			clause.OnConflict{
+				Columns:   []clause.Column{{Name: "turn_id"}},
+				DoUpdates: clause.Assignments(map[string]interface{}{"path": path}),
+			},
+			clause.Returning{},
+		).
+		Create(&MetadataModel{TurnID: id, Path: path}).
+		Error
 
-	return handleDbError(
-		ms.db.Clauses(clause.OnConflict{
-			Columns:   []clause.Column{{Name: "turn_id"}},
-			DoUpdates: clause.Assignments(map[string]interface{}{"path": path}),
-		}).Create(&meta).Error,
-	)
+	return handleDbError(err)
 }
 
 func (ms *MetadataStorage) FindByTurn(id int64) (*MetadataModel, error) {
 	var meta MetadataModel
-	if err := ms.db.First(&meta, &MetadataModel{TurnID: id}).Error; err != nil {
-		return nil, handleDbError(err)
-	}
 
-	return &meta, nil
+	err := ms.db.
+		First(&meta, &MetadataModel{TurnID: id}).
+		Error
+
+	return &meta, handleDbError(err)
 }
 
 type PlayerStorage struct {
@@ -261,8 +297,9 @@ func NewPlayerStorage(db *gorm.DB) *PlayerStorage {
 func (ps *PlayerStorage) FindById(id int64) (*PlayerModel, error) {
 	var player PlayerModel
 
-	if err := ps.db.First(&player, id).Error; err != nil {
-		return nil, handleDbError(err)
-	}
-	return &player, nil
+	err := ps.db.
+		First(&player, id).
+		Error
+
+	return &player, handleDbError(err)
 }

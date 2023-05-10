@@ -455,9 +455,11 @@ func (m *MockedTurnRepository) FindById(id int64) (*TurnModel, error) {
 	}
 	return v.(*TurnModel), args.Error(1)
 }
-func (m *MockedTurnRepository) Delete(id int64) (*TurnModel, error) {
-	return nil, fmt.Errorf("not implemented")
+
+func (m *MockedTurnRepository) Delete(id int64) error {
+	return fmt.Errorf("not implemented")
 }
+
 func (m *MockedTurnRepository) FindByRound(id int64) ([]TurnModel, error) {
 	return nil, fmt.Errorf("not implemented")
 }
