@@ -35,10 +35,10 @@ func (suite *GameControllerSuite) SetupSuite() {
 	controller := NewGameController(service)
 
 	r := chi.NewMux()
-	r.With(ParamId).Get("/{id}", makeHTTPHandlerFunc(controller.findByID))
+	r.With(IdInUrlParam).Get("/{id}", makeHTTPHandlerFunc(controller.findByID))
 	r.Post("/", makeHTTPHandlerFunc(controller.create))
-	r.With(ParamId).Delete("/{id}", makeHTTPHandlerFunc(controller.delete))
-	r.With(ParamId).Put("/{id}", makeHTTPHandlerFunc(controller.update))
+	r.With(IdInUrlParam).Delete("/{id}", makeHTTPHandlerFunc(controller.delete))
+	r.With(IdInUrlParam).Put("/{id}", makeHTTPHandlerFunc(controller.update))
 
 	suite.tServer = httptest.NewServer(r)
 }
@@ -297,8 +297,8 @@ func (suite *TurnControllerSuite) SetupSuite() {
 
 	r := chi.NewMux()
 
-	r.With(ParamId).Get("/{id}/files", makeHTTPHandlerFunc(controller.download))
-	r.With(ParamId).Put("/{id}/files", makeHTTPHandlerFunc(controller.upload))
+	r.With(IdInUrlParam).Get("/{id}/files", makeHTTPHandlerFunc(controller.download))
+	r.With(IdInUrlParam).Put("/{id}/files", makeHTTPHandlerFunc(controller.upload))
 
 	suite.tServer = httptest.NewServer(r)
 }
@@ -455,8 +455,8 @@ func (m *MockedTurnRepository) FindById(id int64) (*TurnModel, error) {
 	}
 	return v.(*TurnModel), args.Error(1)
 }
-func (m *MockedTurnRepository) Delete(id int64) error {
-	return fmt.Errorf("not implemented")
+func (m *MockedTurnRepository) Delete(id int64) (*TurnModel, error) {
+	return nil, fmt.Errorf("not implemented")
 }
 func (m *MockedTurnRepository) FindByRound(id int64) ([]TurnModel, error) {
 	return nil, fmt.Errorf("not implemented")
