@@ -46,7 +46,7 @@ func (gs *GameStorage) FindByInterval(i *IntervalParams, p *PaginationParams) ([
 func (gs *GameStorage) FindByRound(id int64) (*GameModel, error) {
 
 	var game GameModel
-	if err := gs.db.Preload("Rounds", "id = ?", id).First(&game).Error; err != nil {
+	if err := gs.db.Preload("Rounds", &RoundModel{ID: id}).First(&game).Error; err != nil {
 		return nil, ErrNotFound
 	}
 
@@ -241,7 +241,7 @@ func (ms *MetadataStorage) Upsert(id int64, path string) error {
 
 func (ms *MetadataStorage) FindByTurn(id int64) (*MetadataModel, error) {
 	var meta MetadataModel
-	if err := ms.db.First(&meta, "turn_id = ?", id).Error; err != nil {
+	if err := ms.db.First(&meta, &MetadataModel{TurnID: id}).Error; err != nil {
 		return nil, handleDbError(err)
 	}
 
