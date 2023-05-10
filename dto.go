@@ -31,7 +31,7 @@ type CreateTurnRequest struct {
 }
 
 type UpdateRoundRequest struct {
-	//TO-DO
+	Order int `json:"order"`
 }
 
 type UpdateTurnRequest struct {

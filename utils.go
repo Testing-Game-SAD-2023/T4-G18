@@ -76,6 +76,7 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 
 		// List turn
 		r.Get("/", makeHTTPHandlerFunc(tc.list))
+
 		// Create turn
 		r.With(ContentType("application/json")).
 			Post("/", makeHTTPHandlerFunc(tc.create))
@@ -291,7 +292,7 @@ func makeHTTPHandlerFunc(f ApiFunction) http.HandlerFunc {
 
 }
 
-func gameModelToDto(g *GameModel) *GameDto {
+func mapToGameDTO(g *GameModel) *GameDto {
 	return &GameDto{
 		ID:           g.ID,
 		CurrentRound: g.CurrentRound,
@@ -302,7 +303,7 @@ func gameModelToDto(g *GameModel) *GameDto {
 	}
 }
 
-func roundModelToDto(g *RoundModel) *RoundDto {
+func mapToRoundDTO(g *RoundModel) *RoundDto {
 	return &RoundDto{
 		ID:          g.ID,
 		Order:       g.Order,
@@ -312,7 +313,7 @@ func roundModelToDto(g *RoundModel) *RoundDto {
 	}
 }
 
-func turnModelToDto(t *TurnModel) *TurnDto {
+func mapToTurnDTO(t *TurnModel) *TurnDto {
 	return &TurnDto{
 		ID:        t.ID,
 		IsWinner:  t.IsWinner,

@@ -194,7 +194,7 @@ func (ts *TurnService) Store(id int64, r io.Reader) error {
 	return ts.metadataRepository.Upsert(id, fname)
 }
 
-func (ts *TurnService) GetTurnFile(id int64) (string, io.ReadCloser, error) {
+func (ts *TurnService) GetTurnFile(id int64) (string, *os.File, error) {
 	m, err := ts.metadataRepository.FindByTurn(id)
 	if err != nil {
 		return "", nil, err

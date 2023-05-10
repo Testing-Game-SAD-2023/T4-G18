@@ -293,7 +293,7 @@ func (suite *TurnControllerSuite) SetupSuite() {
 
 	suite.tmpDir = os.TempDir()
 	service := NewTurnService(tr, mr, gr, nil, suite.tmpDir)
-	controller := NewTurnController(service, 512)
+	controller := NewTurnController(service)
 
 	r := chi.NewMux()
 
