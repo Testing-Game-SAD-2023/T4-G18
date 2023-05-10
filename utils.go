@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type ctxKey int
@@ -26,7 +27,7 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 
 	r.Route("/games", func(r chi.Router) {
 		//Get game
-		r.With(ParamId).
+		r.With(IdInUrlParam).
 			Get("/{id}", makeHTTPHandlerFunc(gc.findByID))
 
 		// List games
@@ -34,22 +35,22 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 			Get("/", makeHTTPHandlerFunc(gc.list))
 
 		// Create game
-		r.With(ParamId, ContentType("application/json")).
+		r.With(ContentType("application/json")).
 			Post("/", makeHTTPHandlerFunc(gc.create))
 
 		// Update game
-		r.With(ParamId, ContentType("application/json")).
+		r.With(IdInUrlParam, ContentType("application/json")).
 			Put("/{id}", makeHTTPHandlerFunc(gc.update))
 
 		// Delete game
-		r.With(ParamId).
+		r.With(IdInUrlParam).
 			Delete("/{id}", makeHTTPHandlerFunc(gc.delete))
 
 	})
 
 	r.Route("/rounds", func(r chi.Router) {
 		// Get round
-		r.With(ParamId).
+		r.With(IdInUrlParam).
 			Get("/{id}", makeHTTPHandlerFunc(rc.findByID))
 
 		// List rounds
@@ -60,18 +61,18 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 			Post("/", makeHTTPHandlerFunc(rc.create))
 
 		// Update round
-		r.With(ParamId, ContentType("application/json")).
+		r.With(IdInUrlParam, ContentType("application/json")).
 			Put("/{id}", makeHTTPHandlerFunc(rc.update))
 
 		// Delete round
-		r.With(ParamId).
+		r.With(IdInUrlParam).
 			Delete("/{id}", makeHTTPHandlerFunc(rc.delete))
 
 	})
 
 	r.Route("/turns", func(r chi.Router) {
 		// Get turn
-		r.With(ParamId).
+		r.With(IdInUrlParam).
 			Get("/{id}", makeHTTPHandlerFunc(tc.findByID))
 
 		// List turn
@@ -82,19 +83,19 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 			Post("/", makeHTTPHandlerFunc(tc.create))
 
 		// Update turn
-		r.With(ParamId, ContentType("application/json")).
+		r.With(IdInUrlParam, ContentType("application/json")).
 			Put("/{id}", makeHTTPHandlerFunc(tc.update))
 
 		// Delete turn
-		r.With(ParamId).
+		r.With(IdInUrlParam).
 			Delete("/{id}", makeHTTPHandlerFunc(tc.delete))
 
 		// Get turn file
-		r.With(ParamId).
+		r.With(IdInUrlParam).
 			Get("/{id}/files", makeHTTPHandlerFunc(tc.download))
 
 		// Upload turn file
-		r.With(ParamId, ContentType("application/zip")).
+		r.With(IdInUrlParam, ContentType("application/zip")).
 			Put("/{id}/files", makeHTTPHandlerFunc(tc.upload))
 	})
 	return r
@@ -110,16 +111,30 @@ type IntervalParams struct {
 	endDate   time.Time
 }
 
-func PaginatedScope(p *PaginationParams) func(db *gorm.DB) *gorm.DB {
+func Paginated(p *PaginationParams) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		offset := (p.page - 1) * p.pageSize
 		return db.Offset(int(offset)).Limit(int(p.pageSize))
 	}
 }
 
-func IntervalScope(i *IntervalParams) func(db *gorm.DB) *gorm.DB {
+func Intervaled(i *IntervalParams) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where("created_at between ? AND ?", i.startDate, i.endDate)
+	}
+}
+
+func OrderBy(column string) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Order(clause.OrderBy{
+			Columns: []clause.OrderByColumn{
+				{
+					Column: clause.Column{
+						Name: column,
+					},
+				},
+			},
+		})
 	}
 }
 
@@ -187,7 +202,7 @@ func Interval(next http.Handler) http.Handler {
 	}))
 }
 
-func ParamId(next http.Handler) http.Handler {
+func IdInUrlParam(next http.Handler) http.Handler {
 	return makeHTTPHandlerFunc((func(w http.ResponseWriter, r *http.Request) error {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
