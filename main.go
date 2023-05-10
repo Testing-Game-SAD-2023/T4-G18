@@ -24,7 +24,6 @@ type Configuration struct {
 	ListenAddress string `json:"listenAddress"`
 	ApiPrefix     string `json:"apiPrefix"`
 	DataDir       string `json:"dataDir"`
-	BufferSize    int    `json:"bufferSize"`
 	EnableSwagger bool   `json:"enableSwagger"`
 }
 
@@ -130,7 +129,7 @@ func run(c Configuration) error {
 			turnStorage     = NewTurnStorage(db)
 			playerStorage   = NewPlayerStorage(db)
 			turnService     = NewTurnService(turnStorage, metadataStorage, gameStorage, playerStorage, c.DataDir)
-			turnController  = NewTurnController(turnService, c.BufferSize)
+			turnController  = NewTurnController(turnService)
 		)
 
 		r.Mount(c.ApiPrefix, setupRoutes(
@@ -155,10 +154,6 @@ func makeDefaults(c *Configuration) {
 
 	if c.DataDir == "" {
 		c.DataDir = "data"
-	}
-
-	if c.BufferSize <= 0 {
-		c.BufferSize = 512
 	}
 
 }

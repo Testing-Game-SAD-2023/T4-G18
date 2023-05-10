@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -35,7 +34,7 @@ func (gc *GameController) create(w http.ResponseWriter, r *http.Request) error {
 		return makeApiError(err)
 	}
 
-	return writeJson(w, http.StatusCreated, gameModelToDto(g))
+	return writeJson(w, http.StatusCreated, mapToGameDTO(g))
 
 }
 
@@ -49,7 +48,7 @@ func (gc *GameController) findByID(w http.ResponseWriter, r *http.Request) error
 		return makeApiError(err)
 	}
 
-	return writeJson(w, http.StatusOK, gameModelToDto(g))
+	return writeJson(w, http.StatusOK, mapToGameDTO(g))
 
 }
 
@@ -82,7 +81,7 @@ func (gc *GameController) update(w http.ResponseWriter, r *http.Request) error {
 		return makeApiError(err)
 	}
 
-	return writeJson(w, http.StatusOK, gameModelToDto(g))
+	return writeJson(w, http.StatusOK, mapToGameDTO(g))
 }
 
 func (gc *GameController) list(w http.ResponseWriter, r *http.Request) error {
@@ -95,7 +94,7 @@ func (gc *GameController) list(w http.ResponseWriter, r *http.Request) error {
 	}
 	res := make([]GameDto, len(games))
 	for i, game := range games {
-		res[i] = *gameModelToDto(&game)
+		res[i] = *mapToGameDTO(&game)
 	}
 
 	return writeJson(w, http.StatusOK, makePaginatedResponse(res, count, &paginationParams))
@@ -129,7 +128,7 @@ func (rc *RoundController) create(w http.ResponseWriter, r *http.Request) error 
 		return makeApiError(err)
 	}
 
-	return writeJson(w, http.StatusCreated, roundModelToDto(g))
+	return writeJson(w, http.StatusCreated, mapToRoundDTO(g))
 
 }
 
@@ -151,7 +150,7 @@ func (rc *RoundController) update(w http.ResponseWriter, r *http.Request) error 
 		return makeApiError(err)
 	}
 
-	return writeJson(w, http.StatusOK, roundModelToDto(g))
+	return writeJson(w, http.StatusOK, mapToRoundDTO(g))
 }
 
 func (rc *RoundController) findByID(w http.ResponseWriter, r *http.Request) error {
@@ -164,7 +163,7 @@ func (rc *RoundController) findByID(w http.ResponseWriter, r *http.Request) erro
 		return makeApiError(err)
 	}
 
-	return writeJson(w, http.StatusOK, roundModelToDto(round))
+	return writeJson(w, http.StatusOK, mapToRoundDTO(round))
 
 }
 
@@ -196,21 +195,19 @@ func (rc *RoundController) list(w http.ResponseWriter, r *http.Request) error {
 
 	resp := make([]*RoundDto, len(rounds))
 	for i, round := range rounds {
-		resp[i] = roundModelToDto(&round)
+		resp[i] = mapToRoundDTO(&round)
 	}
 
 	return writeJson(w, http.StatusOK, resp)
 }
 
 type TurnController struct {
-	service    *TurnService
-	bufferSize int
+	service *TurnService
 }
 
-func NewTurnController(service *TurnService, bufferSize int) *TurnController {
+func NewTurnController(service *TurnService) *TurnController {
 	return &TurnController{
-		service:    service,
-		bufferSize: bufferSize,
+		service: service,
 	}
 }
 
@@ -232,7 +229,7 @@ func (tc *TurnController) create(w http.ResponseWriter, r *http.Request) error {
 		return makeApiError(err)
 	}
 
-	return writeJson(w, http.StatusCreated, turnModelToDto(g))
+	return writeJson(w, http.StatusCreated, mapToTurnDTO(g))
 }
 
 func (tc *TurnController) update(w http.ResponseWriter, r *http.Request) error {
@@ -253,7 +250,7 @@ func (tc *TurnController) update(w http.ResponseWriter, r *http.Request) error {
 		return makeApiError(err)
 	}
 
-	return writeJson(w, http.StatusOK, turnModelToDto(g))
+	return writeJson(w, http.StatusOK, mapToTurnDTO(g))
 }
 
 func (tc *TurnController) findByID(w http.ResponseWriter, r *http.Request) error {
@@ -266,7 +263,7 @@ func (tc *TurnController) findByID(w http.ResponseWriter, r *http.Request) error
 		return makeApiError(err)
 	}
 
-	return writeJson(w, http.StatusOK, turnModelToDto(turn))
+	return writeJson(w, http.StatusOK, mapToTurnDTO(turn))
 
 }
 
@@ -305,18 +302,8 @@ func (tc *TurnController) download(w http.ResponseWriter, r *http.Request) error
 
 	w.Header().Set("Content-Type", "application/zip")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", fname))
-	b := make([]byte, tc.bufferSize)
-	for {
-		n, err := f.Read(b)
-		if errors.Is(err, io.EOF) {
-			break
-		} else if err != nil {
-			return err
-		}
-
-		if _, err := w.Write(b[:n]); err != nil {
-			return err
-		}
+	if _, err := io.Copy(w, f); err != nil {
+		return err
 	}
 	return nil
 }
@@ -338,7 +325,7 @@ func (tc *TurnController) list(w http.ResponseWriter, r *http.Request) error {
 
 	resp := make([]*TurnDto, len(turns))
 	for i, turn := range turns {
-		resp[i] = turnModelToDto(&turn)
+		resp[i] = mapToTurnDTO(&turn)
 	}
 
 	return writeJson(w, http.StatusOK, resp)
