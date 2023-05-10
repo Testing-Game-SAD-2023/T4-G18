@@ -34,7 +34,7 @@ make help
 ```
 
 ### Documentation
-A swagger UI can be enabled setting `enableSwagger` to True in configuration file. Also, OpenAPI3 specification and a Postman collection are available in [`postman`](/postman) directory. When executing locally, SwaggerUI is available at http://<YOU_LISTEN_ADDRESS>/docs.
+A swagger UI can be enabled setting `enableSwagger` to True in configuration file. Also, OpenAPI3 specification and a Postman collection are available in [`postman`](/postman) directory. When executing locally, SwaggerUI is available at http://localhost:3000/docs (if you change listenAddress in configuration, you should adapt the link to it).
 
 ### Testing
 Unit testing is provided using mocking of storage class in order to not depend of a real database. Tests can be 
