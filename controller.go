@@ -144,6 +144,7 @@ func (rc *RoundController) update(w http.ResponseWriter, r *http.Request) error 
 			Message: "Invalid json body",
 		}
 	}
+	defer r.Body.Close()
 
 	g, err := rc.service.Update(id, &rq)
 	if err != nil {
@@ -245,6 +246,7 @@ func (tc *TurnController) update(w http.ResponseWriter, r *http.Request) error {
 			Message: "Invalid json body",
 		}
 	}
+	defer r.Body.Close()
 
 	g, err := tc.service.Update(id, &rq)
 	if err != nil {
@@ -282,12 +284,12 @@ func (tc *TurnController) delete(w http.ResponseWriter, r *http.Request) error {
 func (tc *TurnController) upload(w http.ResponseWriter, r *http.Request) error {
 
 	id := r.Context().Value(idParamKey).(int64)
+	defer r.Body.Close()
 
 	if err := tc.service.Store(id, r.Body); err != nil {
 		return makeApiError(err)
 	}
 
-	defer r.Body.Close()
 	w.WriteHeader(http.StatusOK)
 	return nil
 }
