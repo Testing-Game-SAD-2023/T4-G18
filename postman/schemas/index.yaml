@@ -236,7 +236,7 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
                 "404":
-                    description: No Round found for the provided `Id`
+                    description: No round found for the provided `Id`
                     content:
                         application/json:
                             schema:
@@ -247,6 +247,48 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+        put:
+            summary: Update a round
+            description: Update a round by id
+            tags:
+                - rounds
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                order:
+                                    type: integer
+                        example:
+                            order: 2
+            responses:
+                "200":
+                    description: The updated round
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Round"
+                "400":
+                    description: Bad request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "404":
+                    description: No round found for the provided `Id`
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "500":
+                    description: Internal server error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
 
         delete:
             summary: Delete a round
@@ -293,9 +335,12 @@ paths:
                                     format: int64
                                 testClassId:
                                     type: string
+                                order:
+                                    type: integer
                         example:
                             gameId: 1
                             testClassId: "a_test_class.java"
+                            ordrer: 1
             responses:
                 "201":
                     description: Created
@@ -397,6 +442,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+
         put:
             summary: Update a turn
             description: Update a turn by id
@@ -662,6 +708,8 @@ components:
                     format: int64
                 testClassId:
                     type: string
+                order:
+                    type: integer
                 createdAt:
                     type: string
                     format: date-time
