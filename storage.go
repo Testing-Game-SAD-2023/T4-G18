@@ -109,7 +109,7 @@ func (rs *RoundStorage) Create(request *CreateRoundRequest) (*RoundModel, error)
 	return &r, nil
 }
 
-func (rs *RoundStorage) Update(id int64, ug *UpdateRoundRequest) (*RoundModel, error) {
+func (rs *RoundStorage) Update(id int64, ur *UpdateRoundRequest) (*RoundModel, error) {
 	tx := rs.db.Begin()
 	defer tx.Rollback()
 
@@ -119,7 +119,7 @@ func (rs *RoundStorage) Update(id int64, ug *UpdateRoundRequest) (*RoundModel, e
 		return nil, handleDbError(err)
 	}
 
-	if err := rs.db.Model(&round).Updates(ug).Error; err != nil {
+	if err := rs.db.Model(&round).Updates(ur).Error; err != nil {
 		return nil, handleDbError(err)
 	}
 
