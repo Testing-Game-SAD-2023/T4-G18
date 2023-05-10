@@ -3,6 +3,7 @@ package main
 import (
 	"archive/zip"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path"
@@ -176,10 +177,11 @@ func (ts *TurnService) Store(id int64, r io.Reader) error {
 	}
 
 	year := time.Now().Year()
+
 	fname := path.Join(ts.dataDir,
 		strconv.FormatInt(int64(year), 10),
 		strconv.FormatInt(game.ID, 10),
-		path.Base(dst.Name())+".zip",
+		fmt.Sprintf("%d.zip", id),
 	)
 
 	dir := path.Dir(fname)
