@@ -179,7 +179,7 @@ func (ts *TurnService) Store(id int64, r io.Reader) error {
 	fname := path.Join(ts.dataDir,
 		strconv.FormatInt(int64(year), 10),
 		strconv.FormatInt(game.ID, 10),
-		strconv.FormatInt(id, 10)+".zip",
+		path.Base(dst.Name())+".zip",
 	)
 
 	dir := path.Dir(fname)
