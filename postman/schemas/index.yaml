@@ -337,7 +337,7 @@ paths:
                         example:
                             gameId: 1
                             testClassId: "a_test_class.java"
-                            ordrer: 1
+                            order: 1
             responses:
                 "201":
                     description: Created
