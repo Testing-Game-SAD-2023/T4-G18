@@ -172,7 +172,6 @@ paths:
                       format: date
                       default: "2022-01-30"
                   required: false
-                  example:
                 - in: query
                   name: endDate
                   description: Last date for the interval. Must bee in YYYY-MM-DD format
