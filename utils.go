@@ -56,7 +56,7 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 		r.Get("/", makeHTTPHandlerFunc(rc.list))
 
 		// Create round
-		r.With(ParamId, ContentType("application/json")).
+		r.With(ContentType("application/json")).
 			Post("/", makeHTTPHandlerFunc(rc.create))
 
 		// Update round
@@ -259,16 +259,19 @@ func writeJson(w http.ResponseWriter, statusCode int, v any) error {
 }
 
 func makeApiError(err error) error {
+	var code int
 	switch {
 	case errors.Is(err, ErrNotFound):
-		return ApiError{code: http.StatusNotFound, Message: "Resource not found"}
-	case errors.Is(err, ErrBadRequest):
-		return ApiError{code: http.StatusBadRequest, Message: "Bad request"}
+		code = http.StatusNotFound
+	case errors.Is(err, ErrBadRequest), errors.Is(err, ErrInvalidRoundOrder):
+		code = http.StatusBadRequest
 	case errors.Is(err, ErrNotAZip):
-		return ApiError{code: http.StatusUnprocessableEntity, Message: "File is not a valid zip"}
+		code = http.StatusUnprocessableEntity
 	default:
-		return ApiError{code: http.StatusInternalServerError, Message: "Internal server error"}
+		code = http.StatusInternalServerError
 	}
+
+	return ApiError{code: code, Message: err.Error()}
 }
 
 type ApiFunction func(http.ResponseWriter, *http.Request) error
@@ -279,6 +282,10 @@ func makeHTTPHandlerFunc(f ApiFunction) http.HandlerFunc {
 			apiError, ok := err.(ApiError)
 
 			if ok {
+				if apiError.code == http.StatusInternalServerError {
+					apiError.Message = "internal server error"
+				}
+
 				if err := writeJson(w, apiError.code, apiError); err != nil {
 					log.Print(err)
 				}
