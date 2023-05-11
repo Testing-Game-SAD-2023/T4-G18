@@ -92,9 +92,9 @@ func (gc *GameController) list(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return makeApiError(err)
 	}
-	res := make([]GameDto, len(games))
+	res := make([]*GameDto, len(games))
 	for i, game := range games {
-		res[i] = *mapToGameDTO(&game)
+		res[i] = mapToGameDTO(&game)
 	}
 
 	return writeJson(w, http.StatusOK, makePaginatedResponse(res, count, &paginationParams))
