@@ -123,7 +123,7 @@ paths:
             tags:
                 - games
             summary: Create a Game
-            description: Create a game
+            description: Create a game registering all the provided players in the system.
             requestBody:
                 required: true
                 content:
@@ -635,8 +635,8 @@ paths:
         post:
             tags:
                 - turns
-            summary: Create a turn
-            description: Create a turn in the system
+            summary: Create turns for players
+            description: Create turns for provided players in round x
             requestBody:
                 required: true
                 content:
