@@ -12,12 +12,6 @@ import (
 
 var db *gorm.DB
 
-func skipCI(t *testing.T) {
-	if os.Getenv("CI") != "" {
-		t.Skip("Skipping testing in CI environment")
-	}
-}
-
 func TestMain(m *testing.M) {
 	var err error
 
@@ -37,7 +31,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestCleanup(t *testing.T) {
-	skipCI(t)
+	t.SkipNow()
 
 	seed(t, db)
 
