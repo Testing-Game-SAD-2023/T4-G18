@@ -21,6 +21,10 @@ docker-build:
 docker-run: docker-build
 	docker run --network=host -v $(config):/app/config.json $(APP_NAME):$(GIT_COMMIT)
 
+## docker-push: sends the image on a server with ssh
+docker-push: docker-build
+	docker save $(APP_NAME):$(GIT_COMMIT) | bzip2 | pv | ssh $(ssh)  docker load
+
 ## test: executes all unit tests in the repository
 test:
 	CGO_ENABLED=0 go test -v -cover ./... 
