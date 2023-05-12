@@ -25,10 +25,27 @@ func NewGameRepository(db *gorm.DB) *GameRepository {
 	}
 }
 
+func duplicated(v []string) bool {
+	// detect duplication in player
+	unique := make(map[string]struct{}, len(v))
+	for _, item := range v {
+		if _, seen := unique[item]; seen {
+			return true
+		}
+		unique[item] = struct{}{}
+	}
+	return false
+}
+
 func (gs *GameRepository) Create(r *CreateGameRequest) (*GameModel, error) {
 	var (
 		game GameModel
 	)
+	// detect duplication in player
+	if duplicated(r.Players) {
+		return nil, ErrInvalidPlayerList
+	}
+
 	err := gs.db.Transaction(func(tx *gorm.DB) error {
 		var (
 			err         error
@@ -36,9 +53,10 @@ func (gs *GameRepository) Create(r *CreateGameRequest) (*GameModel, error) {
 			playerGames []PlayerGameModel = make([]PlayerGameModel, len(r.Players))
 		)
 
-		// creazione del game
+		// game creation
 		game = GameModel{
-			Name: r.Name,
+			Name:         r.Name,
+			PlayersCount: len(r.Players),
 		}
 		err = tx.
 			Create(&game).
@@ -55,14 +73,12 @@ func (gs *GameRepository) Create(r *CreateGameRequest) (*GameModel, error) {
 			}
 		}
 
-		// creazione account utenti (se non esistono)
+		// account creation (if not exist)
 		err = tx.
 			Clauses(
 				clause.OnConflict{
-					Columns:   []clause.Column{{Name: "account_id"}},
 					DoNothing: true,
 				},
-				clause.Returning{},
 			).
 			Create(&toCreate).
 			Error
@@ -71,6 +87,7 @@ func (gs *GameRepository) Create(r *CreateGameRequest) (*GameModel, error) {
 			return err
 		}
 
+		// get all players for game
 		err = tx.
 			Where("account_id IN ?", r.Players).
 			Find(&players).
@@ -87,6 +104,7 @@ func (gs *GameRepository) Create(r *CreateGameRequest) (*GameModel, error) {
 			}
 		}
 
+		// create player instance in game
 		return tx.Create(playerGames).Error
 	})
 
@@ -166,6 +184,7 @@ func NewRoundStorage(db *gorm.DB) *RoundStorage {
 
 func (rs *RoundStorage) Create(r *CreateRoundRequest) (*RoundModel, error) {
 	var round RoundModel
+
 	err := rs.db.Transaction(func(tx *gorm.DB) error {
 
 		err := tx.
@@ -264,11 +283,9 @@ func NewTurnRepository(db *gorm.DB, dataDir string) *TurnRepository {
 	}
 }
 
-func (tr *TurnRepository) Create(r *createTurnRequest) (*TurnModel, error) {
-	turn := TurnModel{
-		PlayerID: r.PlayerId,
-		RoundID:  r.RoundId,
-	}
+func (tr *TurnRepository) CreateBulk(r *CreateTurnsRequest) ([]TurnModel, error) {
+	turns := make([]TurnModel, len(r.Players))
+
 	err := tr.db.Transaction(func(tx *gorm.DB) error {
 		var (
 			err error
@@ -281,19 +298,33 @@ func (tr *TurnRepository) Create(r *createTurnRequest) (*TurnModel, error) {
 			return err
 		}
 
-		err = tx.Where(&PlayerModel{ID: r.PlayerId}).
-			First(&PlayerModel{}).
+		var ids []int64
+		err = tx.
+			Model(&PlayerModel{}).
+			Select("id").
+			Where("account_id in ?", r.Players).
+			Find(&ids).
 			Error
+
 		if err != nil {
 			return err
 		}
 
-		return tx.
-			Create(&turn).
-			Error
+		if len(ids) != len(r.Players) {
+			return ErrInvalidPlayerList
+		}
+
+		for i, id := range ids {
+			turns[i] = TurnModel{
+				PlayerID: id,
+				RoundID:  r.RoundId,
+			}
+		}
+
+		return tx.Create(&turns).Error
 	})
 
-	return &turn, handleError(err)
+	return turns, handleError(err)
 }
 
 func (tr *TurnRepository) Update(id int64, r *UpdateTurnRequest) (*TurnModel, error) {
@@ -427,6 +458,7 @@ func (ts *TurnRepository) GetFile(id int64) (string, *os.File, error) {
 		Where(&MetadataModel{TurnID: id}).
 		First(&metadata).
 		Error
+
 	if err != nil {
 		return "", nil, handleError(err)
 	}

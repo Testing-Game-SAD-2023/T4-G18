@@ -24,13 +24,9 @@ type CreateRoundRequest struct {
 	Order       int    `json:"order"`
 }
 
-type createTurnRequest struct {
-	PlayerId int64 `json:"playerId"`
-	RoundId  int64 `json:"roundId"`
-}
-
-type CreateTurnRequest struct {
-	Turns []createTurnRequest `json:"turns"`
+type CreateTurnsRequest struct {
+	RoundId int64    `json:"roundId"`
+	Players []string `json:"players"`
 }
 
 type UpdateRoundRequest struct {
