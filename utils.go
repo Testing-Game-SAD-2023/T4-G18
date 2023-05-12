@@ -29,6 +29,7 @@ var (
 	ErrNotAZip           = errors.New("file is not a valid zip")
 	ErrInvalidRoundOrder = errors.New("invalid round order")
 	ErrDuplicateKey      = errors.New("duplicated key")
+	ErrInvalidPlayerList = errors.New("invalid player list")
 )
 
 func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *chi.Mux {
@@ -282,7 +283,9 @@ func makeApiError(err error) error {
 	switch {
 	case errors.Is(err, ErrNotFound):
 		code = http.StatusNotFound
-	case errors.Is(err, ErrBadRequest), errors.Is(err, ErrInvalidRoundOrder):
+	case errors.Is(err, ErrBadRequest),
+		errors.Is(err, ErrInvalidPlayerList),
+		errors.Is(err, ErrInvalidRoundOrder):
 		code = http.StatusBadRequest
 	case errors.Is(err, ErrNotAZip):
 		code = http.StatusUnprocessableEntity

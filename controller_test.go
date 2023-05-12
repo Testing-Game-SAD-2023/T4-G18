@@ -455,7 +455,7 @@ type MockedTurnRepository struct {
 	mock.Mock
 }
 
-func (m *MockedTurnRepository) Create(request *createTurnRequest) (*TurnModel, error) {
+func (m *MockedTurnRepository) CreateBulk(request *CreateTurnsRequest) ([]TurnModel, error) {
 	return nil, fmt.Errorf("not implemented")
 }
 func (m *MockedTurnRepository) FindById(id int64) (*TurnModel, error) {
