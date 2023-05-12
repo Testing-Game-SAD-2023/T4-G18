@@ -131,13 +131,16 @@ paths:
                         schema:
                             type: object
                             properties:
-                                playersCount:
-                                    type: integer
+                                players:
+                                    type: array 
+                                    items:
+                                        type: string
                                 name:
                                     type: string
-                        example:
+                        example: 
                             name: Game name
-                            playersCount: 5
+                            players: ["id1", "id2"]
+                            
 
             responses:
                 "201":
@@ -641,18 +644,16 @@ paths:
                         schema:
                             type: object
                             properties:
-                                playerId:
-                                    type: integer
-                                    format: int64
+                                players:
+                                    type: array 
+                                    items:
+                                        type: string
                                 roundId:
                                     type: integer
                                     format: int64
-                                scores:
-                                    type: string
                         example:
-                            playerId: 1
+                            players: ["id1", "id2"]
                             roundId: 1
-                            scores: "score example"
             responses:
                 "201":
                     description: Created
@@ -668,6 +669,12 @@ paths:
                                 $ref: "#/components/schemas/Error"
                 "404":
                     description: No round or player found for the provided id
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "409":
+                    description: User turn already exists in round
                     content:
                         application/json:
                             schema:
