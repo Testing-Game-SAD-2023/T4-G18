@@ -11,6 +11,8 @@ on:
       - 'vendor/**'
       - 'postman/**'
       - '.postman/**'
+      - Makefile
+      - LICENSE
       
   pull_request:
     branches: [ "master" ]
@@ -19,6 +21,8 @@ on:
       - 'vendor/**'
       - 'postman/**'
       - '.postman/**'
+      - Makefile
+      - LICENSE
       
   workflow_dispatch:
 
