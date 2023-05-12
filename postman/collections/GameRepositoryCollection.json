@@ -1379,6 +1379,44 @@
 							],
 							"cookie": [],
 							"body": "{\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"id": "6e2dc9df-99fd-49e8-ad4a-ea4bf5aeeaf0",
+							"name": "User turn already exists in round",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"playerId\": \"<long>\",\n  \"roundId\": \"<long>\",\n  \"scores\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/turns",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turns"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"mollit sit\"\n}"
 						}
 					]
 				}
@@ -3140,11 +3178,34 @@
 			"id": "902cbe37-f5bd-480e-8efd-2a06b3568629"
 		}
 	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "5dbda675-0803-45e8-9885-5cb80bd46bbb",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "f4ed9fb5-4b56-48e8-89f9-52fa1444e216",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
 	"variable": [
 		{
-			"id": "e64baf1f-8445-4d20-a10d-d47bfadf1ade",
+			"id": "60da35ee-a263-488e-920e-b26551c686a2",
 			"key": "baseUrl",
-			"value": "https://sad.capass.org"
+			"value": "https://sad.capass.org",
+			"type": "any"
 		}
 	]
 }
