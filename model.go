@@ -17,7 +17,6 @@ type GameModel struct {
 	UpdatedAt    time.Time         `gorm:"autoUpdateTime"`
 	Rounds       []RoundModel      `gorm:"foreignKey:GameID;constraint:OnDelete:CASCADE;"`
 	PlayerGame   []PlayerGameModel `gorm:"foreignKey:GameID;constraint:OnDelete:CASCADE;"`
-	PlayersCount int
 }
 
 func (GameModel) TableName() string {
@@ -116,8 +115,8 @@ type TurnModel struct {
 	Metadata  MetadataModel `gorm:"foreignKey:TurnID;constraint:OnDelete:SET NULL;"`
 	Scores    string        `gorm:"default:null"`
 	IsWinner  bool          `gorm:"default:false"`
-	PlayerID  int64         `gorm:"index:idx_playerturn;unique;not null"`
-	RoundID   int64         `gorm:"index:idx_playerturn;unique;not null"`
+	PlayerID  int64         `gorm:"index:idx_playerturn,unique;not null"`
+	RoundID   int64         `gorm:"index:idx_playerturn,unique;not null"`
 }
 
 func (TurnModel) TableName() string {
@@ -154,8 +153,8 @@ type PlayerGameModel struct {
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 	IsWinner  bool      `gorm:"default:false"`
-	PlayerID  int64     `gorm:"index:idx_playergame;unique;not null;"`
-	GameID    int64     `gorm:"index:idx_playergame;unique;not null"`
+	PlayerID  int64     `gorm:"index:idx_playergame,unique;not null;"`
+	GameID    int64     `gorm:"index:idx_playergame,unique;not null"`
 }
 
 func (PlayerGameModel) TableName() string {

@@ -14,8 +14,8 @@ func (ae ApiError) Error() string {
 }
 
 type CreateGameRequest struct {
-	PlayersCount int    `json:"playersCount"`
-	Name         string `json:"name"`
+	Name    string   `json:"name"`
+	Players []string `json:"players"`
 }
 
 type CreateRoundRequest struct {
@@ -24,10 +24,13 @@ type CreateRoundRequest struct {
 	Order       int    `json:"order"`
 }
 
+type createTurnRequest struct {
+	PlayerId int64 `json:"playerId"`
+	RoundId  int64 `json:"roundId"`
+}
+
 type CreateTurnRequest struct {
-	PlayerId int64  `json:"playerId"`
-	RoundId  int64  `json:"roundId"`
-	Scores   string `json:"scores"`
+	Turns []createTurnRequest `json:"turns"`
 }
 
 type UpdateRoundRequest struct {

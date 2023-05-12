@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -20,6 +21,14 @@ const (
 	idParamKey          ctxKey = 0
 	paginationParamsKey ctxKey = 1
 	intervalParamsKey   ctxKey = 2
+)
+
+var (
+	ErrNotFound          = errors.New("not found")
+	ErrBadRequest        = errors.New("bad request")
+	ErrNotAZip           = errors.New("file is not a valid zip")
+	ErrInvalidRoundOrder = errors.New("invalid round order")
+	ErrDuplicateKey      = errors.New("duplicated key")
 )
 
 func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *chi.Mux {
@@ -35,11 +44,12 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 			Get("/", makeHTTPHandlerFunc(gc.list))
 
 		// Create game
-		r.With(ContentType("application/json")).
+		r.With(middleware.AllowContentType("application/json")).
 			Post("/", makeHTTPHandlerFunc(gc.create))
 
 		// Update game
-		r.With(IdInUrlParam, ContentType("application/json")).
+		r.With(IdInUrlParam,
+			middleware.AllowContentType("application/json")).
 			Put("/{id}", makeHTTPHandlerFunc(gc.update))
 
 		// Delete game
@@ -57,11 +67,12 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 		r.Get("/", makeHTTPHandlerFunc(rc.list))
 
 		// Create round
-		r.With(ContentType("application/json")).
+		r.With(middleware.AllowContentType("application/json")).
 			Post("/", makeHTTPHandlerFunc(rc.create))
 
 		// Update round
-		r.With(IdInUrlParam, ContentType("application/json")).
+		r.With(IdInUrlParam,
+			middleware.AllowContentType("application/json")).
 			Put("/{id}", makeHTTPHandlerFunc(rc.update))
 
 		// Delete round
@@ -79,11 +90,12 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 		r.Get("/", makeHTTPHandlerFunc(tc.list))
 
 		// Create turn
-		r.With(ContentType("application/json")).
+		r.With(middleware.AllowContentType("application/json")).
 			Post("/", makeHTTPHandlerFunc(tc.create))
 
 		// Update turn
-		r.With(IdInUrlParam, ContentType("application/json")).
+		r.With(IdInUrlParam,
+			middleware.AllowContentType("application/json")).
 			Put("/{id}", makeHTTPHandlerFunc(tc.update))
 
 		// Delete turn
@@ -95,7 +107,8 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 			Get("/{id}/files", makeHTTPHandlerFunc(tc.download))
 
 		// Upload turn file
-		r.With(IdInUrlParam, ContentType("application/zip")).
+		r.With(IdInUrlParam,
+			middleware.AllowContentType("application/zip")).
 			Put("/{id}/files", makeHTTPHandlerFunc(tc.upload))
 	})
 	return r
@@ -218,18 +231,7 @@ func IdInUrlParam(next http.Handler) http.Handler {
 		return nil
 	}))
 }
-func ContentType(contentType string) func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			cType := r.Header.Get("Content-Type")
-			if cType != contentType {
-				w.WriteHeader(http.StatusUnsupportedMediaType)
-				return
-			}
-			next.ServeHTTP(w, r)
-		})
-	}
-}
+
 func parseNumberWithDefault(s string, d int64) (int64, error) {
 	if s == "" {
 		return d, nil
@@ -258,10 +260,12 @@ func makePaginatedResponse(v any, count int64, p *PaginationParams) *PaginatedRe
 	}
 }
 
-func handleDbError(err error) error {
+func handleError(err error) error {
 	switch {
 	case errors.Is(err, gorm.ErrRecordNotFound):
 		return ErrNotFound
+	case errors.Is(err, gorm.ErrDuplicatedKey):
+		return ErrDuplicateKey
 	default:
 		return err
 	}
@@ -282,6 +286,8 @@ func makeApiError(err error) error {
 		code = http.StatusBadRequest
 	case errors.Is(err, ErrNotAZip):
 		code = http.StatusUnprocessableEntity
+	case errors.Is(err, ErrDuplicateKey):
+		code = http.StatusConflict
 	default:
 		code = http.StatusInternalServerError
 	}
@@ -320,7 +326,6 @@ func mapToGameDTO(g *GameModel) *GameDto {
 		CurrentRound: g.CurrentRound,
 		CreatedAt:    g.CreatedAt,
 		UpdatedAt:    g.UpdatedAt,
-		PlayersCount: g.PlayersCount,
 		Name:         g.Name,
 	}
 }
