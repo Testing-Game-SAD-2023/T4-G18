@@ -2,6 +2,7 @@ package main
 
 import (
 	"archive/zip"
+	"database/sql"
 	"errors"
 	"fmt"
 	"io"
@@ -27,7 +28,9 @@ func NewGameRepository(db *gorm.DB) *GameRepository {
 
 func (gs *GameRepository) Create(r *CreateGameRequest) (*GameModel, error) {
 	var (
-		game GameModel
+		game GameModel = GameModel{
+			Name: r.Name,
+		}
 	)
 	err := gs.db.Transaction(func(tx *gorm.DB) error {
 		var (
@@ -36,10 +39,6 @@ func (gs *GameRepository) Create(r *CreateGameRequest) (*GameModel, error) {
 			playerGames []PlayerGameModel = make([]PlayerGameModel, len(r.Players))
 		)
 
-		// creazione del game
-		game = GameModel{
-			Name: r.Name,
-		}
 		err = tx.
 			Create(&game).
 			Error
@@ -113,18 +112,6 @@ func (gs *GameRepository) FindByInterval(i *IntervalParams, p *PaginationParams)
 		Error
 
 	return games, n, handleError(err)
-}
-
-func (gs *GameRepository) FindByRound(id int64) (*GameModel, error) {
-
-	var game GameModel
-
-	err := gs.db.
-		Preload("Rounds", &RoundModel{ID: id}).
-		First(&game).
-		Error
-
-	return &game, handleError(err)
 }
 
 func (gs *GameRepository) Delete(id int64) error {
@@ -228,7 +215,7 @@ func (rs *RoundStorage) FindByGame(id int64) ([]RoundModel, error) {
 }
 
 func (rs *RoundStorage) Delete(id int64) error {
-	return rs.db.Transaction(func(tx *gorm.DB) error {
+	err := rs.db.Transaction(func(tx *gorm.DB) error {
 		var round RoundModel
 		db := rs.db.
 			Where(&RoundModel{ID: id}).
@@ -236,7 +223,7 @@ func (rs *RoundStorage) Delete(id int64) error {
 			Delete(&round)
 
 		if db.Error != nil {
-			return handleError(db.Error)
+			return db.Error
 		} else if db.RowsAffected < 1 {
 			return ErrNotFound
 		}
@@ -248,8 +235,10 @@ func (rs *RoundStorage) Delete(id int64) error {
 			UpdateColumn("order", gorm.Expr("\"order\" - ?", 1)).
 			Error
 
-		return handleError(err)
+		return err
 	})
+
+	return handleError(err)
 }
 
 type TurnRepository struct {
@@ -408,7 +397,7 @@ func (ts *TurnRepository) SaveFile(id int64, r io.Reader) error {
 				},
 				clause.Returning{},
 			).
-			Create(&MetadataModel{TurnID: id, Path: fname}).
+			Create(&MetadataModel{TurnID: sql.NullInt64{Int64: id, Valid: true}, Path: fname}).
 			Error
 
 	})
@@ -424,7 +413,7 @@ func (ts *TurnRepository) GetFile(id int64) (string, *os.File, error) {
 	)
 
 	err = ts.db.
-		Where(&MetadataModel{TurnID: id}).
+		Where(&MetadataModel{TurnID: sql.NullInt64{Int64: id, Valid: true}}).
 		First(&metadata).
 		Error
 	if err != nil {

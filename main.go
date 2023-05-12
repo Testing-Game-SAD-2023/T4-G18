@@ -19,6 +19,7 @@ import (
 	"github.com/go-chi/cors"
 	mw "github.com/go-openapi/runtime/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"golang.org/x/sync/errgroup"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -38,6 +39,7 @@ var postmanDir embed.FS
 func main() {
 	var (
 		configPath = flag.String("config", "config.json", "Path for configuration")
+		ctx        = context.Background()
 	)
 	flag.Parse()
 
@@ -53,12 +55,15 @@ func main() {
 
 	makeDefaults(&configuration)
 
-	if err := run(configuration); err != nil {
+	ctx, canc := signal.NotifyContext(ctx, syscall.SIGTERM, os.Interrupt)
+	defer canc()
+
+	if err := run(ctx, configuration); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func run(c Configuration) error {
+func run(ctx context.Context, c Configuration) error {
 
 	db, err := gorm.Open(postgres.Open(c.PostgresUrl), &gorm.Config{
 		SkipDefaultTransaction: true,
@@ -142,37 +147,38 @@ func run(c Configuration) error {
 	})
 	log.Printf("listening on %s", c.ListenAddress)
 
-	done := make(chan struct{})
-	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, syscall.SIGTERM, os.Interrupt)
+	g, ctx := errgroup.WithContext(ctx)
 
-	go func() {
-		defer close(done)
-		log.Printf("received: %s", <-signals)
-	}()
+	g.Go(func() error {
+		return startHttpServer(ctx, r, c.ListenAddress)
+	})
 
-	go func() {
+	g.Go(func() error {
 		ticker := time.NewTicker(c.CleanupInterval)
 		for {
 			select {
-			case <-done:
 			case <-ticker.C:
-				log.Print("cleanup")
+				_, err := cleanup(db)
+				if err != nil {
+					log.Print(err)
+				}
+			case <-ctx.Done():
+				return nil
 			}
-
 		}
-	}()
-	return startHttpServer(r, c.ListenAddress, done)
+	})
+
+	return g.Wait()
 
 }
 
-func startHttpServer(r chi.Router, addr string, done <-chan struct{}) error {
+func startHttpServer(ctx context.Context, r chi.Router, addr string) error {
 	server := http.Server{
 		Addr:              addr,
 		Handler:           r,
 		ReadTimeout:       time.Minute,
 		WriteTimeout:      time.Minute,
-		IdleTimeout:       time.Hour,
+		IdleTimeout:       time.Minute,
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 
@@ -185,7 +191,7 @@ func startHttpServer(r chi.Router, addr string, done <-chan struct{}) error {
 	}()
 
 	select {
-	case <-done:
+	case <-ctx.Done():
 	case err := <-errCh:
 		return err
 	}
@@ -194,6 +200,39 @@ func startHttpServer(r chi.Router, addr string, done <-chan struct{}) error {
 	defer canc()
 
 	return server.Shutdown(ctx)
+}
+
+func cleanup(db *gorm.DB) (int64, error) {
+	var (
+		metadata []MetadataModel
+		err      error
+		n        int64
+	)
+
+	err = db.Transaction(func(tx *gorm.DB) error {
+		err := tx.
+			Where("turn_id IS NULL").
+			Find(&metadata).
+			Count(&n).
+			Error
+
+		if err != nil {
+			return err
+		}
+
+		var deleted []int64
+		for _, m := range metadata {
+			if err := os.Remove(m.Path); err != nil && !errors.Is(err, os.ErrNotExist) {
+				log.Print(err)
+			} else {
+				deleted = append(deleted, m.ID)
+			}
+		}
+
+		return tx.Delete(&[]MetadataModel{}, deleted).Error
+	})
+
+	return n, err
 }
 
 func makeDefaults(c *Configuration) {
