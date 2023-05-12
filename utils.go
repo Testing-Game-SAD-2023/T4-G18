@@ -330,6 +330,7 @@ func mapToGameDTO(g *GameModel) *GameDto {
 		CreatedAt:    g.CreatedAt,
 		UpdatedAt:    g.UpdatedAt,
 		Name:         g.Name,
+		PlayersCount: g.PlayersCount,
 	}
 }
 

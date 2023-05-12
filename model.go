@@ -13,8 +13,9 @@ type GameModel struct {
 	CurrentRound int   `gorm:"default:1"`
 	ID           int64 `gorm:"primaryKey;autoIncrement"`
 	Name         string
-	CreatedAt    time.Time         `gorm:"autoCreateTime"`
-	UpdatedAt    time.Time         `gorm:"autoUpdateTime"`
+	CreatedAt    time.Time `gorm:"autoCreateTime"`
+	UpdatedAt    time.Time `gorm:"autoUpdateTime"`
+	PlayersCount int
 	Rounds       []RoundModel      `gorm:"foreignKey:GameID;constraint:OnDelete:CASCADE;"`
 	PlayerGame   []PlayerGameModel `gorm:"foreignKey:GameID;constraint:OnDelete:CASCADE;"`
 }

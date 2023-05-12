@@ -55,7 +55,8 @@ func (gs *GameRepository) Create(r *CreateGameRequest) (*GameModel, error) {
 
 		// game creation
 		game = GameModel{
-			Name: r.Name,
+			Name:         r.Name,
+			PlayersCount: len(r.Players),
 		}
 		err = tx.
 			Create(&game).
