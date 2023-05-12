@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"log"
 	"os"
 	"testing"
 
@@ -10,28 +9,19 @@ import (
 	"gorm.io/gorm"
 )
 
-var db *gorm.DB
+func TestCleanup(t *testing.T) {
+	t.SkipNow()
 
-func TestMain(m *testing.M) {
 	var err error
 
 	const postgresAddr = "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
 
-	db, err = gorm.Open(postgres.Open(postgresAddr), &gorm.Config{
+	db, err := gorm.Open(postgres.Open(postgresAddr), &gorm.Config{
 		SkipDefaultTransaction: true,
 	})
 	if err != nil {
-		log.Print(err)
-		os.Exit(1)
+		t.Fatal(err)
 	}
-
-	code := m.Run()
-
-	os.Exit(code)
-}
-
-func TestCleanup(t *testing.T) {
-	t.SkipNow()
 
 	seed(t, db)
 
