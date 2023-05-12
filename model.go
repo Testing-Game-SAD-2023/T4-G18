@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"time"
@@ -138,11 +139,11 @@ func (PlayerModel) TableName() string {
 }
 
 type MetadataModel struct {
-	ID        int64     `gorm:"primaryKey;autoIncrement"`
-	CreatedAt time.Time `gorm:"autoCreateTime"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime"`
-	TurnID    int64     `gorm:"unique"`
-	Path      string    `gorm:"unique;not null"`
+	ID        int64         `gorm:"primaryKey;autoIncrement"`
+	CreatedAt time.Time     `gorm:"autoCreateTime"`
+	UpdatedAt time.Time     `gorm:"autoUpdateTime"`
+	TurnID    sql.NullInt64 `gorm:"unique"`
+	Path      string        `gorm:"unique;not null"`
 }
 
 func (MetadataModel) TableName() string {

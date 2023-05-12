@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"encoding/json"
 	"errors"
@@ -9,22 +10,27 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	mw "github.com/go-openapi/runtime/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"golang.org/x/sync/errgroup"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 type Configuration struct {
-	PostgresUrl   string `json:"postgresUrl"`
-	ListenAddress string `json:"listenAddress"`
-	ApiPrefix     string `json:"apiPrefix"`
-	DataDir       string `json:"dataDir"`
-	EnableSwagger bool   `json:"enableSwagger"`
+	PostgresUrl     string        `json:"postgresUrl"`
+	ListenAddress   string        `json:"listenAddress"`
+	ApiPrefix       string        `json:"apiPrefix"`
+	DataDir         string        `json:"dataDir"`
+	EnableSwagger   bool          `json:"enableSwagger"`
+	CleanupInterval time.Duration `json:"cleanupInterval"`
 }
 
 //go:embed postman
@@ -33,6 +39,7 @@ var postmanDir embed.FS
 func main() {
 	var (
 		configPath = flag.String("config", "config.json", "Path for configuration")
+		ctx        = context.Background()
 	)
 	flag.Parse()
 
@@ -48,12 +55,15 @@ func main() {
 
 	makeDefaults(&configuration)
 
-	if err := run(configuration); err != nil {
+	ctx, canc := signal.NotifyContext(ctx, syscall.SIGTERM, os.Interrupt)
+	defer canc()
+
+	if err := run(ctx, configuration); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func run(c Configuration) error {
+func run(ctx context.Context, c Configuration) error {
 
 	db, err := gorm.Open(postgres.Open(c.PostgresUrl), &gorm.Config{
 		SkipDefaultTransaction: true,
@@ -136,8 +146,93 @@ func run(c Configuration) error {
 		))
 	})
 	log.Printf("listening on %s", c.ListenAddress)
-	return http.ListenAndServe(c.ListenAddress, r)
 
+	g, ctx := errgroup.WithContext(ctx)
+
+	g.Go(func() error {
+		return startHttpServer(ctx, r, c.ListenAddress)
+	})
+
+	g.Go(func() error {
+		ticker := time.NewTicker(c.CleanupInterval)
+		for {
+			select {
+			case <-ticker.C:
+				_, err := cleanup(db)
+				if err != nil {
+					log.Print(err)
+				}
+			case <-ctx.Done():
+				return nil
+			}
+		}
+	})
+
+	return g.Wait()
+
+}
+
+func startHttpServer(ctx context.Context, r chi.Router, addr string) error {
+	server := http.Server{
+		Addr:              addr,
+		Handler:           r,
+		ReadTimeout:       time.Minute,
+		WriteTimeout:      time.Minute,
+		IdleTimeout:       time.Minute,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
+
+	errCh := make(chan error)
+	defer close(errCh)
+	go func() {
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			errCh <- err
+		}
+	}()
+
+	select {
+	case <-ctx.Done():
+	case err := <-errCh:
+		return err
+	}
+
+	ctx, canc := context.WithTimeout(context.Background(), time.Second*10)
+	defer canc()
+
+	return server.Shutdown(ctx)
+}
+
+func cleanup(db *gorm.DB) (int64, error) {
+	var (
+		metadata []MetadataModel
+		err      error
+		n        int64
+	)
+
+	err = db.Transaction(func(tx *gorm.DB) error {
+		err := tx.
+			Where("turn_id IS NULL").
+			Find(&metadata).
+			Count(&n).
+			Error
+
+		if err != nil {
+			return err
+		}
+
+		var deleted []int64
+		for _, m := range metadata {
+			if err := os.Remove(m.Path); err != nil && !errors.Is(err, os.ErrNotExist) {
+				log.Print(err)
+			} else {
+				deleted = append(deleted, m.ID)
+			}
+		}
+
+		return tx.Delete(&[]MetadataModel{}, deleted).Error
+	})
+
+	return n, err
 }
 
 func makeDefaults(c *Configuration) {
@@ -151,6 +246,10 @@ func makeDefaults(c *Configuration) {
 
 	if c.DataDir == "" {
 		c.DataDir = "data"
+	}
+
+	if int64(c.CleanupInterval) == 0 {
+		c.CleanupInterval = time.Hour
 	}
 
 }
