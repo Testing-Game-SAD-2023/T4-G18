@@ -10,203 +10,432 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
-var (
-	ErrNotFound          = errors.New("not found")
-	ErrBadRequest        = errors.New("bad request")
-	ErrNotAZip           = errors.New("file is not a valid zip")
-	ErrInvalidRoundOrder = errors.New("invalid round order")
-)
-
-type GameRepository interface {
-	Create(request *CreateGameRequest) (*GameModel, error)
-	FindById(id int64) (*GameModel, error)
-	Delete(id int64) error
-	Update(id int64, ug *UpdateGameRequest) (*GameModel, error)
-	FindByInterval(i *IntervalParams, p *PaginationParams) ([]GameModel, int64, error)
-	FindByRound(id int64) (*GameModel, error)
+type GameRepository struct {
+	db *gorm.DB
 }
 
-type GameService struct {
-	storage GameRepository
-}
-
-func NewGameService(storage GameRepository) *GameService {
-	return &GameService{
-		storage: storage,
+func NewGameRepository(db *gorm.DB) *GameRepository {
+	return &GameRepository{
+		db: db,
 	}
 }
 
-func (gc *GameService) Create(request *CreateGameRequest) (*GameModel, error) {
-	return gc.storage.Create(request)
+func (gs *GameRepository) Create(r *CreateGameRequest) (*GameModel, error) {
+	var (
+		game GameModel
+	)
+	err := gs.db.Transaction(func(tx *gorm.DB) error {
+		var (
+			err         error
+			players     []PlayerModel
+			playerGames []PlayerGameModel = make([]PlayerGameModel, len(r.Players))
+		)
+
+		// creazione del game
+		game = GameModel{
+			Name: r.Name,
+		}
+		err = tx.
+			Create(&game).
+			Error
+
+		if err != nil {
+			return err
+		}
+
+		toCreate := make([]PlayerModel, len(r.Players))
+		for i, account := range r.Players {
+			toCreate[i] = PlayerModel{
+				AccountID: account,
+			}
+		}
+
+		// creazione account utenti (se non esistono)
+		err = tx.
+			Clauses(
+				clause.OnConflict{
+					Columns:   []clause.Column{{Name: "account_id"}},
+					DoNothing: true,
+				},
+				clause.Returning{},
+			).
+			Create(&toCreate).
+			Error
+
+		if err != nil {
+			return err
+		}
+
+		err = tx.
+			Where("account_id IN ?", r.Players).
+			Find(&players).
+			Error
+
+		if err != nil {
+			return err
+		}
+
+		for i, player := range players {
+			playerGames[i] = PlayerGameModel{
+				GameID:   game.ID,
+				PlayerID: player.ID,
+			}
+		}
+
+		return tx.Create(playerGames).Error
+	})
+
+	return &game, handleError(err)
 }
 
-func (gc *GameService) FindByID(id int64) (*GameModel, error) {
-	return gc.storage.FindById(id)
+func (gs *GameRepository) FindById(id int64) (*GameModel, error) {
+	var game GameModel
+	err := gs.db.
+		First(&game, id).
+		Error
+
+	return &game, handleError(err)
 }
 
-func (gc *GameService) Delete(id int64) error {
-	return gc.storage.Delete(id)
+func (gs *GameRepository) FindByInterval(i *IntervalParams, p *PaginationParams) ([]GameModel, int64, error) {
+	var games []GameModel
+	var n int64
+
+	err := gs.db.
+		Scopes(Intervaled(i), Paginated(p)).
+		Find(&games).
+		Count(&n).
+		Error
+
+	return games, n, handleError(err)
 }
 
-func (gc *GameService) Update(id int64, ug *UpdateGameRequest) (*GameModel, error) {
-	return gc.storage.Update(id, ug)
+func (gs *GameRepository) FindByRound(id int64) (*GameModel, error) {
+
+	var game GameModel
+
+	err := gs.db.
+		Preload("Rounds", &RoundModel{ID: id}).
+		First(&game).
+		Error
+
+	return &game, handleError(err)
 }
 
-func (gc *GameService) FindByInterval(i *IntervalParams, p *PaginationParams) ([]GameModel, int64, error) {
-	return gc.storage.FindByInterval(i, p)
+func (gs *GameRepository) Delete(id int64) error {
+	db := gs.db.
+		Where(&GameModel{ID: id}).
+		Delete(&GameModel{})
+
+	if db.Error != nil {
+		return handleError(db.Error)
+	} else if db.RowsAffected < 1 {
+		return ErrNotFound
+	}
+	return nil
 }
 
-type RoundRepository interface {
-	Create(request *CreateRoundRequest) (*RoundModel, error)
-	FindById(id int64) (*RoundModel, error)
-	Delete(id int64) error
-	Update(id int64, request *UpdateRoundRequest) (*RoundModel, error)
-	FindByGame(id int64) ([]RoundModel, error)
+func (gs *GameRepository) Update(id int64, r *UpdateGameRequest) (*GameModel, error) {
+
+	var game GameModel
+
+	err := gs.db.
+		Model(&game).
+		Clauses(clause.Returning{}).
+		Where(&GameModel{ID: id}).
+		Updates(r).
+		Error
+
+	return &game, handleError(err)
 }
 
-type RoundService struct {
-	storage RoundRepository
+type RoundStorage struct {
+	db *gorm.DB
 }
 
-func NewRoundService(storage RoundRepository) *RoundService {
-	return &RoundService{
-		storage: storage,
+func NewRoundStorage(db *gorm.DB) *RoundStorage {
+	return &RoundStorage{
+		db: db,
 	}
 }
 
-func (rs *RoundService) Create(request *CreateRoundRequest) (*RoundModel, error) {
-	return rs.storage.Create(request)
+func (rs *RoundStorage) Create(r *CreateRoundRequest) (*RoundModel, error) {
+	var round RoundModel
+	err := rs.db.Transaction(func(tx *gorm.DB) error {
+
+		err := tx.
+			Select("id").
+			First(&GameModel{}, r.GameId).
+			Error
+
+		if err != nil {
+			return err
+		}
+
+		round = RoundModel{
+			Order:       r.Order,
+			GameID:      r.GameId,
+			TestClassId: r.TestClassId,
+		}
+
+		return tx.
+			Create(&round).
+			Error
+
+	})
+
+	return &round, handleError(err)
 }
 
-func (rs *RoundService) Update(id int64, request *UpdateRoundRequest) (*RoundModel, error) {
-	return rs.storage.Update(id, request)
+func (rs *RoundStorage) Update(id int64, r *UpdateRoundRequest) (*RoundModel, error) {
+
+	var round RoundModel
+
+	err := rs.db.
+		Model(&round).
+		Clauses(clause.Returning{}).
+		Where(&RoundModel{ID: id}).
+		Updates(r).
+		Error
+
+	return &round, handleError(err)
 }
 
-func (rs *RoundService) FindByID(id int64) (*RoundModel, error) {
-	return rs.storage.FindById(id)
+func (rs *RoundStorage) FindById(id int64) (*RoundModel, error) {
+	var round RoundModel
+
+	err := rs.db.
+		First(&round, id).
+		Error
+
+	return &round, handleError(err)
 }
 
-func (rs *RoundService) FindByGame(id int64) ([]RoundModel, error) {
-	return rs.storage.FindByGame(id)
+func (rs *RoundStorage) FindByGame(id int64) ([]RoundModel, error) {
+	var rounds []RoundModel
+
+	err := rs.db.
+		Scopes(OrderBy("order")).
+		Find(&rounds).
+		Error
+
+	return rounds, handleError(err)
 }
 
-func (rs *RoundService) Delete(id int64) error {
-	return rs.storage.Delete(id)
+func (rs *RoundStorage) Delete(id int64) error {
+	return rs.db.Transaction(func(tx *gorm.DB) error {
+		var round RoundModel
+		db := rs.db.
+			Where(&RoundModel{ID: id}).
+			Clauses(clause.Returning{}).
+			Delete(&round)
+
+		if db.Error != nil {
+			return handleError(db.Error)
+		} else if db.RowsAffected < 1 {
+			return ErrNotFound
+		}
+
+		err := rs.db.
+			Model(&RoundModel{}).
+			Where(&RoundModel{GameID: round.GameID}).
+			Where("\"order\" > ?", round.Order).
+			UpdateColumn("order", gorm.Expr("\"order\" - ?", 1)).
+			Error
+
+		return handleError(err)
+	})
 }
 
-type TurnRepository interface {
-	Create(request *CreateTurnRequest) (*TurnModel, error)
-	FindById(id int64) (*TurnModel, error)
-	Delete(id int64) error
-	Update(id int64, request *UpdateTurnRequest) (*TurnModel, error)
-	FindByRound(id int64) ([]TurnModel, error)
+type TurnRepository struct {
+	db      *gorm.DB
+	dataDir string
 }
 
-type MetadataRepository interface {
-	Upsert(id int64, path string) error
-	FindByTurn(id int64) (*MetadataModel, error)
-}
-
-type PlayerRepository interface {
-	FindById(id int64) (*PlayerModel, error)
-}
-
-type TurnService struct {
-	turnRepository     TurnRepository
-	metadataRepository MetadataRepository
-	gameRepository     GameRepository
-	playerRepository   PlayerRepository
-	dataDir            string
-}
-
-func NewTurnService(tr TurnRepository, mr MetadataRepository, gr GameRepository, pr PlayerRepository, dr string) *TurnService {
-	return &TurnService{
-		turnRepository:     tr,
-		metadataRepository: mr,
-		gameRepository:     gr,
-		playerRepository:   pr,
-		dataDir:            dr,
+func NewTurnRepository(db *gorm.DB, dataDir string) *TurnRepository {
+	return &TurnRepository{
+		db:      db,
+		dataDir: dataDir,
 	}
 }
 
-func (ts *TurnService) Create(request *CreateTurnRequest) (*TurnModel, error) {
-	if _, err := ts.playerRepository.FindById(request.PlayerId); err != nil {
-		return nil, err
+func (tr *TurnRepository) Create(r *createTurnRequest) (*TurnModel, error) {
+	turn := TurnModel{
+		PlayerID: r.PlayerId,
+		RoundID:  r.RoundId,
 	}
-	return ts.turnRepository.Create(request)
+	err := tr.db.Transaction(func(tx *gorm.DB) error {
+		var (
+			err error
+		)
+
+		err = tx.Where(&RoundModel{ID: r.RoundId}).
+			First(&RoundModel{}).
+			Error
+		if err != nil {
+			return err
+		}
+
+		err = tx.Where(&PlayerModel{ID: r.PlayerId}).
+			First(&PlayerModel{}).
+			Error
+		if err != nil {
+			return err
+		}
+
+		return tx.
+			Create(&turn).
+			Error
+	})
+
+	return &turn, handleError(err)
 }
 
-func (ts *TurnService) FindByID(id int64) (*TurnModel, error) {
-	return ts.turnRepository.FindById(id)
+func (tr *TurnRepository) Update(id int64, r *UpdateTurnRequest) (*TurnModel, error) {
+
+	var turn TurnModel
+
+	err := tr.db.
+		Model(&turn).
+		Clauses(clause.Returning{}).
+		Where(&TurnModel{ID: id}).
+		Updates(r).
+		Error
+
+	return &turn, handleError(err)
 }
 
-func (ts *TurnService) Delete(id int64) error {
-	return ts.turnRepository.Delete(id)
+func (tr *TurnRepository) FindById(id int64) (*TurnModel, error) {
+	var turn TurnModel
+
+	err := tr.db.
+		First(&turn, id).
+		Error
+
+	return &turn, handleError(err)
 }
 
-func (tc *TurnService) FindByRound(id int64) ([]TurnModel, error) {
-	return tc.turnRepository.FindByRound(id)
+func (tr *TurnRepository) FindByRound(id int64) ([]TurnModel, error) {
+	var turns []TurnModel
+
+	err := tr.db.
+		Where(&TurnModel{RoundID: id}).
+		Find(&turns).
+		Error
+
+	return turns, handleError(err)
 }
-func (ts *TurnService) Update(id int64, request *UpdateTurnRequest) (*TurnModel, error) {
-	return ts.turnRepository.Update(id, request)
+
+func (tr *TurnRepository) Delete(id int64) error {
+
+	db := tr.db.
+		Where(&TurnModel{ID: id}).
+		Delete(&TurnModel{})
+
+	if db.Error != nil {
+		return db.Error
+	} else if db.RowsAffected < 1 {
+		return ErrNotFound
+	}
+
+	return nil
+
 }
 
-func (ts *TurnService) Store(id int64, r io.Reader) error {
-	turn, err := ts.turnRepository.FindById(id)
-	if err != nil {
-		return err
-	}
-	game, err := ts.gameRepository.FindByRound(turn.RoundID)
-	if err != nil {
-		return err
-	}
-	dst, err := os.CreateTemp("", "")
-	if err != nil {
-		return err
-	}
-	defer os.Remove(dst.Name())
-	if _, err := io.Copy(dst, r); err != nil {
-		return err
-	}
+func (ts *TurnRepository) SaveFile(id int64, r io.Reader) error {
+	err := ts.db.Transaction(func(tx *gorm.DB) error {
+		var (
+			err    error
+			gameId int64
+			meta   MetadataModel
+		)
 
-	if zfile, err := zip.OpenReader(dst.Name()); err != nil {
-		return ErrNotAZip
-	} else {
-		zfile.Close()
-	}
+		err = tx.
+			Model(&RoundModel{}).
+			Select("game_id").
+			Preload("Turns", "id = ?", id).
+			First(&gameId).
+			Error
 
-	year := time.Now().Year()
+		if err != nil {
+			return err
+		}
 
-	fname := path.Join(ts.dataDir,
-		strconv.FormatInt(int64(year), 10),
-		strconv.FormatInt(game.ID, 10),
-		fmt.Sprintf("%d.zip", id),
+		dst, err := os.CreateTemp("", "")
+		if err != nil {
+			return err
+		}
+		defer os.Remove(dst.Name())
+		if _, err := io.Copy(dst, r); err != nil {
+			return err
+		}
+
+		if zfile, err := zip.OpenReader(dst.Name()); err != nil {
+			return ErrNotAZip
+		} else {
+			zfile.Close()
+		}
+
+		year := time.Now().Year()
+
+		fname := path.Join(ts.dataDir,
+			strconv.FormatInt(int64(year), 10),
+			strconv.FormatInt(gameId, 10),
+			fmt.Sprintf("%d.zip", id),
+		)
+
+		dir := path.Dir(fname)
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil && !errors.Is(err, os.ErrExist) {
+			return err
+		}
+
+		if err := os.Rename(dst.Name(), fname); err != nil {
+			return err
+		}
+
+		return tx.Model(&meta).
+			Clauses(
+				clause.OnConflict{
+					Columns: []clause.Column{{Name: "turn_id"}},
+					DoUpdates: clause.Assignments(map[string]interface{}{
+						"path": fname,
+					}),
+				},
+				clause.Returning{},
+			).
+			Create(&MetadataModel{TurnID: id, Path: fname}).
+			Error
+
+	})
+
+	return handleError(err)
+
+}
+
+func (ts *TurnRepository) GetFile(id int64) (string, *os.File, error) {
+	var (
+		metadata MetadataModel
+		err      error
 	)
 
-	dir := path.Dir(fname)
-	if err := os.MkdirAll(dir, os.ModePerm); err != nil && !errors.Is(err, os.ErrExist) {
-		return err
-	}
-
-	if err := os.Rename(dst.Name(), fname); err != nil {
-		return err
-	}
-
-	return ts.metadataRepository.Upsert(id, fname)
-}
-
-func (ts *TurnService) GetTurnFile(id int64) (string, *os.File, error) {
-	m, err := ts.metadataRepository.FindByTurn(id)
+	err = ts.db.
+		Where(&MetadataModel{TurnID: id}).
+		First(&metadata).
+		Error
 	if err != nil {
-		return "", nil, err
+		return "", nil, handleError(err)
 	}
-	f, err := os.Open(m.Path)
+
+	f, err := os.Open(metadata.Path)
 
 	if err != nil {
 		return "", nil, err
 	}
 
-	return filepath.Base(m.Path), f, nil
+	return filepath.Base(metadata.Path), f, nil
 }

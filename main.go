@@ -57,6 +57,7 @@ func run(c Configuration) error {
 
 	db, err := gorm.Open(postgres.Open(c.PostgresUrl), &gorm.Config{
 		SkipDefaultTransaction: true,
+		TranslateError:         true,
 	})
 
 	if err != nil {
@@ -114,22 +115,18 @@ func run(c Configuration) error {
 		r.Use(middleware.Recoverer)
 
 		var (
+
 			// game endpoint
-			gameStorage    = NewGameStorage(db)
-			gameService    = NewGameService(gameStorage)
-			gameController = NewGameController(gameService)
+			gameRepository = NewGameRepository(db)
+			gameController = NewGameController(gameRepository)
 
 			// round endpoint
-			roundStorage    = NewRoundStorage(db)
-			roundService    = NewRoundService(roundStorage)
-			roundController = NewRoundController(roundService)
+			roundRepository = NewRoundStorage(db)
+			roundController = NewRoundController(roundRepository)
 
 			// turn endpoint
-			metadataStorage = NewMetadataStorage(db)
-			turnStorage     = NewTurnStorage(db)
-			playerStorage   = NewPlayerStorage(db)
-			turnService     = NewTurnService(turnStorage, metadataStorage, gameStorage, playerStorage, c.DataDir)
-			turnController  = NewTurnController(turnService)
+			turnRepository = NewTurnRepository(db, c.DataDir)
+			turnController = NewTurnController(turnRepository)
 		)
 
 		r.Mount(c.ApiPrefix, setupRoutes(

@@ -5,15 +5,23 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strconv"
 )
 
+type GameService interface {
+	Create(request *CreateGameRequest) (*GameModel, error)
+	FindById(id int64) (*GameModel, error)
+	Delete(id int64) error
+	Update(id int64, ug *UpdateGameRequest) (*GameModel, error)
+	FindByInterval(i *IntervalParams, p *PaginationParams) ([]GameModel, int64, error)
+}
 type GameController struct {
-	service *GameService
+	service GameService
 }
 
-func NewGameController(gc *GameService) *GameController {
-	return &GameController{service: gc}
+func NewGameController(gs GameService) *GameController {
+	return &GameController{service: gs}
 }
 
 func (gc *GameController) create(w http.ResponseWriter, r *http.Request) error {
@@ -42,7 +50,7 @@ func (gc *GameController) findByID(w http.ResponseWriter, r *http.Request) error
 
 	id := r.Context().Value(idParamKey).(int64)
 
-	g, err := gc.service.FindByID(id)
+	g, err := gc.service.FindById(id)
 
 	if err != nil {
 		return makeApiError(err)
@@ -100,11 +108,19 @@ func (gc *GameController) list(w http.ResponseWriter, r *http.Request) error {
 	return writeJson(w, http.StatusOK, makePaginatedResponse(res, count, &paginationParams))
 }
 
-type RoundController struct {
-	service *RoundService
+type RoundService interface {
+	Create(request *CreateRoundRequest) (*RoundModel, error)
+	FindById(id int64) (*RoundModel, error)
+	Delete(id int64) error
+	Update(id int64, request *UpdateRoundRequest) (*RoundModel, error)
+	FindByGame(id int64) ([]RoundModel, error)
 }
 
-func NewRoundController(rs *RoundService) *RoundController {
+type RoundController struct {
+	service RoundService
+}
+
+func NewRoundController(rs RoundService) *RoundController {
 	return &RoundController{
 		service: rs,
 	}
@@ -157,7 +173,7 @@ func (rc *RoundController) findByID(w http.ResponseWriter, r *http.Request) erro
 
 	id := r.Context().Value(idParamKey).(int64)
 
-	round, err := rc.service.FindByID(id)
+	round, err := rc.service.FindById(id)
 
 	if err != nil {
 		return makeApiError(err)
@@ -201,11 +217,21 @@ func (rc *RoundController) list(w http.ResponseWriter, r *http.Request) error {
 	return writeJson(w, http.StatusOK, resp)
 }
 
-type TurnController struct {
-	service *TurnService
+type TurnService interface {
+	Create(request *createTurnRequest) (*TurnModel, error)
+	FindById(id int64) (*TurnModel, error)
+	Delete(id int64) error
+	Update(id int64, request *UpdateTurnRequest) (*TurnModel, error)
+	FindByRound(id int64) ([]TurnModel, error)
+	SaveFile(id int64, r io.Reader) error
+	GetFile(id int64) (string, *os.File, error)
 }
 
-func NewTurnController(service *TurnService) *TurnController {
+type TurnController struct {
+	service TurnService
+}
+
+func NewTurnController(service TurnService) *TurnController {
 	return &TurnController{
 		service: service,
 	}
@@ -213,7 +239,7 @@ func NewTurnController(service *TurnService) *TurnController {
 
 func (tc *TurnController) create(w http.ResponseWriter, r *http.Request) error {
 
-	var request CreateTurnRequest
+	var request createTurnRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return ApiError{
 			code:    http.StatusBadRequest,
@@ -257,7 +283,7 @@ func (tc *TurnController) findByID(w http.ResponseWriter, r *http.Request) error
 
 	id := r.Context().Value(idParamKey).(int64)
 
-	turn, err := tc.service.FindByID(id)
+	turn, err := tc.service.FindById(id)
 
 	if err != nil {
 		return makeApiError(err)
@@ -281,11 +307,11 @@ func (tc *TurnController) delete(w http.ResponseWriter, r *http.Request) error {
 func (tc *TurnController) upload(w http.ResponseWriter, r *http.Request) error {
 
 	id := r.Context().Value(idParamKey).(int64)
-	defer r.Body.Close()
 
-	if err := tc.service.Store(id, r.Body); err != nil {
+	if err := tc.service.SaveFile(id, r.Body); err != nil {
 		return makeApiError(err)
 	}
+	defer r.Body.Close()
 
 	w.WriteHeader(http.StatusOK)
 	return nil
@@ -294,7 +320,7 @@ func (tc *TurnController) upload(w http.ResponseWriter, r *http.Request) error {
 func (tc *TurnController) download(w http.ResponseWriter, r *http.Request) error {
 	id := r.Context().Value(idParamKey).(int64)
 
-	fname, f, err := tc.service.GetTurnFile(id)
+	fname, f, err := tc.service.GetFile(id)
 	if err != nil {
 		return makeApiError(err)
 	}

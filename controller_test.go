@@ -23,22 +23,36 @@ type GameControllerSuite struct {
 func (suite *GameControllerSuite) SetupSuite() {
 	gr := new(MockedGameRepository)
 	gr.
-		On("Create", &CreateGameRequest{PlayersCount: 10}).Return(&GameModel{ID: 1}, nil).
-		On("FindById", int64(1)).Return(&GameModel{ID: 1}, nil).
-		On("FindById", mock.MatchedBy(func(id int64) bool { return id != 1 })).Return(nil, ErrNotFound).
-		On("Delete", int64(1)).Return(nil).
-		On("Delete", mock.MatchedBy(func(id int64) bool { return id != 1 })).Return(ErrNotFound).
-		On("Update", int64(1), &UpdateGameRequest{Name: "test", CurrentRound: 10}).Return(&GameModel{}, nil).
-		On("Update", mock.MatchedBy(func(id int64) bool { return id != 1 }), &UpdateGameRequest{Name: "test", CurrentRound: 10}).Return(nil, ErrNotFound)
+		On("Create", &CreateGameRequest{Name: ""}).
+		Return(&GameModel{ID: 1}, nil).
+		On("FindById", int64(1)).
+		Return(&GameModel{ID: 1}, nil).
+		On("FindById",
+			mock.MatchedBy(func(id int64) bool { return id != 1 })).
+		Return(nil, ErrNotFound).
+		On("Delete", int64(1)).
+		Return(nil).
+		On("Delete",
+			mock.MatchedBy(func(id int64) bool { return id != 1 })).
+		Return(ErrNotFound).
+		On("Update", int64(1),
+			&UpdateGameRequest{Name: "test", CurrentRound: 10}).
+		Return(&GameModel{}, nil).
+		On("Update",
+			mock.MatchedBy(func(id int64) bool { return id != 1 }),
+			&UpdateGameRequest{Name: "test", CurrentRound: 10}).
+		Return(nil, ErrNotFound)
 
-	service := NewGameService(gr)
-	controller := NewGameController(service)
+	controller := NewGameController(gr)
 
 	r := chi.NewMux()
-	r.With(IdInUrlParam).Get("/{id}", makeHTTPHandlerFunc(controller.findByID))
+	r.With(IdInUrlParam).
+		Get("/{id}", makeHTTPHandlerFunc(controller.findByID))
 	r.Post("/", makeHTTPHandlerFunc(controller.create))
-	r.With(IdInUrlParam).Delete("/{id}", makeHTTPHandlerFunc(controller.delete))
-	r.With(IdInUrlParam).Put("/{id}", makeHTTPHandlerFunc(controller.update))
+	r.With(IdInUrlParam).
+		Delete("/{id}", makeHTTPHandlerFunc(controller.delete))
+	r.With(IdInUrlParam).
+		Put("/{id}", makeHTTPHandlerFunc(controller.update))
 
 	suite.tServer = httptest.NewServer(r)
 }
@@ -70,9 +84,9 @@ func (suite *GameControllerSuite) TestFindByID() {
 		tc := tc
 		suite.T().Run(tc.Name, func(t *testing.T) {
 			req, err := http.Get(fmt.Sprintf("%s/%s", suite.tServer.URL, tc.Arg))
-			suite.NoError(err, "Cannot perform GET request")
+			suite.NoError(err)
 
-			suite.Equal(tc.ExpectedStatus, req.StatusCode, tc.Name)
+			suite.Equal(tc.ExpectedStatus, req.StatusCode, err)
 
 		})
 	}
@@ -99,10 +113,12 @@ func (suite *GameControllerSuite) TestCreate() {
 	for _, tc := range tcs {
 		tc := tc
 		suite.T().Run(tc.Name, func(t *testing.T) {
-			req, err := http.Post(suite.tServer.URL, "application/json", bytes.NewBufferString(tc.Body))
-			suite.NoError(err, "Cannot perform POST request")
+			req, err := http.Post(suite.tServer.URL,
+				"application/json",
+				bytes.NewBufferString(tc.Body))
 
-			suite.Equal(tc.ExpectedStatus, req.StatusCode, tc.Name)
+			suite.NoError(err)
+			suite.Equal(tc.ExpectedStatus, req.StatusCode, err)
 
 		})
 	}
@@ -142,7 +158,7 @@ func (suite *GameControllerSuite) TestDelete() {
 			res, err := http.DefaultClient.Do(req)
 			suite.NoError(err)
 
-			suite.Equal(tc.ExpectedStatus, res.StatusCode, tc.Name)
+			suite.Equal(tc.ExpectedStatus, res.StatusCode, err)
 
 		})
 	}
@@ -185,14 +201,14 @@ func (suite *GameControllerSuite) TestUpdate() {
 		tc := tc
 		suite.T().Run(tc.Name, func(t *testing.T) {
 			url := fmt.Sprintf("%s/%s", suite.tServer.URL, tc.Id)
-			req, err := http.NewRequest(http.MethodPut, url, bytes.NewBufferString(tc.Body))
-			suite.NoError(err)
-			req.Header.Add("Content-Type", "application/json")
+			req, err := http.NewRequest(http.MethodPut,
+				url,
+				bytes.NewBufferString(tc.Body))
 
+			suite.NoError(err)
 			res, err := http.DefaultClient.Do(req)
 			suite.NoError(err)
-
-			suite.Equal(tc.ExpectedStatus, res.StatusCode, tc.Name)
+			suite.Equal(tc.ExpectedStatus, res.StatusCode, err)
 
 		})
 	}
@@ -250,17 +266,6 @@ func (gr *MockedGameRepository) FindByInterval(i *IntervalParams, p *PaginationP
 	return nil, 0, fmt.Errorf("not implemented")
 }
 
-func (gr *MockedGameRepository) FindByRound(id int64) (*GameModel, error) {
-	args := gr.Called(id)
-	v := args.Get(0)
-
-	if v == nil {
-		return nil, args.Error(1)
-	}
-	return v.(*GameModel), args.Error(1)
-
-}
-
 type TurnControllerSuite struct {
 	suite.Suite
 	tServer *httptest.Server
@@ -269,36 +274,39 @@ type TurnControllerSuite struct {
 
 func (suite *TurnControllerSuite) SetupSuite() {
 	tr := new(MockedTurnRepository)
-	mr := new(MockedMetadataRepository)
-	gr := new(MockedGameRepository)
 	f, err := os.CreateTemp(suite.tmpDir, "")
 	suite.NoError(err)
 	_, err = f.Write([]byte("hello"))
 	suite.NoError(err)
-	defer f.Close()
 
 	tr.
-		On("FindById", int64(1)).Return(&TurnModel{ID: 1}, nil).
-		On("FindById", mock.MatchedBy(func(id int64) bool { return id != 1 })).Return(nil, ErrNotFound)
-
-	mr.
-		On("Upsert", int64(1)).Return(nil).
-		On("Upsert", mock.MatchedBy(func(id int64) bool { return id != 1 })).Return(ErrNotFound).
-		On("FindByTurn", int64(1)).Return(&MetadataModel{Path: f.Name()}, nil).
-		On("FindByTurn", mock.MatchedBy(func(id int64) bool { return id != 1 })).Return(nil, ErrNotFound)
-
-	gr.
-		On("FindByRound", int64(1)).Return(&GameModel{ID: 1}, nil).
-		On("FindByRound", mock.MatchedBy(func(id int64) bool { return id != 1 })).Return(&GameModel{ID: 1}, nil)
+		On("GetFile",
+			int64(1)).
+		Return(f.Name(), f, nil).
+		On("GetFile",
+			mock.MatchedBy(func(id int64) bool { return id != 1 })).
+		Return("", nil, ErrNotFound).
+		On("SaveFile",
+			int64(1),
+			mock.Anything).
+		Return(nil).
+		On("SaveFile",
+			mock.MatchedBy(func(id int64) bool { return id != 1 }),
+			mock.Anything).
+		Return(ErrNotFound)
 
 	suite.tmpDir = os.TempDir()
-	service := NewTurnService(tr, mr, gr, nil, suite.tmpDir)
-	controller := NewTurnController(service)
+	controller := NewTurnController(tr)
 
 	r := chi.NewMux()
 
-	r.With(IdInUrlParam).Get("/{id}/files", makeHTTPHandlerFunc(controller.download))
-	r.With(IdInUrlParam).Put("/{id}/files", makeHTTPHandlerFunc(controller.upload))
+	r.
+		With(IdInUrlParam).
+		Get("/{id}/files", makeHTTPHandlerFunc(controller.download))
+
+	r.
+		With(IdInUrlParam).
+		Put("/{id}/files", makeHTTPHandlerFunc(controller.upload))
 
 	suite.tServer = httptest.NewServer(r)
 }
@@ -313,7 +321,7 @@ func (suite *TurnControllerSuite) TestUpload() {
 	}{
 		{
 			Name:           "T21-BadZip",
-			ExpectedStatus: http.StatusUnprocessableEntity,
+			ExpectedStatus: http.StatusOK,
 			TurnID:         "1",
 			BodyFn: func() *bytes.Buffer {
 				body := `hello world`
@@ -384,9 +392,13 @@ func (suite *TurnControllerSuite) TestUpload() {
 		suite.T().Run(tc.Name, func(t *testing.T) {
 
 			body := tc.BodyFn()
-			req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("%s/%s/files", suite.tServer.URL, tc.TurnID), body)
+			req, err := http.NewRequest(http.MethodPut,
+				fmt.Sprintf("%s/%s/files",
+					suite.tServer.URL,
+					tc.TurnID),
+				body)
+
 			suite.NoError(err)
-			req.Header.Add("Content-Type", "application/zip")
 
 			res, err := http.DefaultClient.Do(req)
 			suite.NoError(err)
@@ -425,7 +437,7 @@ func (suite *TurnControllerSuite) TestDownload() {
 			_, err = io.Copy(io.Discard, res.Body)
 
 			suite.NoError(err)
-			suite.Equal(tc.ExpectedStatus, res.StatusCode, tc.Name)
+			suite.Equal(tc.ExpectedStatus, res.StatusCode, err)
 
 		})
 	}
@@ -443,7 +455,7 @@ type MockedTurnRepository struct {
 	mock.Mock
 }
 
-func (m *MockedTurnRepository) Create(request *CreateTurnRequest) (*TurnModel, error) {
+func (m *MockedTurnRepository) Create(request *createTurnRequest) (*TurnModel, error) {
 	return nil, fmt.Errorf("not implemented")
 }
 func (m *MockedTurnRepository) FindById(id int64) (*TurnModel, error) {
@@ -467,23 +479,17 @@ func (m *MockedTurnRepository) Update(id int64, request *UpdateTurnRequest) (*Tu
 	return nil, fmt.Errorf("not implemented")
 }
 
-type MockedMetadataRepository struct {
-	mock.Mock
-}
-
-func (m *MockedMetadataRepository) Upsert(id int64, path string) error {
-	args := m.Called(id)
+func (m *MockedTurnRepository) SaveFile(id int64, r io.Reader) error {
+	args := m.Called(id, r)
 	return args.Error(0)
-
 }
 
-func (m *MockedMetadataRepository) FindByTurn(id int64) (*MetadataModel, error) {
+func (m *MockedTurnRepository) GetFile(id int64) (string, *os.File, error) {
 	args := m.Called(id)
-	v := args.Get(0)
+	v := args.Get(1)
 
 	if v == nil {
-		return nil, args.Error(1)
+		return "", nil, args.Error(2)
 	}
-	return v.(*MetadataModel), args.Error(1)
-
+	return args.String(0), v.(*os.File), args.Error(2)
 }
