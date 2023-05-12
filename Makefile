@@ -5,11 +5,11 @@ OUT_DIR=build
 
 .PHONY: build run dev
 
-## build: builds the project in a single file executable in "build" directory
+## build: builds the application in "build" directory
 build: clean
 	CGO_ENABLED=0 go build -o $(OUT_DIR)/$(APP_NAME) -ldflags "-X main.gitCommit=$(GIT_COMMIT)"
 
-## run: run application
+## run: runs the application in "build/game-repository"
 run: build
 	./$(OUT_DIR)/$(APP_NAME)
 
@@ -21,7 +21,7 @@ docker-build:
 docker-run: docker-build
 	docker run --network=host -v $(config):/app/config.json $(APP_NAME):$(GIT_COMMIT)
 
-## docker-push: sends the image on a server with ssh
+## docker-push: sends the image on a server with ssh (i.e make docker push ssh="10.10.1.1 -p1234")
 docker-push: docker-build
 	docker save $(APP_NAME):$(GIT_COMMIT) | bzip2 | pv | ssh $(ssh)  docker load
 
@@ -29,11 +29,9 @@ docker-push: docker-build
 test:
 	CGO_ENABLED=0 go test -v -cover ./... 
 
-
 ## test-race: executes all tests with a race detector. Takes longer
 test-race:
 	go test -race ./...
-
 
 ## clean: remove build files 
 clean:
