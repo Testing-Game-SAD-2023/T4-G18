@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"encoding/json"
 	"errors"
@@ -9,6 +10,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -20,11 +24,12 @@ import (
 )
 
 type Configuration struct {
-	PostgresUrl   string `json:"postgresUrl"`
-	ListenAddress string `json:"listenAddress"`
-	ApiPrefix     string `json:"apiPrefix"`
-	DataDir       string `json:"dataDir"`
-	EnableSwagger bool   `json:"enableSwagger"`
+	PostgresUrl     string        `json:"postgresUrl"`
+	ListenAddress   string        `json:"listenAddress"`
+	ApiPrefix       string        `json:"apiPrefix"`
+	DataDir         string        `json:"dataDir"`
+	EnableSwagger   bool          `json:"enableSwagger"`
+	CleanupInterval time.Duration `json:"cleanupInterval"`
 }
 
 //go:embed postman
@@ -136,8 +141,59 @@ func run(c Configuration) error {
 		))
 	})
 	log.Printf("listening on %s", c.ListenAddress)
-	return http.ListenAndServe(c.ListenAddress, r)
 
+	done := make(chan struct{})
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, syscall.SIGTERM, os.Interrupt)
+
+	go func() {
+		defer close(done)
+		log.Printf("received: %s", <-signals)
+	}()
+
+	go func() {
+		ticker := time.NewTicker(c.CleanupInterval)
+		for {
+			select {
+			case <-done:
+			case <-ticker.C:
+				log.Print("cleanup")
+			}
+
+		}
+	}()
+	return startHttpServer(r, c.ListenAddress, done)
+
+}
+
+func startHttpServer(r chi.Router, addr string, done <-chan struct{}) error {
+	server := http.Server{
+		Addr:              addr,
+		Handler:           r,
+		ReadTimeout:       time.Minute,
+		WriteTimeout:      time.Minute,
+		IdleTimeout:       time.Hour,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
+
+	errCh := make(chan error)
+	defer close(errCh)
+	go func() {
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			errCh <- err
+		}
+	}()
+
+	select {
+	case <-done:
+	case err := <-errCh:
+		return err
+	}
+
+	ctx, canc := context.WithTimeout(context.Background(), time.Second*10)
+	defer canc()
+
+	return server.Shutdown(ctx)
 }
 
 func makeDefaults(c *Configuration) {
@@ -151,6 +207,10 @@ func makeDefaults(c *Configuration) {
 
 	if c.DataDir == "" {
 		c.DataDir = "data"
+	}
+
+	if int64(c.CleanupInterval) == 0 {
+		c.CleanupInterval = time.Hour
 	}
 
 }
