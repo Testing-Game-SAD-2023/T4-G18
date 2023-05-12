@@ -218,7 +218,7 @@ func (rc *RoundController) list(w http.ResponseWriter, r *http.Request) error {
 }
 
 type TurnService interface {
-	Create(request *createTurnRequest) (*TurnModel, error)
+	CreateBulk(request *CreateTurnsRequest) ([]TurnModel, error)
 	FindById(id int64) (*TurnModel, error)
 	Delete(id int64) error
 	Update(id int64, request *UpdateTurnRequest) (*TurnModel, error)
@@ -239,7 +239,7 @@ func NewTurnController(service TurnService) *TurnController {
 
 func (tc *TurnController) create(w http.ResponseWriter, r *http.Request) error {
 
-	var request createTurnRequest
+	var request CreateTurnsRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return ApiError{
 			code:    http.StatusBadRequest,
@@ -249,13 +249,18 @@ func (tc *TurnController) create(w http.ResponseWriter, r *http.Request) error {
 
 	defer r.Body.Close()
 
-	g, err := tc.service.Create(&request)
+	turns, err := tc.service.CreateBulk(&request)
 
 	if err != nil {
 		return makeApiError(err)
 	}
 
-	return writeJson(w, http.StatusCreated, mapToTurnDTO(g))
+	resp := make([]*TurnDto, len(turns))
+	for i, turn := range turns {
+		resp[i] = mapToTurnDTO(&turn)
+	}
+
+	return writeJson(w, http.StatusCreated, resp)
 }
 
 func (tc *TurnController) update(w http.ResponseWriter, r *http.Request) error {
