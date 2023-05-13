@@ -117,16 +117,18 @@ type Convertable[T any] interface {
 
 func FromUrlParams[T Convertable[T]](r *http.Request, name string) (T, error) {
 	s := chi.URLParam(r, name)
-	var t T
-	return fromString(s, name, t)
+	return fromString[T](s, name)
 }
 
 func FromUrlQuery[T Convertable[T]](r *http.Request, name string, fallback T) (T, error) {
 	s := r.URL.Query().Get(name)
-	return fromString(s, name, fallback)
+	if s == "" {
+		return fallback, nil
+	}
+	return fromString[T](s, name)
 }
 
-func fromString[T Convertable[T]](s, name string, fallback T) (T, error) {
+func fromString[T Convertable[T]](s, name string) (T, error) {
 	var t T
 
 	v, err := t.Convert(s)
