@@ -324,7 +324,7 @@ func (tc *TurnController) findByID(w http.ResponseWriter, r *http.Request) error
 
 	id, err := FromUrlParams[CustomInt64](r, "id")
 	if err != nil {
-		return makeApiError(err)
+		return err
 	}
 
 	turn, err := tc.service.FindById(id.AsInt64())
@@ -341,7 +341,7 @@ func (tc *TurnController) delete(w http.ResponseWriter, r *http.Request) error {
 
 	id, err := FromUrlParams[CustomInt64](r, "id")
 	if err != nil {
-		return makeApiError(err)
+		return err
 	}
 
 	if err := tc.service.Delete(id.AsInt64()); err != nil {
@@ -370,7 +370,7 @@ func (tc *TurnController) upload(w http.ResponseWriter, r *http.Request) error {
 func (tc *TurnController) download(w http.ResponseWriter, r *http.Request) error {
 	id, err := FromUrlParams[CustomInt64](r, "id")
 	if err != nil {
-		return makeApiError(err)
+		return err
 	}
 
 	fname, f, err := tc.service.GetFile(id.AsInt64())
@@ -406,7 +406,7 @@ func (tc *TurnController) list(w http.ResponseWriter, r *http.Request) error {
 	return writeJson(w, http.StatusOK, resp)
 }
 
-func (kt CustomTime) Convert(s string) (CustomTime, error) {
+func (CustomTime) Convert(s string) (CustomTime, error) {
 	t, err := time.Parse("2006-01-02", s)
 	return CustomTime(t), err
 }
@@ -419,7 +419,7 @@ func (k CustomTime) AsTime() time.Time {
 	return time.Time(k)
 }
 
-func (kt CustomInt64) Convert(s string) (CustomInt64, error) {
+func (CustomInt64) Convert(s string) (CustomInt64, error) {
 	a, err := strconv.ParseInt(s, 10, 64)
 	return CustomInt64(a), err
 }
