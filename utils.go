@@ -18,9 +18,10 @@ import (
 type ctxKey int
 
 const (
-	idParamKey          ctxKey = 0
-	paginationParamsKey ctxKey = 1
-	intervalParamsKey   ctxKey = 2
+	idParamKey         ctxKey = 0
+	paginationParamKey ctxKey = 1
+	intervalParamKey   ctxKey = 2
+	bodyParamKey       ctxKey = 3
 )
 
 var (
@@ -45,12 +46,15 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 			Get("/", makeHTTPHandlerFunc(gc.list))
 
 		// Create game
-		r.With(middleware.AllowContentType("application/json")).
+		r.With(
+			middleware.AllowContentType("application/json"),
+			JsonBody[CreateGameRequest]).
 			Post("/", makeHTTPHandlerFunc(gc.create))
 
 		// Update game
 		r.With(IdInUrlParam,
-			middleware.AllowContentType("application/json")).
+			middleware.AllowContentType("application/json"),
+			JsonBody[UpdateGameRequest]).
 			Put("/{id}", makeHTTPHandlerFunc(gc.update))
 
 		// Delete game
@@ -68,12 +72,14 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 		r.Get("/", makeHTTPHandlerFunc(rc.list))
 
 		// Create round
-		r.With(middleware.AllowContentType("application/json")).
+		r.With(middleware.AllowContentType("application/json"),
+			JsonBody[CreateRoundRequest]).
 			Post("/", makeHTTPHandlerFunc(rc.create))
 
 		// Update round
 		r.With(IdInUrlParam,
-			middleware.AllowContentType("application/json")).
+			middleware.AllowContentType("application/json"),
+			JsonBody[UpdateRoundRequest]).
 			Put("/{id}", makeHTTPHandlerFunc(rc.update))
 
 		// Delete round
@@ -91,12 +97,14 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 		r.Get("/", makeHTTPHandlerFunc(tc.list))
 
 		// Create turn
-		r.With(middleware.AllowContentType("application/json")).
+		r.With(middleware.AllowContentType("application/json"),
+			JsonBody[CreateTurnsRequest]).
 			Post("/", makeHTTPHandlerFunc(tc.create))
 
 		// Update turn
 		r.With(IdInUrlParam,
-			middleware.AllowContentType("application/json")).
+			middleware.AllowContentType("application/json"),
+			JsonBody[UpdateTurnRequest]).
 			Put("/{id}", makeHTTPHandlerFunc(tc.update))
 
 		// Delete turn
@@ -181,7 +189,7 @@ func Pagination(next http.Handler) http.Handler {
 			pageSize: pageSize,
 			page:     page,
 		}
-		r = r.WithContext(context.WithValue(r.Context(), paginationParamsKey, p))
+		r = r.WithContext(context.WithValue(r.Context(), paginationParamKey, p))
 
 		next.ServeHTTP(w, r)
 		return nil
@@ -209,7 +217,7 @@ func Interval(next http.Handler) http.Handler {
 			endDate:   endDate,
 		}
 
-		r = r.WithContext(context.WithValue(r.Context(), intervalParamsKey, i))
+		r = r.WithContext(context.WithValue(r.Context(), intervalParamKey, i))
 
 		next.ServeHTTP(w, r)
 		return nil
@@ -227,6 +235,25 @@ func IdInUrlParam(next http.Handler) http.Handler {
 			}
 		}
 		r = r.WithContext(context.WithValue(r.Context(), idParamKey, id))
+
+		next.ServeHTTP(w, r)
+		return nil
+	}))
+}
+
+func JsonBody[T any](next http.Handler) http.Handler {
+	return makeHTTPHandlerFunc((func(w http.ResponseWriter, r *http.Request) error {
+		var t T
+
+		if err := json.NewDecoder(r.Body).Decode(&t); err != nil {
+			return ApiError{
+				code:    http.StatusBadRequest,
+				Message: "Invalid json body",
+			}
+		}
+		defer r.Body.Close()
+
+		r = r.WithContext(context.WithValue(r.Context(), idParamKey, t))
 
 		next.ServeHTTP(w, r)
 		return nil

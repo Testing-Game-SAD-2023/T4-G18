@@ -48,10 +48,10 @@ func (suite *GameControllerSuite) SetupSuite() {
 	r := chi.NewMux()
 	r.With(IdInUrlParam).
 		Get("/{id}", makeHTTPHandlerFunc(controller.findByID))
-	r.Post("/", makeHTTPHandlerFunc(controller.create))
+	r.With(JsonBody[CreateGameRequest]).Post("/", makeHTTPHandlerFunc(controller.create))
 	r.With(IdInUrlParam).
 		Delete("/{id}", makeHTTPHandlerFunc(controller.delete))
-	r.With(IdInUrlParam).
+	r.With(IdInUrlParam, JsonBody[UpdateGameRequest]).
 		Put("/{id}", makeHTTPHandlerFunc(controller.update))
 
 	suite.tServer = httptest.NewServer(r)

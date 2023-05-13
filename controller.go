@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -26,15 +25,7 @@ func NewGameController(gs GameService) *GameController {
 
 func (gc *GameController) create(w http.ResponseWriter, r *http.Request) error {
 
-	var request CreateGameRequest
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid json body",
-		}
-	}
-
-	defer r.Body.Close()
+	request := r.Context().Value(bodyParamKey).(CreateGameRequest)
 
 	g, err := gc.service.Create(&request)
 
@@ -74,17 +65,9 @@ func (gc *GameController) delete(w http.ResponseWriter, r *http.Request) error {
 func (gc *GameController) update(w http.ResponseWriter, r *http.Request) error {
 
 	id := r.Context().Value(idParamKey).(int64)
+	request := r.Context().Value(bodyParamKey).(UpdateGameRequest)
 
-	var rq UpdateGameRequest
-	if err := json.NewDecoder(r.Body).Decode(&rq); err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid json body",
-		}
-	}
-	defer r.Body.Close()
-
-	g, err := gc.service.Update(id, &rq)
+	g, err := gc.service.Update(id, &request)
 	if err != nil {
 		return makeApiError(err)
 	}
@@ -93,8 +76,8 @@ func (gc *GameController) update(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (gc *GameController) list(w http.ResponseWriter, r *http.Request) error {
-	paginationParams := r.Context().Value(paginationParamsKey).(PaginationParams)
-	intervalParams := r.Context().Value(intervalParamsKey).(IntervalParams)
+	paginationParams := r.Context().Value(paginationParamKey).(PaginationParams)
+	intervalParams := r.Context().Value(intervalParamKey).(IntervalParams)
 
 	games, count, err := gc.service.FindByInterval(&intervalParams, &paginationParams)
 	if err != nil {
@@ -128,15 +111,7 @@ func NewRoundController(rs RoundService) *RoundController {
 
 func (rc *RoundController) create(w http.ResponseWriter, r *http.Request) error {
 
-	var request CreateRoundRequest
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid json body",
-		}
-	}
-
-	defer r.Body.Close()
+	request := r.Context().Value(bodyParamKey).(CreateRoundRequest)
 
 	g, err := rc.service.Create(&request)
 
@@ -151,17 +126,9 @@ func (rc *RoundController) create(w http.ResponseWriter, r *http.Request) error 
 func (rc *RoundController) update(w http.ResponseWriter, r *http.Request) error {
 
 	id := r.Context().Value(idParamKey).(int64)
+	request := r.Context().Value(bodyParamKey).(UpdateRoundRequest)
 
-	var rq UpdateRoundRequest
-	if err := json.NewDecoder(r.Body).Decode(&rq); err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid json body",
-		}
-	}
-	defer r.Body.Close()
-
-	g, err := rc.service.Update(id, &rq)
+	g, err := rc.service.Update(id, &request)
 	if err != nil {
 		return makeApiError(err)
 	}
@@ -239,15 +206,7 @@ func NewTurnController(service TurnService) *TurnController {
 
 func (tc *TurnController) create(w http.ResponseWriter, r *http.Request) error {
 
-	var request CreateTurnsRequest
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid json body",
-		}
-	}
-
-	defer r.Body.Close()
+	request := r.Context().Value(bodyParamKey).(CreateTurnsRequest)
 
 	turns, err := tc.service.CreateBulk(&request)
 
@@ -266,17 +225,9 @@ func (tc *TurnController) create(w http.ResponseWriter, r *http.Request) error {
 func (tc *TurnController) update(w http.ResponseWriter, r *http.Request) error {
 
 	id := r.Context().Value(idParamKey).(int64)
+	request := r.Context().Value(bodyParamKey).(UpdateTurnRequest)
 
-	var rq UpdateTurnRequest
-	if err := json.NewDecoder(r.Body).Decode(&rq); err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid json body",
-		}
-	}
-	defer r.Body.Close()
-
-	g, err := tc.service.Update(id, &rq)
+	g, err := tc.service.Update(id, &request)
 	if err != nil {
 		return makeApiError(err)
 	}
