@@ -26,7 +26,6 @@ func NewGameRepository(db *gorm.DB) *GameRepository {
 }
 
 func duplicated(v []string) bool {
-	// detect duplication in player
 	unique := make(map[string]struct{}, len(v))
 	for _, item := range v {
 		if _, seen := unique[item]; seen {
@@ -310,7 +309,7 @@ func (tr *TurnRepository) CreateBulk(r *CreateTurnsRequest) ([]TurnModel, error)
 			return err
 		}
 
-		if len(ids) != len(r.Players) {
+		if len(ids) != len(r.Players) && !duplicated(r.Players) {
 			return ErrInvalidPlayerList
 		}
 
