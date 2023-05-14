@@ -397,16 +397,13 @@ func (tr *TurnStorage) Delete(id int64) error {
 func (ts *TurnStorage) SaveFile(id int64, r io.Reader) error {
 	err := ts.db.Transaction(func(tx *gorm.DB) error {
 		var (
-			err    error
-			gameId int64
-			meta   MetadataModel
+			err   error
+			round RoundModel
 		)
 
 		err = tx.
-			Model(&RoundModel{}).
-			Select("game_id").
-			Preload("Turns", "id = ?", id).
-			First(&gameId).
+			Joins("join turns on turns.round_id = rounds.id where turns.id  = ?", id).
+			First(&round).
 			Error
 
 		if err != nil {
@@ -432,7 +429,7 @@ func (ts *TurnStorage) SaveFile(id int64, r io.Reader) error {
 
 		fname := path.Join(ts.dataDir,
 			strconv.FormatInt(int64(year), 10),
-			strconv.FormatInt(gameId, 10),
+			strconv.FormatInt(round.GameID, 10),
 			fmt.Sprintf("%d.zip", id),
 		)
 
@@ -445,17 +442,11 @@ func (ts *TurnStorage) SaveFile(id int64, r io.Reader) error {
 			return err
 		}
 
-		return tx.Model(&meta).
-			Clauses(
-				clause.OnConflict{
-					Columns: []clause.Column{{Name: "turn_id"}},
-					DoUpdates: clause.Assignments(map[string]interface{}{
-						"path": fname,
-					}),
-				},
-				clause.Returning{},
-			).
-			Create(&MetadataModel{TurnID: sql.NullInt64{Int64: id, Valid: true}, Path: fname}).
+		return tx.FirstOrCreate(
+			&MetadataModel{
+				TurnID: sql.NullInt64{Int64: id, Valid: true},
+				Path:   fname,
+			}).
 			Error
 
 	})
