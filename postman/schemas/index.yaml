@@ -84,6 +84,12 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "404":
+                    description: No game found for the provided `Id`
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
                 "500":
                     description: Internal server error
                     content:
@@ -132,15 +138,14 @@ paths:
                             type: object
                             properties:
                                 players:
-                                    type: array 
+                                    type: array
                                     items:
                                         type: string
                                 name:
                                     type: string
-                        example: 
+                        example:
                             name: Game name
                             players: ["id1", "id2"]
-                            
 
             responses:
                 "201":
@@ -645,7 +650,7 @@ paths:
                             type: object
                             properties:
                                 players:
-                                    type: array 
+                                    type: array
                                     items:
                                         type: string
                                 roundId:
@@ -686,6 +691,156 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
+    /robots:
+        get:
+            summary: Retrieve test results with filters
+            description: Retrieve test results filtering by test engine, difficulty and test class id. If type is Randoop, a random result will be chosen.
+            tags:
+                - robots
+            parameters:
+                - in: query
+                  name: testClassId
+                  description: Identifier of the test class
+                  schema:
+                      type: string
+                      default: "a_test_class.java"
+                  required: true
+                - in: query
+                  name: difficulty
+                  description: Difficulty identifier
+                  schema:
+                      type: string
+                      default: "easy_v1"
+                  required: true
+                - in: query
+                  name: type
+                  description: Type of test engine. 0 Randoop, 1 evosuite
+                  schema:
+                      type: integer
+                      enum: [0, 1]
+                      default: 1
+                  required: true
+            responses:
+                "200":
+                    description: List of turns
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: "#/components/schemas/Turn"
+                "404":
+                    description: No result found for the provided id
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "400":
+                    description: Invalid  parameters
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "500":
+                    description: Internal server error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+        delete:
+            summary: Delete test results by a specific class id
+            description: Delete test results by a specific class id
+            tags:
+                - robots
+            parameters:
+                - in: query
+                  name: testClassId
+                  description: Identifier of the test class
+                  schema:
+                      type: string
+                      default: "a_test_class.java"
+                  required: true
+            responses:
+                "204":
+                    description: Successfully deleted
+                "404":
+                    description: No results found for the provided id
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "400":
+                    description: Invalid  parameters
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "500":
+                    description: Internal server error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+        post:
+            tags:
+                - robots
+            summary: Create a robot results in batch
+            description: Create a robot result entry with provided data in batch mode.
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                robots:
+                                    type: array
+                                    items:
+                                        type: object
+                                        properties:
+                                            difficulty:
+                                                type: string
+                                            type:
+                                                type: integer
+                                                enum: [0, 1]
+                                            scores:
+                                                type: string
+                                            testClassId:
+                                                type: string
+                        example:
+                            robots:
+                                [
+                                    {
+                                        "difficulty": "easy_v1",
+                                        "type": 0,
+                                        "scores": "some scores in some format",
+                                        "testClassId": a_test_class.java,
+                                    },
+                                ]
+            responses:
+                "201":
+                    description: Created
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    created: 
+                                        type: integer
+                "400":
+                    description: Invalid parameters
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "500":
+                    description: Internal server error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+   
 components:
     schemas:
         Game:
@@ -696,16 +851,16 @@ components:
                     format: int64
                 currentRound:
                     type: integer
+                playersCount:
+                    type: integer
+                name:
+                    type: string
                 createdAt:
                     type: string
                     format: date-time
                 updatedAt:
                     type: string
                     format: date-time
-                playersCount:
-                    type: integer
-                name:
-                    type: string
 
         Round:
             type: object
@@ -732,16 +887,37 @@ components:
                     format: int64
                 isWinner:
                     type: boolean
+                playerId:
+                    type: integer
+                scores:
+                    type: string
                 createdAt:
                     type: string
                     format: date-time
                 updatedAt:
                     type: string
                     format: date-time
-                playerId:
+
+        Robot:
+            type: object
+            properties:
+                id:
                     type: integer
+                    format: int64
+                testClassId:
+                    type: string
+                difficulty:
+                    type: string
                 scores:
                     type: string
+                type:
+                    type: integer
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
 
         Error:
             type: "object"
