@@ -1,24 +1,28 @@
 # Game-Repository  
 Implemented endpoint are:
-* games:
-    - GET /games/{id} retrieve a game by ID;
-    - GET /games?pageSize=<integer>&page=<integer>&startDate=<YYYY-MM-DD>&endDate=<YYYY-MM-DD> list games in interval with pagination;
-    - POST /games create a game;
-    - DELETE /games/{id} delete a game;
-    - PUT /games/{id} update an existing game;
-* rounds:
-    - GET /rounds/{id} retrieve a round by ID;
-    - GET /rounds?gameId=<integer> retrieve all rounds in a game;
-    - POST /rounds create a round;
-    - DELETE /rounds/{id} delete a round;
-    - PUT /rounds/{id} update an existing round;
-* turns:
-    - GET /turns/{id} retrieve a turn by ID;
-    - GET /turns?roundId=<integer> retrieve all turns in a round;
-    - GET /turns/{id}/files retrieve player files as a zip;
-    - PUT /turns/{id}/files upload player files as a zip;
-    - POST /turns create a turn;
-    - DELETE /turns/{id} delete a turn;
+* /games:
+    - GET /{id} retrieve a game by ID;
+    - GET /?pageSize=<integer>&page=<integer>&startDate=<YYYY-MM-DD>&endDate=<YYYY-MM-DD> list games in interval with pagination;
+    - POST / create a game;
+    - DELETE /{id} delete a game;
+    - PUT /{id} update an existing game;
+* /rounds:
+    - GET /{id} retrieve a round by ID;
+    - GET ?gameId=<integer> retrieve all rounds in a game;
+    - POST / create a round;
+    - DELETE /{id} delete a round;
+    - PUT /{id} update an existing round;
+* /turns:
+    - GET /{id} retrieve a turn by ID;
+    - GET ?roundId=<integer> retrieve all turns in a round;
+    - GET /{id}/files retrieve player files as a zip;
+    - PUT /{id}/files upload player files as a zip;
+    - POST / create a turn;
+    - DELETE /{id} delete a turn;
+* /robots:
+    - GET /?difficulty=<string>&type=<integer>&testClassId=<string> get a test result;
+    - POST / create test result in bulk;
+    - DELETE /?testClassId=<string> delete test result associated with a class; 
 
 ## Usage
 The application uses a json configuration file like `config.example.json` (which contains default values). The application looks for a file `config.json` near executable, but a custom one can be provided through `--config=<PATH>` command line arguments.
