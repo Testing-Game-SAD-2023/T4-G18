@@ -11,9 +11,14 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
+const (
+	maxUploadFileSize = 2 * 1024 * 1024 //2MB
+)
+
 type ApiFunction func(http.ResponseWriter, *http.Request) error
 
 func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *chi.Mux {
+	log.Print(maxUploadFileSize)
 	r := chi.NewRouter()
 
 	r.Route("/games", func(r chi.Router) {
@@ -24,9 +29,7 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 		r.Get("/", makeHTTPHandlerFunc(gc.list))
 
 		// Create game
-		r.With(
-			middleware.AllowContentType("application/json"),
-		).
+		r.With(middleware.AllowContentType("application/json")).
 			Post("/", makeHTTPHandlerFunc(gc.create))
 
 		// Update game
@@ -80,7 +83,8 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 		r.Get("/{id}/files", makeHTTPHandlerFunc(tc.download))
 
 		// Upload turn file
-		r.With(middleware.AllowContentType("application/zip")).
+		r.With(middleware.AllowContentType("application/zip"),
+			MaximumUploadSize).
 			Put("/{id}/files", makeHTTPHandlerFunc(tc.upload))
 	})
 	return r
@@ -146,6 +150,14 @@ func fromString[T Convertable[T]](s, name string) (T, error) {
 	}
 
 	return v, nil
+}
+
+func MaximumUploadSize(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		r.Body = http.MaxBytesReader(w, r.Body, maxUploadFileSize)
+		next.ServeHTTP(w, r)
+	})
 }
 
 func makePaginatedResponse(v any, count int64, p *PaginationParams) *PaginatedResponse {

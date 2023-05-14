@@ -30,6 +30,7 @@ func handleError(err error) error {
 
 func makeApiError(err error) error {
 	var code int
+
 	switch {
 	case errors.Is(err, ErrNotFound):
 		code = http.StatusNotFound
@@ -44,6 +45,10 @@ func makeApiError(err error) error {
 		code = http.StatusConflict
 	default:
 		code = http.StatusInternalServerError
+	}
+
+	if _, ok := err.(*http.MaxBytesError); ok {
+		code = http.StatusRequestEntityTooLarge
 	}
 
 	return ApiError{code: code, Message: err.Error(), err: err}

@@ -108,13 +108,13 @@ type IntervalParams struct {
 }
 
 func (gc *GameController) list(w http.ResponseWriter, r *http.Request) error {
-	page, err := FromUrlQuery(r, "page", CustomInt64(1))
+	page, err := FromUrlQuery[CustomInt64](r, "page", 1)
 
 	if err != nil {
 		return err
 	}
 
-	pageSize, err := FromUrlQuery(r, "pageSize", CustomInt64(10))
+	pageSize, err := FromUrlQuery[CustomInt64](r, "pageSize", 10)
 
 	if err != nil {
 		return err
