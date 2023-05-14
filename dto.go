@@ -42,6 +42,30 @@ func (CreateTurnsRequest) Validate() error {
 	return nil
 }
 
+type CreateRobotRequest struct {
+	TestClassId string `json:"testClassId"`
+	Scores      string `json:"scores"`
+	Difficulty  string `json:"difficulty"`
+	Type        int8   `json:"type"`
+}
+
+type CreateRobotsRequest struct {
+	Robots []CreateRobotRequest `json:"robots"`
+}
+
+func (CreateRobotsRequest) Validate() error {
+	return nil
+}
+
+type UpdateRobotRequest struct {
+	Scores     string `json:"scores"`
+	Difficulty string `json:"difficulty"`
+}
+
+func (UpdateRobotRequest) Validate() error {
+	return nil
+}
+
 type UpdateRoundRequest struct {
 	Order int `json:"order"`
 }
@@ -106,6 +130,16 @@ type PaginationMetadata struct {
 	PageSize int64 `json:"pageSize"`
 }
 
+type RobotDto struct {
+	ID          int64     `json:"id"`
+	TestClassId string    `json:"testClassId"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+	Difficulty  string    `json:"difficulty"`
+	Type        int8      `json:"type"`
+	Scores      string    `json:"scores"`
+}
+
 func mapToGameDTO(g *GameModel) *GameDto {
 	return &GameDto{
 		ID:           g.ID,
@@ -135,5 +169,17 @@ func mapToTurnDTO(t *TurnModel) *TurnDto {
 		CreatedAt: t.CreatedAt,
 		UpdatedAt: t.UpdatedAt,
 		PlayerID:  t.PlayerID,
+	}
+}
+
+func mapToRobotDTO(r *RobotModel) *RobotDto {
+	return &RobotDto{
+		ID:          r.ID,
+		CreatedAt:   r.CreatedAt,
+		UpdatedAt:   r.UpdatedAt,
+		TestClassId: r.TestClassId,
+		Difficulty:  r.Difficulty,
+		Type:        r.Type,
+		Scores:      r.Scores,
 	}
 }

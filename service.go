@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand"
 	"os"
 	"path"
 	"path/filepath"
@@ -478,4 +479,121 @@ func (ts *TurnStorage) GetFile(id int64) (string, *os.File, error) {
 	}
 
 	return filepath.Base(metadata.Path), f, nil
+}
+
+type RobotStorage struct {
+	db *gorm.DB
+}
+
+func NewRobotStorage(db *gorm.DB) *RobotStorage {
+	return &RobotStorage{
+		db: db,
+	}
+}
+
+func (gs *RobotStorage) FindById(id int64) (*RobotModel, error) {
+	var robot RobotModel
+	err := gs.db.
+		First(&robot, id).
+		Error
+
+	return &robot, handleError(err)
+}
+
+func (rs *RobotStorage) Update(id int64, r *UpdateRobotRequest) (*RobotModel, error) {
+
+	var (
+		robot RobotModel
+		err   error
+	)
+	err = rs.db.Transaction(func(tx *gorm.DB) error {
+
+		err := tx.
+			First(&robot, id).
+			Error
+
+		if err != nil {
+			return err
+		}
+
+		return tx.Model(&robot).Updates(r).Error
+
+	})
+
+	return &robot, handleError(err)
+}
+
+func (tr *RobotStorage) Delete(id int64) error {
+
+	db := tr.db.
+		Where(&RobotModel{ID: id}).
+		Delete(&RobotModel{})
+
+	if db.Error != nil {
+		return db.Error
+	} else if db.RowsAffected < 1 {
+		return ErrNotFound
+	}
+
+	return nil
+
+}
+
+func (rs *RobotStorage) Create(r *CreateRobotRequest) (*RobotModel, error) {
+
+	robot := RobotModel{
+		TestClassId: r.TestClassId,
+		Scores:      r.Scores,
+		Difficulty:  r.Difficulty,
+		Type:        r.Type,
+	}
+
+	err := rs.db.Create(&robot).Error
+
+	return &robot, handleError(err)
+}
+
+func (rs *RobotStorage) CreateBulk(r *CreateRobotsRequest) ([]RobotModel, error) {
+	robots := make([]RobotModel, len(r.Robots))
+
+	for i, robot := range r.Robots {
+		robots[i] = RobotModel{
+			TestClassId: robot.TestClassId,
+			Scores:      robot.Scores,
+			Difficulty:  robot.Difficulty,
+			Type:        robot.Type,
+		}
+	}
+
+	err := rs.db.CreateInBatches(&robots, 100).Error
+
+	return robots, handleError(err)
+}
+
+func (gs *RobotStorage) FindByFilter(idTestClass string, difficulty string, t int8) (*RobotModel, error) {
+	var (
+		robot RobotModel
+		ids   []int64
+	)
+
+	err := gs.db.Transaction(func(tx *gorm.DB) error {
+		db := tx.Debug().
+			Model(&RobotModel{}).
+			Select("id").
+			Where(&RobotModel{TestClassId: idTestClass, Difficulty: difficulty, Type: t}).
+			Find(&ids)
+
+		if t == 0 {
+			return db.First(&robot).Error
+		}
+
+		// random
+		random := rand.Intn(len(ids))
+		return tx.
+			First(&robot, ids[random]).
+			Error
+
+	})
+
+	return &robot, handleError(err)
 }

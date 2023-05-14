@@ -162,3 +162,18 @@ type PlayerGameModel struct {
 func (PlayerGameModel) TableName() string {
 	return "player_game"
 }
+
+
+type RobotModel struct {
+	ID        	int64       `gorm:"primaryKey;autoIncrement"`
+	CreatedAt 	time.Time   `gorm:"autoCreateTime"`
+	UpdatedAt 	time.Time   `gorm:"autoUpdateTime"`
+	TestClassId string      `gorm:"not null"`
+	Scores      string      `gorm:"default:null"`
+	Difficulty  string      `gorm:"not null"`
+	Type        int8      	`gorm:"not null"`
+}
+
+func (RobotModel) TableName() string {
+	return "robots"
+}

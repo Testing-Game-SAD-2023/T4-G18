@@ -19,7 +19,7 @@ const (
 
 type ApiFunction func(http.ResponseWriter, *http.Request) error
 
-func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *chi.Mux {
+func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController, roc *RobotController) *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Route("/games", func(r chi.Router) {
@@ -88,6 +88,27 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 			MaximumUploadSize).
 			Put("/{id}/files", makeHTTPHandlerFunc(tc.upload))
 	})
+
+	r.Route("/robots", func(r chi.Router) {
+		// Get robot
+		r.Get("/{id}", makeHTTPHandlerFunc(roc.findByID))
+
+		// Get robot with filter
+		r.Get("/", makeHTTPHandlerFunc(roc.findByFilter))
+
+		// Create robots in bulk
+		r.With(middleware.AllowContentType("application/json")).
+			Post("/", makeHTTPHandlerFunc(roc.create))
+
+		// Update robot
+		r.With(middleware.AllowContentType("application/json")).
+			Put("/{id}", makeHTTPHandlerFunc(roc.update))
+
+		// Delete robot
+		r.Delete("/{id}", makeHTTPHandlerFunc(roc.delete))
+
+	})
+
 	return r
 }
 
