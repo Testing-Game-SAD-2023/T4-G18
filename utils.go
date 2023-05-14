@@ -14,13 +14,15 @@ import (
 )
 
 const (
-	maxUploadFileSize = 2 * 1024 * 1024 //2MB
+	maxBodySize = 2 * (1 << 20) // 2MB
 )
 
 type ApiFunction func(http.ResponseWriter, *http.Request) error
 
 func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController, roc *RobotController) *chi.Mux {
 	r := chi.NewRouter()
+
+	r.Use(MaxBodySize)
 
 	r.Route("/games", func(r chi.Router) {
 		//Get game
@@ -84,28 +86,19 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController, ro
 		r.Get("/{id}/files", makeHTTPHandlerFunc(tc.download))
 
 		// Upload turn file
-		r.With(middleware.AllowContentType("application/zip"),
-			MaximumUploadSize).
+		r.With(middleware.AllowContentType("application/zip")).
 			Put("/{id}/files", makeHTTPHandlerFunc(tc.upload))
 	})
 
 	r.Route("/robots", func(r chi.Router) {
-		// Get robot
-		r.Get("/{id}", makeHTTPHandlerFunc(roc.findByID))
-
 		// Get robot with filter
 		r.Get("/", makeHTTPHandlerFunc(roc.findByFilter))
 
 		// Create robots in bulk
 		r.With(middleware.AllowContentType("application/json")).
-			Post("/", makeHTTPHandlerFunc(roc.create))
+			Post("/", makeHTTPHandlerFunc(roc.createBulk))
 
-		// Update robot
-		r.With(middleware.AllowContentType("application/json")).
-			Put("/{id}", makeHTTPHandlerFunc(roc.update))
-
-		// Delete robot
-		r.Delete("/{id}", makeHTTPHandlerFunc(roc.delete))
+		r.Delete("/", makeHTTPHandlerFunc(roc.delete))
 
 	})
 
@@ -139,17 +132,21 @@ func WithOrder(column string) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-type Validator interface {
+type Validable interface {
 	Validate() error
 }
 
-func FromJsonBody[T Validator](r io.ReadCloser) (T, error) {
+func FromJsonBody[T Validable](r io.ReadCloser) (T, error) {
 
 	var t T
 
 	if err := json.NewDecoder(r).Decode(&t); err != nil {
+		code := http.StatusBadRequest
+		if _, ok := err.(*http.MaxBytesError); ok {
+			code = http.StatusRequestEntityTooLarge
+		}
 		return t, ApiError{
-			code:    http.StatusBadRequest,
+			code:    code,
 			Message: "Invalid json body",
 			err:     err,
 		}
@@ -157,14 +154,18 @@ func FromJsonBody[T Validator](r io.ReadCloser) (T, error) {
 	defer r.Close()
 
 	if err := t.Validate(); err != nil {
-		return t, err
+		return t, ApiError{
+			code:    http.StatusBadRequest,
+			Message: err.Error(),
+			err:     err,
+		}
 	}
 
 	return t, nil
 }
 
 type Convertable[T any] interface {
-	Validator
+	Validable
 	Convert(s string) (T, error)
 }
 
@@ -195,16 +196,20 @@ func fromString[T Convertable[T]](s, name string) (T, error) {
 	}
 
 	if err := v.Validate(); err != nil {
-		return v, err
+		return t, ApiError{
+			code:    http.StatusBadRequest,
+			err:     err,
+			Message: err.Error(),
+		}
 	}
 
 	return v, nil
 }
 
-func MaximumUploadSize(next http.Handler) http.Handler {
+func MaxBodySize(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		r.Body = http.MaxBytesReader(w, r.Body, maxUploadFileSize)
+		r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
 		next.ServeHTTP(w, r)
 	})
 }

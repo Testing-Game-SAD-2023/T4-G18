@@ -187,6 +187,7 @@ func startHttpServer(ctx context.Context, r chi.Router, addr string) error {
 		WriteTimeout:      time.Minute,
 		IdleTimeout:       time.Minute,
 		ReadHeaderTimeout: 10 * time.Second,
+		MaxHeaderBytes:    1024 * 8,
 	}
 
 	errCh := make(chan error)

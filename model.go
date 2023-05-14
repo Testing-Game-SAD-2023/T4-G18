@@ -2,8 +2,10 @@ package main
 
 import (
 	"database/sql"
+	"database/sql/driver"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"gorm.io/gorm"
@@ -163,15 +165,57 @@ func (PlayerGameModel) TableName() string {
 	return "player_game"
 }
 
+type RobotType int8
+
+const (
+	randoop RobotType = iota
+	evosuite
+)
+
+func (r RobotType) String() string {
+	switch r {
+	case randoop:
+		return "randoop"
+	case evosuite:
+		return "evosuite"
+	default:
+		panic("unreachable")
+	}
+}
+
+func (data RobotType) Value() (driver.Value, error) {
+	return int8(data), nil
+}
+func (data *RobotType) Scan(value interface{}) error {
+	*data = RobotType(value.(int64))
+	return nil
+}
+
+func (RobotType) Convert(s string) (RobotType, error) {
+	n, err := strconv.ParseInt(s, 10, 8)
+	if err != nil {
+		return RobotType(0), err
+	}
+	return RobotType(n), nil
+}
+
+func (r RobotType) Validate() error {
+	switch r {
+	case randoop, evosuite:
+		return nil
+	default:
+		return fmt.Errorf("%w: unsupported test engine type", ErrInvalidParam)
+	}
+}
 
 type RobotModel struct {
-	ID        	int64       `gorm:"primaryKey;autoIncrement"`
-	CreatedAt 	time.Time   `gorm:"autoCreateTime"`
-	UpdatedAt 	time.Time   `gorm:"autoUpdateTime"`
-	TestClassId string      `gorm:"not null"`
-	Scores      string      `gorm:"default:null"`
-	Difficulty  string      `gorm:"not null"`
-	Type        int8      	`gorm:"not null"`
+	ID          int64     `gorm:"primaryKey;autoIncrement"`
+	CreatedAt   time.Time `gorm:"autoCreateTime"`
+	UpdatedAt   time.Time `gorm:"autoUpdateTime"`
+	TestClassId string    `gorm:"not null"`
+	Scores      string    `gorm:"default:null"`
+	Difficulty  string    `gorm:"not null"`
+	Type        RobotType `gorm:"not null"`
 }
 
 func (RobotModel) TableName() string {

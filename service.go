@@ -491,69 +491,7 @@ func NewRobotStorage(db *gorm.DB) *RobotStorage {
 	}
 }
 
-func (gs *RobotStorage) FindById(id int64) (*RobotModel, error) {
-	var robot RobotModel
-	err := gs.db.
-		First(&robot, id).
-		Error
-
-	return &robot, handleError(err)
-}
-
-func (rs *RobotStorage) Update(id int64, r *UpdateRobotRequest) (*RobotModel, error) {
-
-	var (
-		robot RobotModel
-		err   error
-	)
-	err = rs.db.Transaction(func(tx *gorm.DB) error {
-
-		err := tx.
-			First(&robot, id).
-			Error
-
-		if err != nil {
-			return err
-		}
-
-		return tx.Model(&robot).Updates(r).Error
-
-	})
-
-	return &robot, handleError(err)
-}
-
-func (tr *RobotStorage) Delete(id int64) error {
-
-	db := tr.db.
-		Where(&RobotModel{ID: id}).
-		Delete(&RobotModel{})
-
-	if db.Error != nil {
-		return db.Error
-	} else if db.RowsAffected < 1 {
-		return ErrNotFound
-	}
-
-	return nil
-
-}
-
-func (rs *RobotStorage) Create(r *CreateRobotRequest) (*RobotModel, error) {
-
-	robot := RobotModel{
-		TestClassId: r.TestClassId,
-		Scores:      r.Scores,
-		Difficulty:  r.Difficulty,
-		Type:        r.Type,
-	}
-
-	err := rs.db.Create(&robot).Error
-
-	return &robot, handleError(err)
-}
-
-func (rs *RobotStorage) CreateBulk(r *CreateRobotsRequest) ([]RobotModel, error) {
+func (rs *RobotStorage) CreateBulk(r *CreateRobotsRequest) (int, error) {
 	robots := make([]RobotModel, len(r.Robots))
 
 	for i, robot := range r.Robots {
@@ -565,35 +503,67 @@ func (rs *RobotStorage) CreateBulk(r *CreateRobotsRequest) ([]RobotModel, error)
 		}
 	}
 
-	err := rs.db.CreateInBatches(&robots, 100).Error
+	err := rs.db.
+		Clauses(clause.OnConflict{
+			UpdateAll: true,
+		}).
+		CreateInBatches(&robots, 100).
+		Error
 
-	return robots, handleError(err)
+	return len(robots), handleError(err)
 }
 
-func (gs *RobotStorage) FindByFilter(idTestClass string, difficulty string, t int8) (*RobotModel, error) {
+func (gs *RobotStorage) FindByFilter(testClassId string, difficulty string, t RobotType) (*RobotModel, error) {
 	var (
 		robot RobotModel
 		ids   []int64
 	)
 
 	err := gs.db.Transaction(func(tx *gorm.DB) error {
-		db := tx.Debug().
+		err := tx.
 			Model(&RobotModel{}).
 			Select("id").
-			Where(&RobotModel{TestClassId: idTestClass, Difficulty: difficulty, Type: t}).
-			Find(&ids)
+			Where(&RobotModel{
+				TestClassId: testClassId,
+				Difficulty:  difficulty,
+			}).
+			Where("type = ? ", t).
+			Find(&ids).
+			Error
 
-		if t == 0 {
-			return db.First(&robot).Error
+		if err != nil {
+			return err
+		}
+		if len(ids) == 0 {
+			return gorm.ErrRecordNotFound
+		}
+		var id int64
+		switch t {
+		case evosuite:
+			id = ids[0]
+		case randoop:
+			pos := rand.Intn(len(ids))
+			id = ids[pos]
+		default:
+			return fmt.Errorf("%w: unsupported test engine", ErrInvalidParam)
 		}
 
-		// random
-		random := rand.Intn(len(ids))
-		return tx.
-			First(&robot, ids[random]).
-			Error
+		return tx.First(&robot, id).Error
 
 	})
 
 	return &robot, handleError(err)
+}
+
+func (rs *RobotStorage) DeleteByTestClass(testClassId string) error {
+
+	db := rs.db.Where(&RobotModel{TestClassId: testClassId}).
+		Delete(&[]RobotModel{})
+	if db.Error != nil {
+		return db.Error
+	} else if db.RowsAffected < 1 {
+		return ErrNotFound
+	}
+
+	return nil
 }

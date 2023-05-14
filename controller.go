@@ -5,15 +5,8 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 )
-
-type CustomInt64 int64
-type CustomInt8 int8
-type CustomString string
-
-type CustomTime time.Time
 
 type GameService interface {
 	Create(request *CreateGameRequest) (*GameModel, error)
@@ -408,64 +401,10 @@ func (tc *TurnController) list(w http.ResponseWriter, r *http.Request) error {
 	return writeJson(w, http.StatusOK, resp)
 }
 
-func (CustomTime) Convert(s string) (CustomTime, error) {
-	t, err := time.Parse("2006-01-02", s)
-	return CustomTime(t), err
-}
-
-func (CustomTime) Validate() error {
-	return nil
-}
-
-func (k CustomTime) AsTime() time.Time {
-	return time.Time(k)
-}
-
-func (CustomInt64) Convert(s string) (CustomInt64, error) {
-	a, err := strconv.ParseInt(s, 10, 64)
-	return CustomInt64(a), err
-}
-
-func (CustomInt8) Convert(s string) (CustomInt8, error) {
-	a, err := strconv.ParseInt(s, 10, 8)
-	return CustomInt8(a), err
-}
-
-func (CustomString) Convert(s string) (CustomString, error) {
-	return CustomString(s), nil
-}
-
-func (s CustomString) AsString() string {
-	return string(s)
-}
-
-func (CustomString) Validate() error {
-	return nil
-}
-
-func (CustomInt64) Validate() error {
-	return nil
-}
-
-func (CustomInt8) Validate() error {
-	return nil
-}
-
-func (k CustomInt64) AsInt64() int64 {
-	return int64(k)
-}
-
-func (k CustomInt8) AsInt8() int8 {
-	return int8(k)
-}
-
 type RobotService interface {
-	CreateBulk(request *CreateRobotsRequest) ([]RobotModel, error)
-	FindById(id int64) (*RobotModel, error)
-	Delete(id int64) error
-	Update(id int64, request *UpdateRobotRequest) (*RobotModel, error)
-	Create(request *CreateRobotRequest) (*RobotModel, error)
-	FindByFilter(idTestClass string, difficulty string, t int8) (*RobotModel, error)
+	CreateBulk(request *CreateRobotsRequest) (int, error)
+	FindByFilter(testClassId string, difficulty string, t RobotType) (*RobotModel, error)
+	DeleteByTestClass(testClassId string) error
 }
 
 type RobotController struct {
@@ -478,80 +417,18 @@ func NewRobotController(rs RobotService) *RobotController {
 	}
 }
 
-// func (rc *RobotController) create(w http.ResponseWriter, r *http.Request) error {
-
-// 	request, err := FromJsonBody[CreateRobotRequest](r.Body)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	robot, err := rc.service.Create(&request)
-
-// 	if err != nil {
-// 		return makeApiError(err)
-// 	}
-
-// 	return writeJson(w, http.StatusCreated, mapToRobotDTO(robot))
-
-// }
-
-func (rc *RobotController) create(w http.ResponseWriter, r *http.Request) error {
+func (rc *RobotController) createBulk(w http.ResponseWriter, r *http.Request) error {
 
 	request, err := FromJsonBody[CreateRobotsRequest](r.Body)
 	if err != nil {
 		return err
 	}
-
-	robots, err := rc.service.CreateBulk(&request)
-
+	n, err := rc.service.CreateBulk(&request)
 	if err != nil {
 		return makeApiError(err)
 	}
 
-	res := make([]*RobotDto, len(robots))
-	for i, robot := range robots {
-		res[i] = mapToRobotDTO(&robot)
-	}
-
-	return writeJson(w, http.StatusCreated, res)
-
-}
-
-func (rc *RobotController) update(w http.ResponseWriter, r *http.Request) error {
-
-	id, err := FromUrlParams[CustomInt64](r, "id")
-	if err != nil {
-		return err
-	}
-
-	request, err := FromJsonBody[UpdateRobotRequest](r.Body)
-	if err != nil {
-		return err
-	}
-
-	robot, err := rc.service.Update(id.AsInt64(), &request)
-	if err != nil {
-		return makeApiError(err)
-	}
-
-	return writeJson(w, http.StatusOK, mapToRobotDTO(robot))
-}
-
-func (rc *RobotController) findByID(w http.ResponseWriter, r *http.Request) error {
-
-	id, err := FromUrlParams[CustomInt64](r, "id")
-	if err != nil {
-		return err
-	}
-
-	robot, err := rc.service.FindById(id.AsInt64())
-
-	if err != nil {
-		return makeApiError(err)
-	}
-
-	return writeJson(w, http.StatusOK, mapToRobotDTO(robot))
-
+	return writeJson(w, http.StatusCreated, map[string]any{"created": n})
 }
 
 func (rc *RobotController) findByFilter(w http.ResponseWriter, r *http.Request) error {
@@ -566,12 +443,16 @@ func (rc *RobotController) findByFilter(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 
-	t, err := FromUrlQuery[CustomInt8](r, "type", 0)
+	t, err := FromUrlQuery[RobotType](r, "type", 0)
 	if err != nil {
 		return err
 	}
 
-	robot, err := rc.service.FindByFilter(testClassId.AsString(), difficulty.AsString(), t.AsInt8())
+	robot, err := rc.service.FindByFilter(
+		testClassId.AsString(),
+		difficulty.AsString(),
+		t,
+	)
 
 	if err != nil {
 		return makeApiError(err)
@@ -582,14 +463,12 @@ func (rc *RobotController) findByFilter(w http.ResponseWriter, r *http.Request) 
 }
 
 func (rc *RobotController) delete(w http.ResponseWriter, r *http.Request) error {
-
-	id, err := FromUrlParams[CustomInt64](r, "id")
+	testClassId, err := FromUrlQuery[CustomString](r, "testClassId", "")
 	if err != nil {
 		return err
 	}
-
-	if err := rc.service.Delete(id.AsInt64()); err != nil {
-		return makeApiError(err)
+	if err := rc.service.DeleteByTestClass(testClassId.AsString()); err != nil {
+		return err
 	}
 	w.WriteHeader(http.StatusNoContent)
 	return nil
