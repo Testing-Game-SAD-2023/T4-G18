@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 const (
@@ -91,6 +92,33 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 	return r
 }
 
+func WithPagination(p *PaginationParams) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		offset := (p.page - 1) * p.pageSize
+		return db.Offset(int(offset)).Limit(int(p.pageSize))
+	}
+}
+
+func WithInterval(i *IntervalParams) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("created_at between ? AND ?", i.startDate, i.endDate)
+	}
+}
+
+func WithOrder(column string) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Order(clause.OrderBy{
+			Columns: []clause.OrderByColumn{
+				{
+					Column: clause.Column{
+						Name: column,
+					},
+				},
+			},
+		})
+	}
+}
+
 type Validator interface {
 	Validate() error
 }
@@ -113,19 +141,6 @@ func FromJsonBody[T Validator](r io.ReadCloser) (T, error) {
 	}
 
 	return t, nil
-}
-
-func WithPagination(p *PaginationParams) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		offset := (p.page - 1) * p.pageSize
-		return db.Offset(int(offset)).Limit(int(p.pageSize))
-	}
-}
-
-func WithInterval(i *IntervalParams) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		return db.Where("created_at between ? AND ?", i.startDate, i.endDate)
-	}
 }
 
 type Convertable[T any] interface {
