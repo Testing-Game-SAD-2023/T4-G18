@@ -1,13 +1,17 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
+
+type CustomInt64 int64
+
+type CustomTime time.Time
 
 type GameService interface {
 	Create(request *CreateGameRequest) (*GameModel, error)
@@ -26,15 +30,11 @@ func NewGameController(gs GameService) *GameController {
 
 func (gc *GameController) create(w http.ResponseWriter, r *http.Request) error {
 
-	var request CreateGameRequest
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid json body",
-		}
-	}
+	request, err := FromJsonBody[CreateGameRequest](r.Body)
 
-	defer r.Body.Close()
+	if err != nil {
+		return err
+	}
 
 	g, err := gc.service.Create(&request)
 
@@ -48,9 +48,12 @@ func (gc *GameController) create(w http.ResponseWriter, r *http.Request) error {
 
 func (gc *GameController) findByID(w http.ResponseWriter, r *http.Request) error {
 
-	id := r.Context().Value(idParamKey).(int64)
+	id, err := FromUrlParams[CustomInt64](r, "id")
+	if err != nil {
+		return err
+	}
 
-	g, err := gc.service.FindById(id)
+	g, err := gc.service.FindById(id.AsInt64())
 
 	if err != nil {
 		return makeApiError(err)
@@ -62,9 +65,12 @@ func (gc *GameController) findByID(w http.ResponseWriter, r *http.Request) error
 
 func (gc *GameController) delete(w http.ResponseWriter, r *http.Request) error {
 
-	id := r.Context().Value(idParamKey).(int64)
+	id, err := FromUrlParams[CustomInt64](r, "id")
+	if err != nil {
+		return err
+	}
 
-	if err := gc.service.Delete(id); err != nil {
+	if err := gc.service.Delete(id.AsInt64()); err != nil {
 		return makeApiError(err)
 	}
 	w.WriteHeader(http.StatusNoContent)
@@ -73,18 +79,17 @@ func (gc *GameController) delete(w http.ResponseWriter, r *http.Request) error {
 
 func (gc *GameController) update(w http.ResponseWriter, r *http.Request) error {
 
-	id := r.Context().Value(idParamKey).(int64)
-
-	var rq UpdateGameRequest
-	if err := json.NewDecoder(r.Body).Decode(&rq); err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid json body",
-		}
+	id, err := FromUrlParams[CustomInt64](r, "id")
+	if err != nil {
+		return err
 	}
-	defer r.Body.Close()
 
-	g, err := gc.service.Update(id, &rq)
+	request, err := FromJsonBody[UpdateGameRequest](r.Body)
+	if err != nil {
+		return err
+	}
+
+	g, err := gc.service.Update(id.AsInt64(), &request)
 	if err != nil {
 		return makeApiError(err)
 	}
@@ -92,11 +97,52 @@ func (gc *GameController) update(w http.ResponseWriter, r *http.Request) error {
 	return writeJson(w, http.StatusOK, mapToGameDTO(g))
 }
 
-func (gc *GameController) list(w http.ResponseWriter, r *http.Request) error {
-	paginationParams := r.Context().Value(paginationParamsKey).(PaginationParams)
-	intervalParams := r.Context().Value(intervalParamsKey).(IntervalParams)
+type PaginationParams struct {
+	page     int64
+	pageSize int64
+}
 
-	games, count, err := gc.service.FindByInterval(&intervalParams, &paginationParams)
+type IntervalParams struct {
+	startDate time.Time
+	endDate   time.Time
+}
+
+func (gc *GameController) list(w http.ResponseWriter, r *http.Request) error {
+	page, err := FromUrlQuery[CustomInt64](r, "page", 1)
+
+	if err != nil {
+		return err
+	}
+
+	pageSize, err := FromUrlQuery[CustomInt64](r, "pageSize", 10)
+
+	if err != nil {
+		return err
+	}
+
+	startDate, err := FromUrlQuery(r, "startDate", CustomTime(time.Now().Add(-24*time.Hour)))
+
+	if err != nil {
+		return err
+	}
+
+	endDate, err := FromUrlQuery(r, "endDate", CustomTime(time.Now()))
+
+	if err != nil {
+		return err
+	}
+
+	ip := IntervalParams{
+		startDate: startDate.AsTime(),
+		endDate:   endDate.AsTime(),
+	}
+
+	pp := PaginationParams{
+		page:     page.AsInt64(),
+		pageSize: pageSize.AsInt64(),
+	}
+
+	games, count, err := gc.service.FindByInterval(&ip, &pp)
 	if err != nil {
 		return makeApiError(err)
 	}
@@ -105,7 +151,7 @@ func (gc *GameController) list(w http.ResponseWriter, r *http.Request) error {
 		res[i] = mapToGameDTO(&game)
 	}
 
-	return writeJson(w, http.StatusOK, makePaginatedResponse(res, count, &paginationParams))
+	return writeJson(w, http.StatusOK, makePaginatedResponse(res, count, &pp))
 }
 
 type RoundService interface {
@@ -128,15 +174,10 @@ func NewRoundController(rs RoundService) *RoundController {
 
 func (rc *RoundController) create(w http.ResponseWriter, r *http.Request) error {
 
-	var request CreateRoundRequest
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid json body",
-		}
+	request, err := FromJsonBody[CreateRoundRequest](r.Body)
+	if err != nil {
+		return err
 	}
-
-	defer r.Body.Close()
 
 	g, err := rc.service.Create(&request)
 
@@ -150,18 +191,17 @@ func (rc *RoundController) create(w http.ResponseWriter, r *http.Request) error 
 
 func (rc *RoundController) update(w http.ResponseWriter, r *http.Request) error {
 
-	id := r.Context().Value(idParamKey).(int64)
-
-	var rq UpdateRoundRequest
-	if err := json.NewDecoder(r.Body).Decode(&rq); err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid json body",
-		}
+	id, err := FromUrlParams[CustomInt64](r, "id")
+	if err != nil {
+		return err
 	}
-	defer r.Body.Close()
 
-	g, err := rc.service.Update(id, &rq)
+	request, err := FromJsonBody[UpdateRoundRequest](r.Body)
+	if err != nil {
+		return err
+	}
+
+	g, err := rc.service.Update(id.AsInt64(), &request)
 	if err != nil {
 		return makeApiError(err)
 	}
@@ -171,9 +211,12 @@ func (rc *RoundController) update(w http.ResponseWriter, r *http.Request) error 
 
 func (rc *RoundController) findByID(w http.ResponseWriter, r *http.Request) error {
 
-	id := r.Context().Value(idParamKey).(int64)
+	id, err := FromUrlParams[CustomInt64](r, "id")
+	if err != nil {
+		return err
+	}
 
-	round, err := rc.service.FindById(id)
+	round, err := rc.service.FindById(id.AsInt64())
 
 	if err != nil {
 		return makeApiError(err)
@@ -185,9 +228,12 @@ func (rc *RoundController) findByID(w http.ResponseWriter, r *http.Request) erro
 
 func (rh *RoundController) delete(w http.ResponseWriter, r *http.Request) error {
 
-	id := r.Context().Value(idParamKey).(int64)
+	id, err := FromUrlParams[CustomInt64](r, "id")
+	if err != nil {
+		return err
+	}
 
-	if err := rh.service.Delete(id); err != nil {
+	if err := rh.service.Delete(id.AsInt64()); err != nil {
 		return makeApiError(err)
 	}
 	w.WriteHeader(http.StatusNoContent)
@@ -195,16 +241,13 @@ func (rh *RoundController) delete(w http.ResponseWriter, r *http.Request) error 
 }
 
 func (rc *RoundController) list(w http.ResponseWriter, r *http.Request) error {
-	id, err := strconv.ParseInt(r.URL.Query().Get("gameId"), 10, 64)
+	id, err := FromUrlQuery(r, "gameId", CustomInt64(10))
 
 	if err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid game id",
-		}
+		return err
 	}
 
-	rounds, err := rc.service.FindByGame(id)
+	rounds, err := rc.service.FindByGame(id.AsInt64())
 	if err != nil {
 		return makeApiError(err)
 	}
@@ -239,16 +282,10 @@ func NewTurnController(service TurnService) *TurnController {
 
 func (tc *TurnController) create(w http.ResponseWriter, r *http.Request) error {
 
-	var request CreateTurnsRequest
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid json body",
-		}
+	request, err := FromJsonBody[CreateTurnsRequest](r.Body)
+	if err != nil {
+		return err
 	}
-
-	defer r.Body.Close()
-
 	turns, err := tc.service.CreateBulk(&request)
 
 	if err != nil {
@@ -265,18 +302,17 @@ func (tc *TurnController) create(w http.ResponseWriter, r *http.Request) error {
 
 func (tc *TurnController) update(w http.ResponseWriter, r *http.Request) error {
 
-	id := r.Context().Value(idParamKey).(int64)
-
-	var rq UpdateTurnRequest
-	if err := json.NewDecoder(r.Body).Decode(&rq); err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid json body",
-		}
+	id, err := FromUrlParams[CustomInt64](r, "id")
+	if err != nil {
+		return err
 	}
-	defer r.Body.Close()
 
-	g, err := tc.service.Update(id, &rq)
+	request, err := FromJsonBody[UpdateTurnRequest](r.Body)
+	if err != nil {
+		return err
+	}
+
+	g, err := tc.service.Update(id.AsInt64(), &request)
 	if err != nil {
 		return makeApiError(err)
 	}
@@ -286,9 +322,12 @@ func (tc *TurnController) update(w http.ResponseWriter, r *http.Request) error {
 
 func (tc *TurnController) findByID(w http.ResponseWriter, r *http.Request) error {
 
-	id := r.Context().Value(idParamKey).(int64)
+	id, err := FromUrlParams[CustomInt64](r, "id")
+	if err != nil {
+		return err
+	}
 
-	turn, err := tc.service.FindById(id)
+	turn, err := tc.service.FindById(id.AsInt64())
 
 	if err != nil {
 		return makeApiError(err)
@@ -300,9 +339,12 @@ func (tc *TurnController) findByID(w http.ResponseWriter, r *http.Request) error
 
 func (tc *TurnController) delete(w http.ResponseWriter, r *http.Request) error {
 
-	id := r.Context().Value(idParamKey).(int64)
+	id, err := FromUrlParams[CustomInt64](r, "id")
+	if err != nil {
+		return err
+	}
 
-	if err := tc.service.Delete(id); err != nil {
+	if err := tc.service.Delete(id.AsInt64()); err != nil {
 		return makeApiError(err)
 	}
 	w.WriteHeader(http.StatusNoContent)
@@ -311,9 +353,12 @@ func (tc *TurnController) delete(w http.ResponseWriter, r *http.Request) error {
 
 func (tc *TurnController) upload(w http.ResponseWriter, r *http.Request) error {
 
-	id := r.Context().Value(idParamKey).(int64)
+	id, err := FromUrlParams[CustomInt64](r, "id")
+	if err != nil {
+		return err
+	}
 
-	if err := tc.service.SaveFile(id, r.Body); err != nil {
+	if err := tc.service.SaveFile(id.AsInt64(), r.Body); err != nil {
 		return makeApiError(err)
 	}
 	defer r.Body.Close()
@@ -323,9 +368,12 @@ func (tc *TurnController) upload(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (tc *TurnController) download(w http.ResponseWriter, r *http.Request) error {
-	id := r.Context().Value(idParamKey).(int64)
+	id, err := FromUrlParams[CustomInt64](r, "id")
+	if err != nil {
+		return err
+	}
 
-	fname, f, err := tc.service.GetFile(id)
+	fname, f, err := tc.service.GetFile(id.AsInt64())
 	if err != nil {
 		return makeApiError(err)
 	}
@@ -340,16 +388,12 @@ func (tc *TurnController) download(w http.ResponseWriter, r *http.Request) error
 }
 
 func (tc *TurnController) list(w http.ResponseWriter, r *http.Request) error {
-	id, err := strconv.ParseInt(r.URL.Query().Get("roundId"), 10, 64)
+	id, err := FromUrlQuery(r, "roundId", CustomInt64(10))
 
 	if err != nil {
-		return ApiError{
-			code:    http.StatusBadRequest,
-			Message: "Invalid round id",
-		}
+		return err
 	}
-
-	turns, err := tc.service.FindByRound(id)
+	turns, err := tc.service.FindByRound(id.AsInt64())
 	if err != nil {
 		return makeApiError(err)
 	}
@@ -360,4 +404,30 @@ func (tc *TurnController) list(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	return writeJson(w, http.StatusOK, resp)
+}
+
+func (CustomTime) Convert(s string) (CustomTime, error) {
+	t, err := time.Parse("2006-01-02", s)
+	return CustomTime(t), err
+}
+
+func (CustomTime) Validate() error {
+	return nil
+}
+
+func (k CustomTime) AsTime() time.Time {
+	return time.Time(k)
+}
+
+func (CustomInt64) Convert(s string) (CustomInt64, error) {
+	a, err := strconv.ParseInt(s, 10, 64)
+	return CustomInt64(a), err
+}
+
+func (CustomInt64) Validate() error {
+	return nil
+}
+
+func (k CustomInt64) AsInt64() int64 {
+	return int64(k)
 }

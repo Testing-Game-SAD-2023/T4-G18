@@ -243,7 +243,7 @@ func (rs *RoundStorage) FindByGame(id int64) ([]RoundModel, error) {
 	var rounds []RoundModel
 
 	err := rs.db.
-		Scopes(OrderBy("order")).
+		Scopes(WithOrder("order")).
 		Find(&rounds).
 		Error
 

@@ -1,13 +1,11 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
-	"errors"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
-	"strconv"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -15,54 +13,39 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type ctxKey int
-
 const (
-	idParamKey          ctxKey = 0
-	paginationParamsKey ctxKey = 1
-	intervalParamsKey   ctxKey = 2
+	maxUploadFileSize = 2 * 1024 * 1024 //2MB
 )
 
-var (
-	ErrNotFound          = errors.New("not found")
-	ErrBadRequest        = errors.New("bad request")
-	ErrNotAZip           = errors.New("file is not a valid zip")
-	ErrInvalidRoundOrder = errors.New("invalid round order")
-	ErrDuplicateKey      = errors.New("duplicated key")
-	ErrInvalidPlayerList = errors.New("invalid player list")
-)
+type ApiFunction func(http.ResponseWriter, *http.Request) error
 
 func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *chi.Mux {
+	log.Print(maxUploadFileSize)
 	r := chi.NewRouter()
 
 	r.Route("/games", func(r chi.Router) {
 		//Get game
-		r.With(IdInUrlParam).
-			Get("/{id}", makeHTTPHandlerFunc(gc.findByID))
+		r.Get("/{id}", makeHTTPHandlerFunc(gc.findByID))
 
 		// List games
-		r.With(Pagination, Interval).
-			Get("/", makeHTTPHandlerFunc(gc.list))
+		r.Get("/", makeHTTPHandlerFunc(gc.list))
 
 		// Create game
 		r.With(middleware.AllowContentType("application/json")).
 			Post("/", makeHTTPHandlerFunc(gc.create))
 
 		// Update game
-		r.With(IdInUrlParam,
-			middleware.AllowContentType("application/json")).
+		r.With(middleware.AllowContentType("application/json")).
 			Put("/{id}", makeHTTPHandlerFunc(gc.update))
 
 		// Delete game
-		r.With(IdInUrlParam).
-			Delete("/{id}", makeHTTPHandlerFunc(gc.delete))
+		r.Delete("/{id}", makeHTTPHandlerFunc(gc.delete))
 
 	})
 
 	r.Route("/rounds", func(r chi.Router) {
 		// Get round
-		r.With(IdInUrlParam).
-			Get("/{id}", makeHTTPHandlerFunc(rc.findByID))
+		r.Get("/{id}", makeHTTPHandlerFunc(rc.findByID))
 
 		// List rounds
 		r.Get("/", makeHTTPHandlerFunc(rc.list))
@@ -72,20 +55,17 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 			Post("/", makeHTTPHandlerFunc(rc.create))
 
 		// Update round
-		r.With(IdInUrlParam,
-			middleware.AllowContentType("application/json")).
+		r.With(middleware.AllowContentType("application/json")).
 			Put("/{id}", makeHTTPHandlerFunc(rc.update))
 
 		// Delete round
-		r.With(IdInUrlParam).
-			Delete("/{id}", makeHTTPHandlerFunc(rc.delete))
+		r.Delete("/{id}", makeHTTPHandlerFunc(rc.delete))
 
 	})
 
 	r.Route("/turns", func(r chi.Router) {
 		// Get turn
-		r.With(IdInUrlParam).
-			Get("/{id}", makeHTTPHandlerFunc(tc.findByID))
+		r.Get("/{id}", makeHTTPHandlerFunc(tc.findByID))
 
 		// List turn
 		r.Get("/", makeHTTPHandlerFunc(tc.list))
@@ -95,34 +75,21 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *c
 			Post("/", makeHTTPHandlerFunc(tc.create))
 
 		// Update turn
-		r.With(IdInUrlParam,
-			middleware.AllowContentType("application/json")).
+		r.With(middleware.AllowContentType("application/json")).
 			Put("/{id}", makeHTTPHandlerFunc(tc.update))
 
 		// Delete turn
-		r.With(IdInUrlParam).
-			Delete("/{id}", makeHTTPHandlerFunc(tc.delete))
+		r.Delete("/{id}", makeHTTPHandlerFunc(tc.delete))
 
 		// Get turn file
-		r.With(IdInUrlParam).
-			Get("/{id}/files", makeHTTPHandlerFunc(tc.download))
+		r.Get("/{id}/files", makeHTTPHandlerFunc(tc.download))
 
 		// Upload turn file
-		r.With(IdInUrlParam,
-			middleware.AllowContentType("application/zip")).
+		r.With(middleware.AllowContentType("application/zip"),
+			MaximumUploadSize).
 			Put("/{id}/files", makeHTTPHandlerFunc(tc.upload))
 	})
 	return r
-}
-
-type PaginationParams struct {
-	page     int64
-	pageSize int64
-}
-
-type IntervalParams struct {
-	startDate time.Time
-	endDate   time.Time
 }
 
 func WithPagination(p *PaginationParams) func(db *gorm.DB) *gorm.DB {
@@ -138,7 +105,7 @@ func WithInterval(i *IntervalParams) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-func OrderBy(column string) func(db *gorm.DB) *gorm.DB {
+func WithOrder(column string) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Order(clause.OrderBy{
 			Columns: []clause.OrderByColumn{
@@ -152,101 +119,74 @@ func OrderBy(column string) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-func Pagination(next http.Handler) http.Handler {
-	return makeHTTPHandlerFunc((func(w http.ResponseWriter, r *http.Request) error {
-		q := r.URL.Query()
-
-		page, err := parseNumberWithDefault(q.Get("page"), 1)
-		if err != nil {
-			return writeJson(w, http.StatusBadRequest, ApiError{Message: "invalid 'page' parameter"})
-		}
-
-		if page <= 0 {
-			page = 1
-		}
-
-		pageSize, err := parseNumberWithDefault(q.Get("pageSize"), 10)
-		if err != nil {
-			return writeJson(w, http.StatusBadRequest, ApiError{Message: "invalid 'pageSize'parameter"})
-		}
-		switch {
-		case pageSize >= 100:
-			pageSize = 100
-
-		case pageSize <= 0:
-			pageSize = 10
-		}
-
-		p := PaginationParams{
-			pageSize: pageSize,
-			page:     page,
-		}
-		r = r.WithContext(context.WithValue(r.Context(), paginationParamsKey, p))
-
-		next.ServeHTTP(w, r)
-		return nil
-	}))
+type Validator interface {
+	Validate() error
 }
 
-func Interval(next http.Handler) http.Handler {
-	return makeHTTPHandlerFunc((func(w http.ResponseWriter, r *http.Request) error {
-		q := r.URL.Query()
+func FromJsonBody[T Validator](r io.ReadCloser) (T, error) {
 
-		startDate, err := parseDateWithDefault(q.Get("startDate"), time.Now().Add(-24*time.Hour))
+	var t T
 
-		if err != nil {
-			return writeJson(w, http.StatusBadRequest, ApiError{Message: "invalid parameter 'startDate'"})
+	if err := json.NewDecoder(r).Decode(&t); err != nil {
+		return t, ApiError{
+			code:    http.StatusBadRequest,
+			Message: "Invalid json body",
+			err:     err,
 		}
+	}
+	defer r.Close()
 
-		endDate, err := parseDateWithDefault(q.Get("endDate"), time.Now())
-
-		if err != nil {
-			return writeJson(w, http.StatusBadRequest, ApiError{Message: "invalid parameter 'endDate'"})
-		}
-
-		i := IntervalParams{
-			startDate: startDate,
-			endDate:   endDate,
-		}
-
-		r = r.WithContext(context.WithValue(r.Context(), intervalParamsKey, i))
-
-		next.ServeHTTP(w, r)
-		return nil
-	}))
-}
-
-func IdInUrlParam(next http.Handler) http.Handler {
-	return makeHTTPHandlerFunc((func(w http.ResponseWriter, r *http.Request) error {
-		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-
-		if err != nil {
-			return ApiError{
-				code:    http.StatusBadRequest,
-				Message: "Invalid id",
-			}
-		}
-		r = r.WithContext(context.WithValue(r.Context(), idParamKey, id))
-
-		next.ServeHTTP(w, r)
-		return nil
-	}))
-}
-
-func parseNumberWithDefault(s string, d int64) (int64, error) {
-	if s == "" {
-		return d, nil
+	if err := t.Validate(); err != nil {
+		return t, err
 	}
 
-	return strconv.ParseInt(s, 10, 64)
+	return t, nil
 }
 
-func parseDateWithDefault(s string, t time.Time) (time.Time, error) {
-	if s == "" {
-		return t, nil
-	}
-	return time.Parse("2006-01-02", s)
+type Convertable[T any] interface {
+	Validator
+	Convert(s string) (T, error)
+}
 
+func FromUrlParams[T Convertable[T]](r *http.Request, name string) (T, error) {
+	s := chi.URLParam(r, name)
+	return fromString[T](s, name)
+}
+
+func FromUrlQuery[T Convertable[T]](r *http.Request, name string, fallback T) (T, error) {
+	s := r.URL.Query().Get(name)
+	if s == "" {
+		return fallback, nil
+	}
+	return fromString[T](s, name)
+}
+
+func fromString[T Convertable[T]](s, name string) (T, error) {
+	var t T
+
+	v, err := t.Convert(s)
+	if err != nil {
+		err = fmt.Errorf("%w %q: %v", ErrInvalidParam, name, err)
+		return v, ApiError{
+			code:    http.StatusBadRequest,
+			err:     err,
+			Message: err.Error(),
+		}
+	}
+
+	if err := v.Validate(); err != nil {
+		return v, err
+	}
+
+	return v, nil
+}
+
+func MaximumUploadSize(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		r.Body = http.MaxBytesReader(w, r.Body, maxUploadFileSize)
+		next.ServeHTTP(w, r)
+	})
 }
 
 func makePaginatedResponse(v any, count int64, p *PaginationParams) *PaginatedResponse {
@@ -261,44 +201,11 @@ func makePaginatedResponse(v any, count int64, p *PaginationParams) *PaginatedRe
 	}
 }
 
-func handleError(err error) error {
-	switch {
-	case errors.Is(err, gorm.ErrRecordNotFound):
-		return ErrNotFound
-	case errors.Is(err, gorm.ErrDuplicatedKey):
-		return ErrDuplicateKey
-	default:
-		return err
-	}
-}
-
 func writeJson(w http.ResponseWriter, statusCode int, v any) error {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	return json.NewEncoder(w).Encode(v)
 }
-
-func makeApiError(err error) error {
-	var code int
-	switch {
-	case errors.Is(err, ErrNotFound):
-		code = http.StatusNotFound
-	case errors.Is(err, ErrBadRequest),
-		errors.Is(err, ErrInvalidPlayerList),
-		errors.Is(err, ErrInvalidRoundOrder):
-		code = http.StatusBadRequest
-	case errors.Is(err, ErrNotAZip):
-		code = http.StatusUnprocessableEntity
-	case errors.Is(err, ErrDuplicateKey):
-		code = http.StatusConflict
-	default:
-		code = http.StatusInternalServerError
-	}
-
-	return ApiError{code: code, Message: err.Error()}
-}
-
-type ApiFunction func(http.ResponseWriter, *http.Request) error
 
 func makeHTTPHandlerFunc(f ApiFunction) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -321,36 +228,4 @@ func makeHTTPHandlerFunc(f ApiFunction) http.HandlerFunc {
 		}
 	}
 
-}
-
-func mapToGameDTO(g *GameModel) *GameDto {
-	return &GameDto{
-		ID:           g.ID,
-		CurrentRound: g.CurrentRound,
-		CreatedAt:    g.CreatedAt,
-		UpdatedAt:    g.UpdatedAt,
-		Name:         g.Name,
-		PlayersCount: g.PlayersCount,
-	}
-}
-
-func mapToRoundDTO(g *RoundModel) *RoundDto {
-	return &RoundDto{
-		ID:          g.ID,
-		Order:       g.Order,
-		CreatedAt:   g.CreatedAt,
-		UpdatedAt:   g.UpdatedAt,
-		TestClassId: g.TestClassId,
-	}
-}
-
-func mapToTurnDTO(t *TurnModel) *TurnDto {
-	return &TurnDto{
-		ID:        t.ID,
-		IsWinner:  t.IsWinner,
-		Scores:    t.Scores,
-		CreatedAt: t.CreatedAt,
-		UpdatedAt: t.UpdatedAt,
-		PlayerID:  t.PlayerID,
-	}
 }

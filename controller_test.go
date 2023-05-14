@@ -46,13 +46,10 @@ func (suite *GameControllerSuite) SetupSuite() {
 	controller := NewGameController(gr)
 
 	r := chi.NewMux()
-	r.With(IdInUrlParam).
-		Get("/{id}", makeHTTPHandlerFunc(controller.findByID))
+	r.Get("/{id}", makeHTTPHandlerFunc(controller.findByID))
 	r.Post("/", makeHTTPHandlerFunc(controller.create))
-	r.With(IdInUrlParam).
-		Delete("/{id}", makeHTTPHandlerFunc(controller.delete))
-	r.With(IdInUrlParam).
-		Put("/{id}", makeHTTPHandlerFunc(controller.update))
+	r.Delete("/{id}", makeHTTPHandlerFunc(controller.delete))
+	r.Put("/{id}", makeHTTPHandlerFunc(controller.update))
 
 	suite.tServer = httptest.NewServer(r)
 }
@@ -300,13 +297,8 @@ func (suite *TurnControllerSuite) SetupSuite() {
 
 	r := chi.NewMux()
 
-	r.
-		With(IdInUrlParam).
-		Get("/{id}/files", makeHTTPHandlerFunc(controller.download))
-
-	r.
-		With(IdInUrlParam).
-		Put("/{id}/files", makeHTTPHandlerFunc(controller.upload))
+	r.Get("/{id}/files", makeHTTPHandlerFunc(controller.download))
+	r.Put("/{id}/files", makeHTTPHandlerFunc(controller.upload))
 
 	suite.tServer = httptest.NewServer(r)
 }
