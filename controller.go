@@ -5,13 +5,8 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 )
-
-type CustomInt64 int64
-
-type CustomTime time.Time
 
 type GameService interface {
 	Create(request *CreateGameRequest) (*GameModel, error)
@@ -406,28 +401,75 @@ func (tc *TurnController) list(w http.ResponseWriter, r *http.Request) error {
 	return writeJson(w, http.StatusOK, resp)
 }
 
-func (CustomTime) Convert(s string) (CustomTime, error) {
-	t, err := time.Parse("2006-01-02", s)
-	return CustomTime(t), err
+type RobotService interface {
+	CreateBulk(request *CreateRobotsRequest) (int, error)
+	FindByFilter(testClassId string, difficulty string, t RobotType) (*RobotModel, error)
+	DeleteByTestClass(testClassId string) error
 }
 
-func (CustomTime) Validate() error {
+type RobotController struct {
+	service RobotService
+}
+
+func NewRobotController(rs RobotService) *RobotController {
+	return &RobotController{
+		service: rs,
+	}
+}
+
+func (rc *RobotController) createBulk(w http.ResponseWriter, r *http.Request) error {
+
+	request, err := FromJsonBody[CreateRobotsRequest](r.Body)
+	if err != nil {
+		return err
+	}
+	n, err := rc.service.CreateBulk(&request)
+	if err != nil {
+		return makeApiError(err)
+	}
+
+	return writeJson(w, http.StatusCreated, map[string]any{"created": n})
+}
+
+func (rc *RobotController) findByFilter(w http.ResponseWriter, r *http.Request) error {
+
+	testClassId, err := FromUrlQuery[CustomString](r, "testClassId", "")
+	if err != nil {
+		return err
+	}
+
+	difficulty, err := FromUrlQuery[CustomString](r, "difficulty", "")
+	if err != nil {
+		return err
+	}
+
+	t, err := FromUrlQuery[RobotType](r, "type", 0)
+	if err != nil {
+		return err
+	}
+
+	robot, err := rc.service.FindByFilter(
+		testClassId.AsString(),
+		difficulty.AsString(),
+		t,
+	)
+
+	if err != nil {
+		return makeApiError(err)
+	}
+
+	return writeJson(w, http.StatusOK, mapToRobotDTO(robot))
+
+}
+
+func (rc *RobotController) delete(w http.ResponseWriter, r *http.Request) error {
+	testClassId, err := FromUrlQuery[CustomString](r, "testClassId", "")
+	if err != nil {
+		return err
+	}
+	if err := rc.service.DeleteByTestClass(testClassId.AsString()); err != nil {
+		return err
+	}
+	w.WriteHeader(http.StatusNoContent)
 	return nil
-}
-
-func (k CustomTime) AsTime() time.Time {
-	return time.Time(k)
-}
-
-func (CustomInt64) Convert(s string) (CustomInt64, error) {
-	a, err := strconv.ParseInt(s, 10, 64)
-	return CustomInt64(a), err
-}
-
-func (CustomInt64) Validate() error {
-	return nil
-}
-
-func (k CustomInt64) AsInt64() int64 {
-	return int64(k)
 }

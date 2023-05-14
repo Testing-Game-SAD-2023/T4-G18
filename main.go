@@ -8,6 +8,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
@@ -42,6 +43,7 @@ func main() {
 		ctx        = context.Background()
 	)
 	flag.Parse()
+	rand.Seed(time.Now().Unix())
 
 	fcontent, err := os.ReadFile(*configPath)
 	if err != nil {
@@ -80,7 +82,8 @@ func run(ctx context.Context, c Configuration) error {
 		&PlayerModel{},
 		&TurnModel{},
 		&MetadataModel{},
-		&PlayerGameModel{})
+		&PlayerGameModel{},
+		&RobotModel{})
 
 	if err != nil {
 		return err
@@ -137,16 +140,20 @@ func run(ctx context.Context, c Configuration) error {
 			// turn endpoint
 			turnRepository = NewTurnRepository(db, c.DataDir)
 			turnController = NewTurnController(turnRepository)
+
+			// robot endpoint
+			robotRepository = NewRobotStorage(db)
+			robotController = NewRobotController(robotRepository)
 		)
 
 		r.Mount(c.ApiPrefix, setupRoutes(
 			gameController,
 			roundController,
 			turnController,
+			robotController,
 		))
 	})
 	log.Printf("listening on %s", c.ListenAddress)
-
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
@@ -180,6 +187,7 @@ func startHttpServer(ctx context.Context, r chi.Router, addr string) error {
 		WriteTimeout:      time.Minute,
 		IdleTimeout:       time.Minute,
 		ReadHeaderTimeout: 10 * time.Second,
+		MaxHeaderBytes:    1024 * 8,
 	}
 
 	errCh := make(chan error)

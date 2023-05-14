@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand"
 	"os"
 	"path"
 	"path/filepath"
@@ -478,4 +479,91 @@ func (ts *TurnStorage) GetFile(id int64) (string, *os.File, error) {
 	}
 
 	return filepath.Base(metadata.Path), f, nil
+}
+
+type RobotStorage struct {
+	db *gorm.DB
+}
+
+func NewRobotStorage(db *gorm.DB) *RobotStorage {
+	return &RobotStorage{
+		db: db,
+	}
+}
+
+func (rs *RobotStorage) CreateBulk(r *CreateRobotsRequest) (int, error) {
+	robots := make([]RobotModel, len(r.Robots))
+
+	for i, robot := range r.Robots {
+		robots[i] = RobotModel{
+			TestClassId: robot.TestClassId,
+			Scores:      robot.Scores,
+			Difficulty:  robot.Difficulty,
+			Type:        robot.Type,
+		}
+	}
+
+	err := rs.db.
+		Clauses(clause.OnConflict{
+			UpdateAll: true,
+		}).
+		CreateInBatches(&robots, 100).
+		Error
+
+	return len(robots), handleError(err)
+}
+
+func (gs *RobotStorage) FindByFilter(testClassId string, difficulty string, t RobotType) (*RobotModel, error) {
+	var (
+		robot RobotModel
+		ids   []int64
+	)
+
+	err := gs.db.Transaction(func(tx *gorm.DB) error {
+		err := tx.
+			Model(&RobotModel{}).
+			Select("id").
+			Where(&RobotModel{
+				TestClassId: testClassId,
+				Difficulty:  difficulty,
+			}).
+			Where("type = ? ", t).
+			Find(&ids).
+			Error
+
+		if err != nil {
+			return err
+		}
+		if len(ids) == 0 {
+			return gorm.ErrRecordNotFound
+		}
+		var id int64
+		switch t {
+		case evosuite:
+			id = ids[0]
+		case randoop:
+			pos := rand.Intn(len(ids))
+			id = ids[pos]
+		default:
+			return fmt.Errorf("%w: unsupported test engine", ErrInvalidParam)
+		}
+
+		return tx.First(&robot, id).Error
+
+	})
+
+	return &robot, handleError(err)
+}
+
+func (rs *RobotStorage) DeleteByTestClass(testClassId string) error {
+
+	db := rs.db.Where(&RobotModel{TestClassId: testClassId}).
+		Delete(&[]RobotModel{})
+	if db.Error != nil {
+		return db.Error
+	} else if db.RowsAffected < 1 {
+		return ErrNotFound
+	}
+
+	return nil
 }

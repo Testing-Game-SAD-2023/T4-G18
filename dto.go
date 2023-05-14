@@ -1,9 +1,12 @@
 package main
 
 import (
+	"strconv"
 	"time"
 )
 
+// ApiError represents the http error returned by the REST service.
+// Implements error interface.
 type ApiError struct {
 	code    int
 	Message string `json:"message"`
@@ -42,6 +45,34 @@ func (CreateTurnsRequest) Validate() error {
 	return nil
 }
 
+type CreateRobotRequest struct {
+	TestClassId string    `json:"testClassId"`
+	Scores      string    `json:"scores"`
+	Difficulty  string    `json:"difficulty"`
+	Type        RobotType `json:"type"`
+}
+
+func (CreateRobotRequest) Validate() error {
+	return nil
+}
+
+type CreateRobotsRequest struct {
+	Robots []CreateRobotRequest `json:"robots"`
+}
+
+func (CreateRobotsRequest) Validate() error {
+	return nil
+}
+
+type UpdateRobotRequest struct {
+	Scores     string `json:"scores"`
+	Difficulty string `json:"difficulty"`
+}
+
+func (UpdateRobotRequest) Validate() error {
+	return nil
+}
+
 type UpdateRoundRequest struct {
 	Order int `json:"order"`
 }
@@ -65,6 +96,71 @@ type UpdateGameRequest struct {
 }
 
 func (UpdateGameRequest) Validate() error {
+	return nil
+}
+
+// CustomTime is used to read date values from query parameters
+// Implements Convertable and Validable interfaces
+type CustomTime time.Time
+
+func (CustomTime) Convert(s string) (CustomTime, error) {
+	t, err := time.Parse("2006-01-02", s)
+	return CustomTime(t), err
+}
+
+func (k CustomTime) AsTime() time.Time {
+	return time.Time(k)
+}
+
+func (CustomTime) Validate() error {
+	return nil
+}
+
+type CustomInt64 int64
+
+// CustomInt64 is used to read int value from query parameters.
+// Implements Convertable and Validable interfaces
+func (CustomInt64) Convert(s string) (CustomInt64, error) {
+	a, err := strconv.ParseInt(s, 10, 64)
+	return CustomInt64(a), err
+}
+
+func (CustomInt64) Validate() error {
+	return nil
+}
+
+func (k CustomInt64) AsInt64() int64 {
+	return int64(k)
+}
+
+type CustomString string
+
+// CustomString is a dummy type that implements Convertable and Validable interfaces
+func (CustomString) Convert(s string) (CustomString, error) {
+	return CustomString(s), nil
+}
+
+func (s CustomString) AsString() string {
+	return string(s)
+}
+
+func (CustomString) Validate() error {
+	return nil
+}
+
+// CustomInt8 is a dummy type that implements  Convertable and Validable interfaces
+type CustomInt8 int8
+
+func (CustomInt8) Convert(s string) (CustomInt8, error) {
+	a, err := strconv.ParseInt(s, 10, 8)
+	return CustomInt8(a), err
+}
+
+func (k CustomInt8) AsInt8() int8 {
+	return int8(k)
+}
+
+func (CustomInt8) Validate() error {
 	return nil
 }
 
@@ -106,6 +202,16 @@ type PaginationMetadata struct {
 	PageSize int64 `json:"pageSize"`
 }
 
+type RobotDto struct {
+	ID          int64     `json:"id"`
+	TestClassId string    `json:"testClassId"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+	Difficulty  string    `json:"difficulty"`
+	Type        RobotType `json:"type"`
+	Scores      string    `json:"scores"`
+}
+
 func mapToGameDTO(g *GameModel) *GameDto {
 	return &GameDto{
 		ID:           g.ID,
@@ -135,5 +241,17 @@ func mapToTurnDTO(t *TurnModel) *TurnDto {
 		CreatedAt: t.CreatedAt,
 		UpdatedAt: t.UpdatedAt,
 		PlayerID:  t.PlayerID,
+	}
+}
+
+func mapToRobotDTO(r *RobotModel) *RobotDto {
+	return &RobotDto{
+		ID:          r.ID,
+		CreatedAt:   r.CreatedAt,
+		UpdatedAt:   r.UpdatedAt,
+		TestClassId: r.TestClassId,
+		Difficulty:  r.Difficulty,
+		Type:        r.Type,
+		Scores:      r.Scores,
 	}
 }
