@@ -12,7 +12,7 @@ var (
 	ErrBadRequest        = errors.New("bad request")
 	ErrNotAZip           = errors.New("file is not a valid zip")
 	ErrInvalidRoundOrder = errors.New("invalid round order")
-	ErrDuplicateKey      = errors.New("duplicated key")
+	ErrDuplicatedKey     = errors.New("already exists")
 	ErrInvalidPlayerList = errors.New("invalid player list")
 	ErrInvalidParam      = errors.New("invalid param")
 )
@@ -22,7 +22,7 @@ func handleError(err error) error {
 	case errors.Is(err, gorm.ErrRecordNotFound):
 		return ErrNotFound
 	case errors.Is(err, gorm.ErrDuplicatedKey):
-		return ErrDuplicateKey
+		return ErrDuplicatedKey
 	default:
 		return err
 	}
@@ -41,14 +41,13 @@ func makeApiError(err error) error {
 		code = http.StatusBadRequest
 	case errors.Is(err, ErrNotAZip):
 		code = http.StatusUnprocessableEntity
-	case errors.Is(err, ErrDuplicateKey):
+	case errors.Is(err, ErrDuplicatedKey):
 		code = http.StatusConflict
 	default:
+		if _, ok := err.(*http.MaxBytesError); ok {
+			code = http.StatusRequestEntityTooLarge
+		}
 		code = http.StatusInternalServerError
-	}
-
-	if _, ok := err.(*http.MaxBytesError); ok {
-		code = http.StatusRequestEntityTooLarge
 	}
 
 	return ApiError{code: code, Message: err.Error(), err: err}
