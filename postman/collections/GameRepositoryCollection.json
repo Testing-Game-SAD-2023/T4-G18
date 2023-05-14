@@ -1169,7 +1169,7 @@
 					]
 				},
 				{
-					"name": "Create a turn",
+					"name": "Create turns for players",
 					"id": "d06dddbf-b145-4cd5-8e66-a582f13e397f",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
@@ -1186,16 +1186,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"playerId\": \"<long>\",\n  \"roundId\": \"<long>\",\n  \"scores\": \"<string>\"\n}",
-							"options": {
-								"raw": {
-									"headerFamily": "json",
-									"language": "json"
-								}
-							}
-						},
 						"url": {
 							"raw": "{{baseUrl}}/turns",
 							"host": [
@@ -2732,6 +2722,50 @@
 									],
 									"cookie": [],
 									"body": "{\n  \"message\": \"<string>\"\n}"
+								},
+								{
+									"id": "612e1de4-c4c5-4e0a-8a03-43eaa35a8b0f",
+									"name": "No game found for the provided `Id`",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"name\": \"<string>\",\n  \"currentRound\": \"<integer>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/games/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"games",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "Text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"cupidatat in sed\"\n}"
 								}
 							]
 						},
@@ -3176,6 +3210,577 @@
 				}
 			],
 			"id": "902cbe37-f5bd-480e-8efd-2a06b3568629"
+		},
+		{
+			"name": "robots",
+			"item": [
+				{
+					"name": "Delete test results by a specific class id",
+					"id": "05910b7d-b6f3-49af-9177-733e33fcd938",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/robots?testClassId=a_test_class.java",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"robots"
+							],
+							"query": [
+								{
+									"description": "(Required) Identifier of the test class",
+									"key": "testClassId",
+									"value": "a_test_class.java"
+								}
+							]
+						},
+						"description": "Delete test results by a specific class id"
+					},
+					"response": [
+						{
+							"id": "32e004e0-13c0-4949-abd5-6f38dd237aa3",
+							"name": "Successfully deleted",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/robots?testClassId=a_test_class.java",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"robots"
+									],
+									"query": [
+										{
+											"description": "(Required) Identifier of the test class",
+											"key": "testClassId",
+											"value": "a_test_class.java"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": []
+						},
+						{
+							"id": "783dc812-a2f1-4ffc-8290-7bb36bcc5eea",
+							"name": "Invalid  parameters",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/robots?testClassId=a_test_class.java",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"robots"
+									],
+									"query": [
+										{
+											"description": "(Required) Identifier of the test class",
+											"key": "testClassId",
+											"value": "a_test_class.java"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"cupidatat in sed\"\n}"
+						},
+						{
+							"id": "627d982f-ceca-433f-9bea-50458725178a",
+							"name": "No result found for the provided id",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/robots?testClassId=a_test_class.java",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"robots"
+									],
+									"query": [
+										{
+											"description": "(Required) Identifier of the test class",
+											"key": "testClassId",
+											"value": "a_test_class.java"
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"cupidatat in sed\"\n}"
+						},
+						{
+							"id": "38103007-ecab-4625-a952-57aa34f4ba36",
+							"name": "Internal server error",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/robots?testClassId=a_test_class.java",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"robots"
+									],
+									"query": [
+										{
+											"description": "(Required) Identifier of the test class",
+											"key": "testClassId",
+											"value": "a_test_class.java"
+										}
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"cupidatat in sed\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Retrieve test results with filters",
+					"id": "6e13981a-3dd1-4571-81e9-1efb7e120327",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/robots?testClassId=a_test_class.java&difficulty=easy_v1&type=1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"robots"
+							],
+							"query": [
+								{
+									"description": "(Required) Identifier of the test class",
+									"key": "testClassId",
+									"value": "a_test_class.java"
+								},
+								{
+									"description": "(Required) Difficulty identifier",
+									"key": "difficulty",
+									"value": "easy_v1"
+								},
+								{
+									"description": "(Required) Type of test engine. 0 Randoop, 1 evosuite",
+									"key": "type",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Retrieve test results filtering by test engine, difficulty and test class id. If type is Randoop, a random result will be chosen."
+					},
+					"response": [
+						{
+							"id": "3bfa3c1f-d766-463f-8c25-c219bb758561",
+							"name": "List of turns",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/robots?testClassId=a_test_class.java&difficulty=easy_v1&type=1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"robots"
+									],
+									"query": [
+										{
+											"description": "(Required) Identifier of the test class",
+											"key": "testClassId",
+											"value": "a_test_class.java"
+										},
+										{
+											"description": "(Required) Difficulty identifier",
+											"key": "difficulty",
+											"value": "easy_v1"
+										},
+										{
+											"description": "(Required) Type of test engine. 0 Randoop, 1 evosuite",
+											"key": "type",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"id\": 72439269,\n    \"isWinner\": false,\n    \"playerId\": -48546555,\n    \"scores\": \"do aute\",\n    \"createdAt\": \"1951-12-01T02:29:06.244Z\",\n    \"updatedAt\": \"1950-05-05T12:22:20.428Z\"\n  },\n  {\n    \"id\": -31052599,\n    \"isWinner\": false,\n    \"playerId\": 70223842,\n    \"scores\": \"occaecat esse \",\n    \"createdAt\": \"1967-03-22T23:55:38.922Z\",\n    \"updatedAt\": \"1983-10-27T21:48:25.812Z\"\n  }\n]"
+						},
+						{
+							"id": "41aa5ee8-920c-4d6c-938f-e09900cb4061",
+							"name": "Invalid  parameters",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/robots?testClassId=a_test_class.java&difficulty=easy_v1&type=1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"robots"
+									],
+									"query": [
+										{
+											"description": "(Required) Identifier of the test class",
+											"key": "testClassId",
+											"value": "a_test_class.java"
+										},
+										{
+											"description": "(Required) Difficulty identifier",
+											"key": "difficulty",
+											"value": "easy_v1"
+										},
+										{
+											"description": "(Required) Type of test engine. 0 Randoop, 1 evosuite",
+											"key": "type",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"cupidatat in sed\"\n}"
+						},
+						{
+							"id": "4a2920c0-15ed-439a-9d45-a531e36eabf4",
+							"name": "No result found for the provided id",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/robots?testClassId=a_test_class.java&difficulty=easy_v1&type=1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"robots"
+									],
+									"query": [
+										{
+											"description": "(Required) Identifier of the test class",
+											"key": "testClassId",
+											"value": "a_test_class.java"
+										},
+										{
+											"description": "(Required) Difficulty identifier",
+											"key": "difficulty",
+											"value": "easy_v1"
+										},
+										{
+											"description": "(Required) Type of test engine. 0 Randoop, 1 evosuite",
+											"key": "type",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"cupidatat in sed\"\n}"
+						},
+						{
+							"id": "ce223d10-248b-47dc-a1ed-f0399eb3f758",
+							"name": "Internal server error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/robots?testClassId=a_test_class.java&difficulty=easy_v1&type=1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"robots"
+									],
+									"query": [
+										{
+											"description": "(Required) Identifier of the test class",
+											"key": "testClassId",
+											"value": "a_test_class.java"
+										},
+										{
+											"description": "(Required) Difficulty identifier",
+											"key": "difficulty",
+											"value": "easy_v1"
+										},
+										{
+											"description": "(Required) Type of test engine. 0 Randoop, 1 evosuite",
+											"key": "type",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"cupidatat in sed\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Create a robot results in batch",
+					"id": "3d8df4fb-30d5-4029-a268-766904ce8be5",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"robots\": [\n    {\n      \"difficulty\": \"<string>\",\n      \"type\": 0,\n      \"scores\": \"<string>\",\n      \"testClassId\": \"<string>\"\n    },\n    {\n      \"difficulty\": \"<string>\",\n      \"type\": 0,\n      \"scores\": \"<string>\",\n      \"testClassId\": \"<string>\"\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/robots",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"robots"
+							]
+						},
+						"description": "Create a robot result entry with provided data in batch mode."
+					},
+					"response": [
+						{
+							"id": "2b590bc8-0d73-48bc-ad82-b63db4c51ad4",
+							"name": "Created",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"robots\": [\n    {\n      \"difficulty\": \"<string>\",\n      \"type\": 0,\n      \"scores\": \"<string>\",\n      \"testClassId\": \"<string>\"\n    },\n    {\n      \"difficulty\": \"<string>\",\n      \"type\": 0,\n      \"scores\": \"<string>\",\n      \"testClassId\": \"<string>\"\n    }\n  ]\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/robots",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"robots"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"created\": \"<integer>\"\n}"
+						},
+						{
+							"id": "11cc19e3-becc-4854-8e75-855452d2d5a4",
+							"name": "Invalid parameters",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"robots\": [\n    {\n      \"difficulty\": \"<string>\",\n      \"type\": 0,\n      \"scores\": \"<string>\",\n      \"testClassId\": \"<string>\"\n    },\n    {\n      \"difficulty\": \"<string>\",\n      \"type\": 0,\n      \"scores\": \"<string>\",\n      \"testClassId\": \"<string>\"\n    }\n  ]\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/robots",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"robots"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"cupidatat in sed\"\n}"
+						},
+						{
+							"id": "514eeb7e-aacf-450c-b575-61fe0a8c15bc",
+							"name": "Internal server error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"robots\": [\n    {\n      \"difficulty\": \"<string>\",\n      \"type\": 0,\n      \"scores\": \"<string>\",\n      \"testClassId\": \"<string>\"\n    },\n    {\n      \"difficulty\": \"<string>\",\n      \"type\": 0,\n      \"scores\": \"<string>\",\n      \"testClassId\": \"<string>\"\n    }\n  ]\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/robots",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"robots"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"cupidatat in sed\"\n}"
+						}
+					]
+				}
+			],
+			"id": "42a144e4-f87b-4ec0-bb66-009e199bc7c2"
 		}
 	],
 	"event": [
@@ -3205,7 +3810,7 @@
 			"id": "60da35ee-a263-488e-920e-b26551c686a2",
 			"key": "baseUrl",
 			"value": "https://sad.capass.org",
-			"type": "any"
+			"type": "string"
 		}
 	]
 }
