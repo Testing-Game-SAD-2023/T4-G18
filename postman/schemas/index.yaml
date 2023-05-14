@@ -90,6 +90,13 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "413":
+                    description: Request body too large
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
                 "500":
                     description: Internal server error
                     content:
@@ -156,6 +163,12 @@ paths:
                                 $ref: "#/components/schemas/Game"
                 "400":
                     description: Bad request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "413":
+                    description: Request body too large
                     content:
                         application/json:
                             schema:
@@ -288,6 +301,12 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "413":
+                    description: Request body too large
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
                 "500":
                     description: Internal server error
                     content:
@@ -355,6 +374,12 @@ paths:
                                 $ref: "#/components/schemas/Round"
                 "400":
                     description: Bad request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "413":
+                    description: Request body too large
                     content:
                         application/json:
                             schema:
@@ -487,6 +512,12 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "413":
+                    description: Request body too large
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
                 "500":
                     description: Internal server error
                     content:
@@ -553,6 +584,12 @@ paths:
                                 $ref: "#/components/schemas/Error"
                 "404":
                     description: No Turn found for the provided `Id`
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "413":
+                    description: Request body too large
                     content:
                         application/json:
                             schema:
@@ -631,6 +668,12 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "413":
+                    description: Request body too large
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
                 "500":
                     description: Internal server error
                     content:
@@ -680,6 +723,12 @@ paths:
                                 $ref: "#/components/schemas/Error"
                 "409":
                     description: User turn already exists in round
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "413":
+                    description: Request body too large
                     content:
                         application/json:
                             schema:
@@ -829,6 +878,12 @@ paths:
                                         type: integer
                 "400":
                     description: Invalid parameters
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "413":
+                    description: Request body too large
                     content:
                         application/json:
                             schema:
