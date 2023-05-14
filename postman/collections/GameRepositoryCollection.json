@@ -227,6 +227,45 @@
 											],
 											"cookie": [],
 											"body": "{\n  \"message\": \"<string>\"\n}"
+										},
+										{
+											"id": "7142751a-beb2-4133-aeb0-0e0d01169cb8",
+											"name": "Request body too large",
+											"originalRequest": {
+												"method": "PUT",
+												"header": [],
+												"body": {
+													"mode": "file",
+													"file": {}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/turns/:id/files",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"turns",
+														":id",
+														"files"
+													],
+													"variable": [
+														{
+															"key": "id"
+														}
+													]
+												}
+											},
+											"status": "Request Entity Too Large",
+											"code": 413,
+											"_postman_previewlanguage": "Text",
+											"header": [
+												{
+													"key": "Content-Type",
+													"value": "application/json"
+												}
+											],
+											"cookie": [],
+											"body": "{\n  \"message\": \"ut ullamco in\"\n}"
 										}
 									]
 								},
@@ -822,6 +861,50 @@
 									],
 									"cookie": [],
 									"body": "{\n  \"message\": \"<string>\"\n}"
+								},
+								{
+									"id": "f8270d35-7e7e-4726-9360-e131758d0369",
+									"name": "Request body too large",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"scores\": \"<string>\",\n  \"isWinner\": \"<boolean>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/turns/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"turns",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Request Entity Too Large",
+									"code": 413,
+									"_postman_previewlanguage": "Text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"ut ullamco in\"\n}"
 								}
 							]
 						},
@@ -1165,6 +1248,34 @@
 							],
 							"cookie": [],
 							"body": "{\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"id": "423dd0ac-01b4-457c-a787-58ab38201a59",
+							"name": "Request body too large",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/turns",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turns"
+									]
+								}
+							},
+							"status": "Request Entity Too Large",
+							"code": 413,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"ut ullamco in\"\n}"
 						}
 					]
 				},
@@ -1407,6 +1518,34 @@
 							],
 							"cookie": [],
 							"body": "{\n  \"message\": \"mollit sit\"\n}"
+						},
+						{
+							"id": "ccb8145a-da10-49b6-849b-ca6ca6446d67",
+							"name": "Request body too large",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/turns",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turns"
+									]
+								}
+							},
+							"status": "Request Entity Too Large",
+							"code": 413,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"ut ullamco in\"\n}"
 						}
 					]
 				}
@@ -1832,6 +1971,50 @@
 									],
 									"cookie": [],
 									"body": "{\n  \"message\": \"<string>\"\n}"
+								},
+								{
+									"id": "e1dbe5b9-bd15-48c2-ba29-6dbd48353669",
+									"name": "Request body too large",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"order\": \"<integer>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/rounds/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"rounds",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Request Entity Too Large",
+									"code": 413,
+									"_postman_previewlanguage": "Text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"ut ullamco in\"\n}"
 								}
 							]
 						},
@@ -2171,6 +2354,44 @@
 							],
 							"cookie": [],
 							"body": "{\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"id": "a60f5913-ecd9-4666-b501-7737c53831c6",
+							"name": "Request body too large",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"gameId\": \"<long>\",\n  \"testClassId\": \"<string>\",\n  \"order\": \"<integer>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/rounds",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rounds"
+									]
+								}
+							},
+							"status": "Request Entity Too Large",
+							"code": 413,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"ut ullamco in\"\n}"
 						}
 					]
 				},
@@ -2766,6 +2987,50 @@
 									],
 									"cookie": [],
 									"body": "{\n  \"message\": \"cupidatat in sed\"\n}"
+								},
+								{
+									"id": "800f6ecf-f8de-4f33-bf2f-f0d37ee4f9c4",
+									"name": "Request body too large",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"name\": \"<string>\",\n  \"currentRound\": \"<integer>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/games/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"games",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "Request Entity Too Large",
+									"code": 413,
+									"_postman_previewlanguage": "Text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"message\": \"ut ullamco in\"\n}"
 								}
 							]
 						},
@@ -3105,6 +3370,44 @@
 							],
 							"cookie": [],
 							"body": "{\n  \"message\": \"<string>\"\n}"
+						},
+						{
+							"id": "f1dcae66-5d23-4e0a-bf30-6c1600e08344",
+							"name": "Request body too large",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"playersCount\": \"<integer>\",\n  \"name\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/games",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"games"
+									]
+								}
+							},
+							"status": "Request Entity Too Large",
+							"code": 413,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"ut ullamco in\"\n}"
 						}
 					]
 				},
@@ -3776,6 +4079,44 @@
 							],
 							"cookie": [],
 							"body": "{\n  \"message\": \"cupidatat in sed\"\n}"
+						},
+						{
+							"id": "c27af9e7-ab0d-4c79-8773-063116d0bb4b",
+							"name": "Request body too large",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"robots\": [\n    {\n      \"difficulty\": \"<string>\",\n      \"type\": 0,\n      \"scores\": \"<string>\",\n      \"testClassId\": \"<string>\"\n    },\n    {\n      \"difficulty\": \"<string>\",\n      \"type\": 0,\n      \"scores\": \"<string>\",\n      \"testClassId\": \"<string>\"\n    }\n  ]\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/robots",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"robots"
+									]
+								}
+							},
+							"status": "Request Entity Too Large",
+							"code": 413,
+							"_postman_previewlanguage": "Text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"ut ullamco in\"\n}"
 						}
 					]
 				}
