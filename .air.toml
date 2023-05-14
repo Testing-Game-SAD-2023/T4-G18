@@ -16,14 +16,14 @@ tmp_dir = "tmp"
   include_dir = []
   include_ext = ["go"]
   include_file = []
-  kill_delay = "1s"
+  kill_delay = "0s"
   log = "build-errors.log"
   poll = false
-  poll_interval = 500
+  poll_interval = 1000
   rerun = false
-  rerun_delay = 500
-  send_interrupt = true
-  stop_on_error = true
+  rerun_delay = 1000
+  send_interrupt = false
+  stop_on_error = false
 
 [color]
   app = ""

@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"gorm.io/gorm"
@@ -30,25 +31,34 @@ func handleError(err error) error {
 
 func makeApiError(err error) error {
 	var code int
+	var message string
 
 	switch {
 	case errors.Is(err, ErrNotFound):
 		code = http.StatusNotFound
+		message = err.Error()
 	case errors.Is(err, ErrBadRequest),
 		errors.Is(err, ErrInvalidPlayerList),
 		errors.Is(err, ErrInvalidParam),
 		errors.Is(err, ErrInvalidRoundOrder):
 		code = http.StatusBadRequest
+		message = err.Error()
 	case errors.Is(err, ErrNotAZip):
 		code = http.StatusUnprocessableEntity
+		message = err.Error()
 	case errors.Is(err, ErrDuplicatedKey):
 		code = http.StatusConflict
+		message = err.Error()
 	default:
-		if _, ok := err.(*http.MaxBytesError); ok {
+		if err, ok := err.(*http.MaxBytesError); ok {
 			code = http.StatusRequestEntityTooLarge
+			message = fmt.Sprintf("allowed body size: %s", ByteCountIEC(err.Limit))
+
+		} else {
+			code = http.StatusInternalServerError
+			message = "internal server error"
 		}
-		code = http.StatusInternalServerError
 	}
 
-	return ApiError{code: code, Message: err.Error(), err: err}
+	return ApiError{code: code, Message: message, err: err}
 }

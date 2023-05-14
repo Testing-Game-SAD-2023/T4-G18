@@ -14,7 +14,9 @@ import (
 )
 
 const (
-	maxBodySize = 2 * (1 << 20) // 2MB
+	maxUploadSize   = 2 * (1 << 20) // 2MB
+	defaultBodySize = 1 << 18       // 256KB
+
 )
 
 type ApiFunction func(http.ResponseWriter, *http.Request) error
@@ -22,7 +24,7 @@ type ApiFunction func(http.ResponseWriter, *http.Request) error
 func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController, roc *RobotController) *chi.Mux {
 	r := chi.NewRouter()
 
-	r.Use(MaxBodySize)
+	r.Use(WithMaximumBodySize(defaultBodySize))
 
 	r.Route("/games", func(r chi.Router) {
 		//Get game
@@ -86,7 +88,8 @@ func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController, ro
 		r.Get("/{id}/files", makeHTTPHandlerFunc(tc.download))
 
 		// Upload turn file
-		r.With(middleware.AllowContentType("application/zip")).
+		r.With(middleware.AllowContentType("application/zip"),
+			WithMaximumBodySize(maxUploadSize)).
 			Put("/{id}/files", makeHTTPHandlerFunc(tc.upload))
 	})
 
@@ -142,12 +145,14 @@ func FromJsonBody[T Validable](r io.ReadCloser) (T, error) {
 
 	if err := json.NewDecoder(r).Decode(&t); err != nil {
 		code := http.StatusBadRequest
-		if _, ok := err.(*http.MaxBytesError); ok {
+		message := "Invalid json body"
+		if err, ok := err.(*http.MaxBytesError); ok {
 			code = http.StatusRequestEntityTooLarge
+			message = fmt.Sprintf("allowed body size: %s", ByteCountIEC(err.Limit))
 		}
 		return t, ApiError{
 			code:    code,
-			Message: "Invalid json body",
+			Message: message,
 			err:     err,
 		}
 	}
@@ -206,12 +211,13 @@ func fromString[T Convertable[T]](s, name string) (T, error) {
 	return v, nil
 }
 
-func MaxBodySize(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
-		next.ServeHTTP(w, r)
-	})
+func WithMaximumBodySize(n int64) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			r.Body = http.MaxBytesReader(w, r.Body, n)
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 func makePaginatedResponse(v any, count int64, p *PaginationParams) *PaginatedResponse {
@@ -239,9 +245,8 @@ func makeHTTPHandlerFunc(f ApiFunction) http.HandlerFunc {
 
 			if ok {
 				if apiError.code == http.StatusInternalServerError {
-					apiError.Message = "internal server error"
+					log.Print(apiError.err)
 				}
-
 				if err := writeJson(w, apiError.code, apiError); err != nil {
 					log.Print(err)
 				}
@@ -253,4 +258,17 @@ func makeHTTPHandlerFunc(f ApiFunction) http.HandlerFunc {
 		}
 	}
 
+}
+func ByteCountIEC(b int64) string {
+	const unit = 1024
+	if b < unit {
+		return fmt.Sprintf("%d B", b)
+	}
+	div, exp := int64(unit), 0
+	for n := b / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f %ciB",
+		float64(b)/float64(div), "KMGTPE"[exp])
 }
