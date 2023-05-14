@@ -20,7 +20,6 @@ const (
 type ApiFunction func(http.ResponseWriter, *http.Request) error
 
 func setupRoutes(gc *GameController, rc *RoundController, tc *TurnController) *chi.Mux {
-	log.Print(maxUploadFileSize)
 	r := chi.NewRouter()
 
 	r.Route("/games", func(r chi.Router) {
