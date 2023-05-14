@@ -122,7 +122,7 @@ func (gs *GameRepository) FindByInterval(i *IntervalParams, p *PaginationParams)
 	var n int64
 
 	err := gs.db.
-		Scopes(Intervaled(i), Paginated(p)).
+		Scopes(WithInterval(i), WithPagination(p)).
 		Find(&games).
 		Count(&n).
 		Error
@@ -145,14 +145,24 @@ func (gs *GameRepository) Delete(id int64) error {
 
 func (gs *GameRepository) Update(id int64, r *UpdateGameRequest) (*GameModel, error) {
 
-	var game GameModel
+	var (
+		game GameModel
+		err  error
+	)
 
-	err := gs.db.
-		Model(&game).
-		Clauses(clause.Returning{}).
-		Where(&GameModel{ID: id}).
-		Updates(r).
-		Error
+	err = gs.db.Transaction(func(tx *gorm.DB) error {
+
+		err := tx.
+			First(&game, id).
+			Error
+
+		if err != nil {
+			return err
+		}
+
+		return tx.Model(&game).Updates(r).Error
+
+	})
 
 	return &game, handleError(err)
 }
@@ -198,14 +208,23 @@ func (rs *RoundStorage) Create(r *CreateRoundRequest) (*RoundModel, error) {
 
 func (rs *RoundStorage) Update(id int64, r *UpdateRoundRequest) (*RoundModel, error) {
 
-	var round RoundModel
+	var (
+		round RoundModel
+		err   error
+	)
+	err = rs.db.Transaction(func(tx *gorm.DB) error {
 
-	err := rs.db.
-		Model(&round).
-		Clauses(clause.Returning{}).
-		Where(&RoundModel{ID: id}).
-		Updates(r).
-		Error
+		err := tx.
+			First(&round, id).
+			Error
+
+		if err != nil {
+			return err
+		}
+
+		return tx.Model(&round).Updates(r).Error
+
+	})
 
 	return &round, handleError(err)
 }
@@ -258,19 +277,19 @@ func (rs *RoundStorage) Delete(id int64) error {
 	return handleError(err)
 }
 
-type TurnRepository struct {
+type TurnStorage struct {
 	db      *gorm.DB
 	dataDir string
 }
 
-func NewTurnRepository(db *gorm.DB, dataDir string) *TurnRepository {
-	return &TurnRepository{
+func NewTurnRepository(db *gorm.DB, dataDir string) *TurnStorage {
+	return &TurnStorage{
 		db:      db,
 		dataDir: dataDir,
 	}
 }
 
-func (tr *TurnRepository) CreateBulk(r *CreateTurnsRequest) ([]TurnModel, error) {
+func (tr *TurnStorage) CreateBulk(r *CreateTurnsRequest) ([]TurnModel, error) {
 	turns := make([]TurnModel, len(r.Players))
 
 	err := tr.db.Transaction(func(tx *gorm.DB) error {
@@ -314,21 +333,31 @@ func (tr *TurnRepository) CreateBulk(r *CreateTurnsRequest) ([]TurnModel, error)
 	return turns, handleError(err)
 }
 
-func (tr *TurnRepository) Update(id int64, r *UpdateTurnRequest) (*TurnModel, error) {
+func (tr *TurnStorage) Update(id int64, r *UpdateTurnRequest) (*TurnModel, error) {
 
-	var turn TurnModel
+	var (
+		turn TurnModel
+		err  error
+	)
 
-	err := tr.db.
-		Model(&turn).
-		Clauses(clause.Returning{}).
-		Where(&TurnModel{ID: id}).
-		Updates(r).
-		Error
+	err = tr.db.Transaction(func(tx *gorm.DB) error {
+
+		err := tx.
+			First(&turn, id).
+			Error
+
+		if err != nil {
+			return err
+		}
+
+		return tx.Model(&turn).Updates(r).Error
+
+	})
 
 	return &turn, handleError(err)
 }
 
-func (tr *TurnRepository) FindById(id int64) (*TurnModel, error) {
+func (tr *TurnStorage) FindById(id int64) (*TurnModel, error) {
 	var turn TurnModel
 
 	err := tr.db.
@@ -338,7 +367,7 @@ func (tr *TurnRepository) FindById(id int64) (*TurnModel, error) {
 	return &turn, handleError(err)
 }
 
-func (tr *TurnRepository) FindByRound(id int64) ([]TurnModel, error) {
+func (tr *TurnStorage) FindByRound(id int64) ([]TurnModel, error) {
 	var turns []TurnModel
 
 	err := tr.db.
@@ -349,7 +378,7 @@ func (tr *TurnRepository) FindByRound(id int64) ([]TurnModel, error) {
 	return turns, handleError(err)
 }
 
-func (tr *TurnRepository) Delete(id int64) error {
+func (tr *TurnStorage) Delete(id int64) error {
 
 	db := tr.db.
 		Where(&TurnModel{ID: id}).
@@ -365,19 +394,16 @@ func (tr *TurnRepository) Delete(id int64) error {
 
 }
 
-func (ts *TurnRepository) SaveFile(id int64, r io.Reader) error {
+func (ts *TurnStorage) SaveFile(id int64, r io.Reader) error {
 	err := ts.db.Transaction(func(tx *gorm.DB) error {
 		var (
-			err    error
-			gameId int64
-			meta   MetadataModel
+			err   error
+			round RoundModel
 		)
 
 		err = tx.
-			Model(&RoundModel{}).
-			Select("game_id").
-			Preload("Turns", "id = ?", id).
-			First(&gameId).
+			Joins("join turns on turns.round_id = rounds.id where turns.id  = ?", id).
+			First(&round).
 			Error
 
 		if err != nil {
@@ -403,7 +429,7 @@ func (ts *TurnRepository) SaveFile(id int64, r io.Reader) error {
 
 		fname := path.Join(ts.dataDir,
 			strconv.FormatInt(int64(year), 10),
-			strconv.FormatInt(gameId, 10),
+			strconv.FormatInt(round.GameID, 10),
 			fmt.Sprintf("%d.zip", id),
 		)
 
@@ -416,17 +442,11 @@ func (ts *TurnRepository) SaveFile(id int64, r io.Reader) error {
 			return err
 		}
 
-		return tx.Model(&meta).
-			Clauses(
-				clause.OnConflict{
-					Columns: []clause.Column{{Name: "turn_id"}},
-					DoUpdates: clause.Assignments(map[string]interface{}{
-						"path": fname,
-					}),
-				},
-				clause.Returning{},
-			).
-			Create(&MetadataModel{TurnID: sql.NullInt64{Int64: id, Valid: true}, Path: fname}).
+		return tx.FirstOrCreate(
+			&MetadataModel{
+				TurnID: sql.NullInt64{Int64: id, Valid: true},
+				Path:   fname,
+			}).
 			Error
 
 	})
@@ -435,7 +455,7 @@ func (ts *TurnRepository) SaveFile(id int64, r io.Reader) error {
 
 }
 
-func (ts *TurnRepository) GetFile(id int64) (string, *os.File, error) {
+func (ts *TurnStorage) GetFile(id int64) (string, *os.File, error) {
 	var (
 		metadata MetadataModel
 		err      error
