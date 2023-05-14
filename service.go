@@ -122,7 +122,7 @@ func (gs *GameRepository) FindByInterval(i *IntervalParams, p *PaginationParams)
 	var n int64
 
 	err := gs.db.
-		Scopes(Intervaled(i), Paginated(p)).
+		Scopes(WithInterval(i), WithPagination(p)).
 		Find(&games).
 		Count(&n).
 		Error

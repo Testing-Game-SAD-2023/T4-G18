@@ -125,14 +125,14 @@ type IntervalParams struct {
 	endDate   time.Time
 }
 
-func Paginated(p *PaginationParams) func(db *gorm.DB) *gorm.DB {
+func WithPagination(p *PaginationParams) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		offset := (p.page - 1) * p.pageSize
 		return db.Offset(int(offset)).Limit(int(p.pageSize))
 	}
 }
 
-func Intervaled(i *IntervalParams) func(db *gorm.DB) *gorm.DB {
+func WithInterval(i *IntervalParams) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where("created_at between ? AND ?", i.startDate, i.endDate)
 	}
