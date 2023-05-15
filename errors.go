@@ -9,13 +9,10 @@ import (
 )
 
 var (
-	ErrNotFound          = errors.New("not found")
-	ErrBadRequest        = errors.New("bad request")
-	ErrNotAZip           = errors.New("file is not a valid zip")
-	ErrInvalidRoundOrder = errors.New("invalid round order")
-	ErrDuplicatedKey     = errors.New("already exists")
-	ErrInvalidPlayerList = errors.New("invalid player list")
-	ErrInvalidParam      = errors.New("invalid param")
+	ErrNotFound      = errors.New("not found")
+	ErrNotAZip       = errors.New("file is not a valid zip")
+	ErrDuplicatedKey = errors.New("already exists")
+	ErrInvalidParam  = errors.New("invalid param")
 )
 
 func handleError(err error) error {
@@ -37,10 +34,7 @@ func makeApiError(err error) error {
 	case errors.Is(err, ErrNotFound):
 		code = http.StatusNotFound
 		message = err.Error()
-	case errors.Is(err, ErrBadRequest),
-		errors.Is(err, ErrInvalidPlayerList),
-		errors.Is(err, ErrInvalidParam),
-		errors.Is(err, ErrInvalidRoundOrder):
+	case errors.Is(err, ErrInvalidParam):
 		code = http.StatusBadRequest
 		message = err.Error()
 	case errors.Is(err, ErrNotAZip):
@@ -52,7 +46,7 @@ func makeApiError(err error) error {
 	default:
 		if err, ok := err.(*http.MaxBytesError); ok {
 			code = http.StatusRequestEntityTooLarge
-			message = fmt.Sprintf("allowed body size: %s", ByteCountIEC(err.Limit))
+			message = fmt.Sprintf("allowed body size: %s", byteCountIEC(err.Limit))
 
 		} else {
 			code = http.StatusInternalServerError

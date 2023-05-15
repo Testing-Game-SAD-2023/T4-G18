@@ -27,17 +27,6 @@ func NewGameRepository(db *gorm.DB) *GameRepository {
 	}
 }
 
-func duplicated(v []string) bool {
-	unique := make(map[string]struct{}, len(v))
-	for _, item := range v {
-		if _, seen := unique[item]; seen {
-			return true
-		}
-		unique[item] = struct{}{}
-	}
-	return false
-}
-
 func (gs *GameRepository) Create(r *CreateGameRequest) (*GameModel, error) {
 	var (
 		game GameModel = GameModel{
@@ -46,7 +35,7 @@ func (gs *GameRepository) Create(r *CreateGameRequest) (*GameModel, error) {
 	)
 	// detect duplication in player
 	if duplicated(r.Players) {
-		return nil, ErrInvalidPlayerList
+		return nil, ErrInvalidParam
 	}
 
 	err := gs.db.Transaction(func(tx *gorm.DB) error {
@@ -123,7 +112,7 @@ func (gs *GameRepository) FindByInterval(i *IntervalParams, p *PaginationParams)
 	var n int64
 
 	err := gs.db.
-		Scopes(WithInterval(i), WithPagination(p)).
+		Scopes(withInterval(i), withPagination(p)).
 		Find(&games).
 		Count(&n).
 		Error
@@ -244,7 +233,7 @@ func (rs *RoundStorage) FindByGame(id int64) ([]RoundModel, error) {
 	var rounds []RoundModel
 
 	err := rs.db.
-		Scopes(WithOrder("order")).
+		Scopes(withOrder("order")).
 		Where(&RoundModel{GameID: id}).
 		Find(&rounds).
 		Error
@@ -319,7 +308,7 @@ func (tr *TurnStorage) CreateBulk(r *CreateTurnsRequest) ([]TurnModel, error) {
 		}
 
 		if len(ids) != len(r.Players) && !duplicated(r.Players) {
-			return ErrInvalidPlayerList
+			return ErrInvalidParam
 		}
 
 		for i, id := range ids {

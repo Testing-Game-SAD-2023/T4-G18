@@ -16,9 +16,9 @@ type GameModel struct {
 	CurrentRound int   `gorm:"default:1"`
 	ID           int64 `gorm:"primaryKey;autoIncrement"`
 	Name         string
-	CreatedAt    time.Time `gorm:"autoCreateTime"`
-	UpdatedAt    time.Time `gorm:"autoUpdateTime"`
 	PlayersCount int
+	CreatedAt    time.Time         `gorm:"autoCreateTime"`
+	UpdatedAt    time.Time         `gorm:"autoUpdateTime"`
 	Rounds       []RoundModel      `gorm:"foreignKey:GameID;constraint:OnDelete:CASCADE;"`
 	PlayerGame   []PlayerGameModel `gorm:"foreignKey:GameID;constraint:OnDelete:CASCADE;"`
 }
@@ -66,7 +66,7 @@ func (rm *RoundModel) BeforeUpdate(tx *gorm.DB) error {
 	r := tx.Statement.Dest.(*UpdateRoundRequest)
 	if (r.Order - round.Order) != 1 {
 		return fmt.Errorf("%w: last round has order %d; expected %d",
-			ErrInvalidRoundOrder,
+			ErrInvalidParam,
 			round.Order,
 			round.Order+1,
 		)
@@ -96,14 +96,14 @@ func (rm *RoundModel) BeforeCreate(tx *gorm.DB) error {
 		if rm.Order == 1 {
 			return nil
 		}
-		return fmt.Errorf("%w: first round must have order 1", ErrInvalidRoundOrder)
+		return fmt.Errorf("%w: first round must have order 1", ErrInvalidParam)
 	} else if err != nil {
 		return err
 	}
 
 	if (rm.Order - round.Order) != 1 {
 		return fmt.Errorf("%w: last round has order %d; expected %d",
-			ErrInvalidRoundOrder,
+			ErrInvalidParam,
 			round.Order,
 			round.Order+1,
 		)
@@ -212,10 +212,10 @@ type RobotModel struct {
 	ID          int64     `gorm:"primaryKey;autoIncrement"`
 	CreatedAt   time.Time `gorm:"autoCreateTime"`
 	UpdatedAt   time.Time `gorm:"autoUpdateTime"`
-	TestClassId string    `gorm:"not null"`
+	TestClassId string    `gorm:"not null;index:idx_robotquery"`
 	Scores      string    `gorm:"default:null"`
-	Difficulty  string    `gorm:"not null"`
-	Type        RobotType `gorm:"not null"`
+	Difficulty  string    `gorm:"not null;index:idx_robotquery"`
+	Type        RobotType `gorm:"not null;index:idx_robotquery"`
 }
 
 func (RobotModel) TableName() string {

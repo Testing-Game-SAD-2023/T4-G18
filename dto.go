@@ -120,7 +120,7 @@ type CustomInt64 int64
 
 // CustomInt64 is used to read int value from query parameters.
 // Implements Convertable and Validable interfaces
-func (CustomInt64) Convert(s string) (CustomInt64, error) {
+func (c CustomInt64) Convert(s string) (CustomInt64, error) {
 	a, err := strconv.ParseInt(s, 10, 64)
 	return CustomInt64(a), err
 }
@@ -223,13 +223,13 @@ func mapToGameDTO(g *GameModel) *GameDto {
 	}
 }
 
-func mapToRoundDTO(g *RoundModel) *RoundDto {
+func mapToRoundDTO(r *RoundModel) *RoundDto {
 	return &RoundDto{
-		ID:          g.ID,
-		Order:       g.Order,
-		CreatedAt:   g.CreatedAt,
-		UpdatedAt:   g.UpdatedAt,
-		TestClassId: g.TestClassId,
+		ID:          r.ID,
+		Order:       r.Order,
+		CreatedAt:   r.CreatedAt,
+		UpdatedAt:   r.UpdatedAt,
+		TestClassId: r.TestClassId,
 	}
 }
 
