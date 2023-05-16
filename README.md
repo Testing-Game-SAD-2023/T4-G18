@@ -1,4 +1,5 @@
 # Game-Repository  
+![Coverage](https://img.shields.io/badge/Coverage-17.5%25-red)
 Implemented endpoint are:
 * /games:
     - GET /{id} retrieve a game by ID;
