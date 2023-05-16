@@ -57,8 +57,7 @@ jobs:
 
     - name: Run Test
       run: |
-        make test
-        make test-integration CI=1 
+        make test-integration CI=1 DB_URI=postgres://postgres:postgres@localhost:$$PORT/postgres?sslmode=disable
 
    
 
