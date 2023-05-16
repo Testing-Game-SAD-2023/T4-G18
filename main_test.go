@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"log"
 	"os"
 	"testing"
 
@@ -10,19 +11,28 @@ import (
 )
 
 func TestCleanup(t *testing.T) {
-	t.SkipNow()
+	if _, ok := os.LookupEnv("SKIP_INTEGRATION"); ok {
+		t.Skip()
+	}
 
-	var err error
-
-	const postgresAddr = "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
-
+	postgresAddr := os.Getenv("DB_URI")
 	db, err := gorm.Open(postgres.Open(postgresAddr), &gorm.Config{
 		SkipDefaultTransaction: true,
 	})
 	if err != nil {
+		log.Fatal(err)
+	}
+	err = db.AutoMigrate(&GameModel{},
+		&RoundModel{},
+		&PlayerModel{},
+		&TurnModel{},
+		&PlayerGameModel{},
+		&MetadataModel{},
+		&RobotModel{},
+	)
+	if err != nil {
 		t.Fatal(err)
 	}
-
 	seed(t, db)
 
 	n, err := cleanup(db)

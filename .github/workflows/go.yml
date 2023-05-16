@@ -41,8 +41,24 @@ jobs:
 
     - name: Build
       run: make build
+  
+  test:
+    services:
+      postgres:
+        image: postgres:14-alpine3.17
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: 
+          --healt-cmd pg_isready
+          --healt-interval 10s
+          --healt-timeout 5s
+          --healt-retries 5
+        ports:
+          - 5432:5432
 
+    runs-on: ubuntu-latest
+    steps:
     - name: Run Test
       run: |
-        make test    
+        make test-integration CI=1 DB_URI=postgres://postgres:postgres@localhost:$$PORT/postgres?sslmode=disable
         

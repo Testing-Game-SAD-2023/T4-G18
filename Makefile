@@ -37,11 +37,25 @@ docker-push: docker-build
 
 ## test: executes all unit tests in the repository
 test:
-	CGO_ENABLED=0 go test -v -cover ./... 
+	CGO_ENABLED=0 SKIP_INTEGRATION=1 go test -v -cover . 
 
-## test-race: executes all tests with a race detector. Takes longer
+## test-race: executes all unit tests with a race detector. Takes longer
 test-race:
-	go test -race ./...
+	go test -race .
+
+## test-integration
+test-integration:
+ifeq ($(CI),)
+	$(info CI is not defined)
+	@ ID=$$(docker run -p 5432 -e POSTGRES_PASSWORD=postgres --rm -d postgres:14-alpine3.17); \
+	PORT=$$(docker port $$ID | awk '{split($$0,a,":"); print a[2]}' ); \
+	sleep 5; \
+	CGO_ENABLED=0 DB_URI=postgres://postgres:postgres@localhost:$$PORT/postgres?sslmode=disable go test -v -cover . -- ; \
+	docker kill $$ID
+else
+	$(info CI is defined)
+	CGO_ENABLED=0 DB_URI=$(DB_URI) go test -v -cover . 
+endif
 
 ## clean: remove build files 
 clean:
