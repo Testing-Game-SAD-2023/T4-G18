@@ -54,7 +54,9 @@ ifeq ($(CI),)
 	docker kill $$ID
 else
 	$(info CI is defined)
-	CGO_ENABLED=0 DB_URI=$(DB_URI) go test -v -cover . 
+	go test -v -coverprofile=coverage.out -c . -o testable .
+	DB_URI=$(DB_URI) ./testable -test.coverprofile=coverage.out -test.v 
+	go tool cover -func=coverage.out -o=coverage.out
 endif
 
 ## clean: remove build files 
