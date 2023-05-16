@@ -54,7 +54,7 @@ ifeq ($(CI),)
 	docker kill $$ID
 else
 	$(info CI is defined)
-	CGO_ENABLED=0 DB_URI=$(DB_URI) go test -v -cover . 
+	CGO_ENABLED=0 DB_URI=postgres://postgres:postgres@localhost:$$PORT/postgres?sslmode=disable go test -v -cover . 
 endif
 
 ## clean: remove build files 

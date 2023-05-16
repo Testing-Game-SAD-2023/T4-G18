@@ -60,5 +60,5 @@ jobs:
     steps:
     - name: Run Test
       run: |
-        make test-integration CI=1 DB_URI=postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
+        make test-integration CI=1
         
