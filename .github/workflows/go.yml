@@ -59,6 +59,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Run Test
-      run: |
-        make test-integration CI=1
+      run: make test-integration CI=1
         
