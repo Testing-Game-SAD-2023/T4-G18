@@ -26,10 +26,7 @@ on:
       
   workflow_dispatch: 
 
-permissions: write-all
-
 jobs:
-
   build-and-test:
     services:
       postgres:
@@ -44,6 +41,10 @@ jobs:
         ports:
           - 5432:5432
 
+    permissions:
+      actions: write
+      contents: write
+      
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
