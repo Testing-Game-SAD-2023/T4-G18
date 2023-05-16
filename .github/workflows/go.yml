@@ -24,11 +24,9 @@ on:
       - Makefile
       - LICENSE
       
-  workflow_dispatch:
-
+  workflow_dispatch: 
 
 jobs:
-
   build-and-test:
     services:
       postgres:
@@ -43,9 +41,16 @@ jobs:
         ports:
           - 5432:5432
 
+    permissions:
+      actions: write
+      contents: write
+
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+      name: Checkout
+      with:
+        fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
 
     - name: Set up Go
       uses: actions/setup-go@v3
