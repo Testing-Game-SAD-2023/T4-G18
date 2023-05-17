@@ -51,7 +51,7 @@ ifeq ($(CI),)
 	PORT=$$(docker port $$ID | awk '{split($$0,a,":"); print a[2]}' ); \
 	sleep 5; \
 	go test -v -coverprofile=coverage.out -c . -o  build/testable . -- ; \
-	DB_URI="postgresql://postgres:postgres@localhost:$$PORT/postgres?sslmode=disable" ./build/testable -test.coverprofile=coverage.out -test.parallel=1 -- ; \
+	DB_URI="postgresql://postgres:postgres@localhost:$$PORT/postgres?sslmode=disable" ./build/testable -test.coverprofile=coverage.out  -- ; \
 	go tool cover -func=coverage.out -o=coverage.out ; \
 	docker kill $$ID
 else
