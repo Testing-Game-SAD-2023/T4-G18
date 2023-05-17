@@ -46,14 +46,14 @@ test-race:
 ## test-integration
 test-integration:
 ifeq ($(CI),)
-	$(info CI is not defined)
+	$(info Running integration test with a local docker container)
 	@ ID=$$(docker run -p 5432 -e POSTGRES_PASSWORD=postgres --rm -d postgres:14-alpine3.17); \
 	PORT=$$(docker port $$ID | awk '{split($$0,a,":"); print a[2]}' ); \
 	sleep 5; \
-	CGO_ENABLED=0 DB_URI=postgres://postgres:postgres@localhost:$$PORT/postgres?sslmode=disable go test -v -cover . -- ; \
+	DB_URI=postgres://postgres:postgres@localhost:$$PORT/postgres?sslmode=disable go test -v -cover . ;\
 	docker kill $$ID
 else
-	$(info CI is defined)
+	$(info Running integration test on $(DB_URI))
 	go test -v -coverprofile=coverage.out -c . -o testable .
 	DB_URI=$(DB_URI) ./testable -test.coverprofile=coverage.out -test.v 
 	go tool cover -func=coverage.out -o=coverage.out
