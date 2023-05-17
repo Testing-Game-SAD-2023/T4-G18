@@ -1,5 +1,5 @@
 # Game-Repository  
-![Coverage](https://img.shields.io/badge/Coverage-23.4%25-red)
+![Coverage](https://img.shields.io/badge/Coverage-23.5%25-red)
 <br>
 Implemented endpoint are:
 * /games:
