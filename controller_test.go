@@ -1,7 +1,6 @@
 package main
 
 import (
-	"archive/zip"
 	"bytes"
 	"fmt"
 	"io"
@@ -309,86 +308,43 @@ func (suite *TurnControllerSuite) TestUpload() {
 		Name           string
 		ExpectedStatus int
 		TurnID         string
-		BodyFn         func() *bytes.Buffer
+		Body           io.Reader
 	}{
 		{
 			Name:           "T21-BadZip",
 			ExpectedStatus: http.StatusOK,
 			TurnID:         "1",
-			BodyFn: func() *bytes.Buffer {
-				body := `hello world`
-				buffer := new(bytes.Buffer)
-
-				_, err := buffer.Write([]byte(body))
-				suite.NoError(err)
-				return buffer
-			},
+			Body:           bytes.NewBufferString("not a zip"),
 		},
 		{
 			Name:           "T22-ZipSaved",
 			ExpectedStatus: http.StatusOK,
 			TurnID:         "1",
-			BodyFn: func() *bytes.Buffer {
-				body := `hello world`
-				buffer := new(bytes.Buffer)
-
-				zfile := zip.NewWriter(buffer)
-
-				defer zfile.Close()
-				w, err := zfile.Create("file")
-
-				suite.NoError(err)
-				w.Write([]byte(body))
-				return buffer
-			},
+			Body:           generateValidZipContent(suite.T(), []byte("hello")),
 		},
 		{
 			Name:           "T23-TurnNotFound",
 			ExpectedStatus: http.StatusNotFound,
 			TurnID:         "12",
-			BodyFn: func() *bytes.Buffer {
-				body := `hello world`
-				buffer := new(bytes.Buffer)
-
-				zfile := zip.NewWriter(buffer)
-
-				defer zfile.Close()
-				w, err := zfile.Create("file")
-
-				suite.NoError(err)
-				w.Write([]byte(body))
-				return buffer
-			},
+			Body:           generateValidZipContent(suite.T(), []byte("hello")),
 		},
 		{
 			Name:           "T24-BadTurnID",
 			ExpectedStatus: http.StatusBadRequest,
 			TurnID:         "a12",
-			BodyFn: func() *bytes.Buffer {
-				body := `hello world`
-				buffer := new(bytes.Buffer)
-
-				zfile := zip.NewWriter(buffer)
-
-				defer zfile.Close()
-				w, err := zfile.Create("file")
-
-				suite.NoError(err)
-				w.Write([]byte(body))
-				return buffer
-			},
+			Body:           generateValidZipContent(suite.T(), []byte("hell")),
 		},
 	}
+
 	for _, tc := range tcs {
 		tc := tc
 		suite.T().Run(tc.Name, func(t *testing.T) {
 
-			body := tc.BodyFn()
 			req, err := http.NewRequest(http.MethodPut,
 				fmt.Sprintf("%s/%s/files",
 					suite.tServer.URL,
 					tc.TurnID),
-				body)
+				tc.Body)
 
 			suite.NoError(err)
 
