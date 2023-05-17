@@ -386,6 +386,9 @@ func (tr *TurnStorage) Delete(id int64) error {
 }
 
 func (ts *TurnStorage) SaveFile(id int64, r io.Reader) error {
+	if r == nil {
+		return fmt.Errorf("%w: body is empty", ErrInvalidParam)
+	}
 	err := ts.db.Transaction(func(tx *gorm.DB) error {
 		var (
 			err   error
@@ -463,7 +466,9 @@ func (ts *TurnStorage) GetFile(id int64) (string, *os.File, error) {
 
 	f, err := os.Open(metadata.Path)
 
-	if err != nil {
+	if errors.Is(err, os.ErrNotExist) {
+		return "", nil, ErrNotFound
+	} else if err != nil {
 		return "", nil, err
 	}
 

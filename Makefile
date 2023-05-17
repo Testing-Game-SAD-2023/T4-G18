@@ -50,12 +50,14 @@ ifeq ($(CI),)
 	@ ID=$$(docker run -p 5432 -e POSTGRES_PASSWORD=postgres --rm -d postgres:14-alpine3.17); \
 	PORT=$$(docker port $$ID | awk '{split($$0,a,":"); print a[2]}' ); \
 	sleep 5; \
-	DB_URI=postgres://postgres:postgres@localhost:$$PORT/postgres?sslmode=disable go test -v -cover . ;\
+	go test -v -coverprofile=coverage.out -c . -o  build/testable . -- ; \
+	DB_URI="postgresql://postgres:postgres@localhost:$$PORT/postgres?sslmode=disable" ./build/testable -test.coverprofile=coverage.out  -- ; \
+	go tool cover -func=coverage.out -o=coverage.out ; \
 	docker kill $$ID
 else
 	$(info Running integration test on $(DB_URI))
 	go test -v -coverprofile=coverage.out -c . -o testable .
-	DB_URI=$(DB_URI) ./testable -test.coverprofile=coverage.out -test.v 
+	DB_URI=$(DB_URI) ./testable -test.coverprofile=coverage.out -test.v
 	go tool cover -func=coverage.out -o=coverage.out
 endif
 
