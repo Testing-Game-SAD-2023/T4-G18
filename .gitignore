@@ -3,3 +3,4 @@ data/
 *.out
 config.json
 tmp
+.vscode
