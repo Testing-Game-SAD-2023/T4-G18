@@ -35,21 +35,21 @@ docker-run: docker-build
 docker-push: docker-build
 	docker save $(APP_NAME):$(GIT_COMMIT) | bzip2 | pv | ssh $(SSH) docker load
 
-## test: executes all unit tests in the repository
+## test: executes all unit tests in the repository. Use COVER_DIR=<PATH> to enable coverage. (i.e make test COVER_DIR=$(pwd)/coverage)
 test:
 ifeq ($(COVER_DIR),)
 	CGO_ENABLED=0 SKIP_INTEGRATION=1 go test ./...
 else
 	CGO_ENABLED=0 SKIP_INTEGRATION=1 go test -v -cover ./... -args -test.gocoverdir=$(COVER_DIR)
-	go tool covdata percent -i=$(COVER_DIR)/ -o $(COVER_DIR)/profile
+	@go tool covdata percent -i=$(COVER_DIR)/ -o $(COVER_DIR)/profile
 	go tool cover -func $(COVER_DIR)/profile
 endif
 
 ## test-race: executes all unit tests with a race detector. Takes longer
 test-race:
-	go test -race ./...
+	@go test -race ./...
 
-## test-integration
+## test-integration: executes all tests. If CI is set, DB_URI can be used to set database URL, otherwis a docker container is used (i.e make test-integration CI=1 DB_URI=db-url COVER_DIR=/some/path)
 test-integration:
 	@mkdir -p $(COVER_DIR)
 ifeq ($(CI),)
@@ -61,14 +61,14 @@ ifeq ($(CI),)
 	docker kill $$ID
 else
 	$(info Running integration test on $(DB_URI))
-	DB_URI=$(DB_URI) CGO_ENABLED=0 go test -v -cover  ./...  -args -test.gocoverdir=$(COVER_DIR)
+	@DB_URI=$(DB_URI) CGO_ENABLED=0 go test -v -cover  ./...  -args -test.gocoverdir=$(COVER_DIR)
 endif
-	go tool covdata percent -i=$(COVER_DIR)/ -o $(COVER_DIR)/profile
-	go tool cover -func $(COVER_DIR)/profile
+	@go tool covdata percent -i=$(COVER_DIR)/ -o $(COVER_DIR)/profile
+	go tool cover -func $(COVER_DIR)/profile -o=coverage.out
 
 ## clean: remove build files 
 clean:
-	rm -f build/* $(COVER_DIR)
+	rm -f build/*
 
 .PHONY: help
 ## help: prints this help message

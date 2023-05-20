@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"math/rand"
 
+	"github.com/alarmfox/game-repository/api"
 	"github.com/alarmfox/game-repository/model"
-	"github.com/alarmfox/game-repository/web"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -28,7 +28,7 @@ func (rs *RobotStorage) CreateBulk(r *CreateRequest) (int, error) {
 			TestClassId: robot.TestClassId,
 			Scores:      robot.Scores,
 			Difficulty:  robot.Difficulty,
-			Type:        int8(robot.Type),
+			Type:        robot.Type.AsInt8(),
 		}
 	}
 
@@ -39,7 +39,7 @@ func (rs *RobotStorage) CreateBulk(r *CreateRequest) (int, error) {
 		CreateInBatches(&robots, 100).
 		Error
 
-	return len(robots), web.MakeServiceError(err)
+	return len(robots), api.MakeServiceError(err)
 }
 
 func (gs *RobotStorage) FindByFilter(testClassId string, difficulty string, t RobotType) (Robot, error) {
@@ -56,7 +56,7 @@ func (gs *RobotStorage) FindByFilter(testClassId string, difficulty string, t Ro
 				TestClassId: testClassId,
 				Difficulty:  difficulty,
 			}).
-			Where("type = ? ", t).
+			Where("type = ? ", t.AsInt8()).
 			Find(&ids).
 			Error
 
@@ -74,14 +74,14 @@ func (gs *RobotStorage) FindByFilter(testClassId string, difficulty string, t Ro
 			pos := rand.Intn(len(ids))
 			id = ids[pos]
 		default:
-			return fmt.Errorf("%w: unsupported test engine", web.ErrInvalidParam)
+			return fmt.Errorf("%w: unsupported test engine", api.ErrInvalidParam)
 		}
 
 		return tx.First(&robot, id).Error
 
 	})
 
-	return *fromModel(&robot), web.MakeServiceError(err)
+	return *fromModel(&robot), api.MakeServiceError(err)
 }
 
 func (rs *RobotStorage) DeleteByTestClass(testClassId string) error {
@@ -91,7 +91,7 @@ func (rs *RobotStorage) DeleteByTestClass(testClassId string) error {
 	if db.Error != nil {
 		return db.Error
 	} else if db.RowsAffected < 1 {
-		return web.ErrNotFound
+		return api.ErrNotFound
 	}
 
 	return nil
