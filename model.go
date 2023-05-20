@@ -192,6 +192,9 @@ func (data *RobotType) Scan(value interface{}) error {
 }
 
 func (RobotType) Convert(s string) (RobotType, error) {
+	if s == "" {
+		return randoop, fmt.Errorf("%w: missing robot type", ErrInvalidParam)
+	}
 	n, err := strconv.ParseInt(s, 10, 8)
 	if err != nil {
 		return RobotType(0), err

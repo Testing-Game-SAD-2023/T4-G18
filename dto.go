@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 )
@@ -52,15 +53,25 @@ type CreateRobotRequest struct {
 	Type        RobotType `json:"type"`
 }
 
-func (CreateRobotRequest) Validate() error {
-	return nil
+func (r CreateRobotRequest) Validate() error {
+	switch r.Type {
+	case randoop, evosuite:
+		return nil
+	default:
+		return fmt.Errorf("%w: unsupported robot type %q", ErrInvalidParam, r.Type)
+	}
 }
 
 type CreateRobotsRequest struct {
 	Robots []CreateRobotRequest `json:"robots"`
 }
 
-func (CreateRobotsRequest) Validate() error {
+func (robots CreateRobotsRequest) Validate() error {
+	for _, robot := range robots.Robots {
+		if err := robot.Validate(); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -145,22 +156,6 @@ func (s CustomString) AsString() string {
 }
 
 func (CustomString) Validate() error {
-	return nil
-}
-
-// CustomInt8 is a dummy type that implements  Convertable and Validable interfaces
-type CustomInt8 int8
-
-func (CustomInt8) Convert(s string) (CustomInt8, error) {
-	a, err := strconv.ParseInt(s, 10, 8)
-	return CustomInt8(a), err
-}
-
-func (k CustomInt8) AsInt8() int8 {
-	return int8(k)
-}
-
-func (CustomInt8) Validate() error {
 	return nil
 }
 

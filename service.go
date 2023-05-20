@@ -466,7 +466,9 @@ func (ts *TurnStorage) GetFile(id int64) (string, *os.File, error) {
 
 	f, err := os.Open(metadata.Path)
 
-	if err != nil {
+	if errors.Is(err, os.ErrNotExist) {
+		return "", nil, ErrNotFound
+	} else if err != nil {
 		return "", nil, err
 	}
 
