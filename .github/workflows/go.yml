@@ -64,7 +64,7 @@ jobs:
       run:  make test
 
     - name: Run all tests
-      run: make test-integration CI=1 DB_URI=postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable COVER_DIR=coverage
+      run: make test-integration CI=1 DB_URI=postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable COVER_DIR=$(pwd)/coverage
 
     - name: Go Coverage Badge  # Pass the `coverage.out` output to this action
       uses: tj-actions/coverage-badge-go@v2
