@@ -64,7 +64,7 @@ else
 	@DB_URI=$(DB_URI) CGO_ENABLED=0 go test -v -cover  ./...  -args -test.gocoverdir=$(COVER_DIR)
 endif
 	@go tool covdata percent -i=$(COVER_DIR)/ -o $(COVER_DIR)/profile
-	go tool cover -func $(COVER_DIR)/profile
+	go tool cover -func $(COVER_DIR)/profile -o=coverage.out
 
 ## clean: remove build files 
 clean:
