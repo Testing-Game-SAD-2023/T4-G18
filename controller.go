@@ -468,7 +468,7 @@ func (rc *RobotController) delete(w http.ResponseWriter, r *http.Request) error 
 		return err
 	}
 	if err := rc.service.DeleteByTestClass(testClassId.AsString()); err != nil {
-		return err
+		return makeApiError(err)
 	}
 	w.WriteHeader(http.StatusNoContent)
 	return nil
