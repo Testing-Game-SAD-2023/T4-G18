@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/alarmfox/game-repository/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -22,14 +23,15 @@ func TestCleanup(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = db.AutoMigrate(&GameModel{},
-		&RoundModel{},
-		&PlayerModel{},
-		&TurnModel{},
-		&PlayerGameModel{},
-		&MetadataModel{},
-		&RobotModel{},
-	)
+	err = db.AutoMigrate(
+		&model.Game{},
+		&model.Round{},
+		&model.Player{},
+		&model.Turn{},
+		&model.Metadata{},
+		&model.PlayerGame{},
+		&model.Robot{})
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +68,7 @@ func seed(t *testing.T, db *gorm.DB) {
 
 	f2.Write([]byte("jfj"))
 
-	toInsert := []MetadataModel{
+	toInsert := []model.Metadata{
 		{
 			Path:   f1.Name(),
 			TurnID: sql.NullInt64{Valid: false},
@@ -84,7 +86,7 @@ func seed(t *testing.T, db *gorm.DB) {
 	t.Cleanup(func() {
 		err := db.
 			Session(&gorm.Session{AllowGlobalUpdate: true}).
-			Delete(&MetadataModel{}).
+			Delete(&model.Metadata{}).
 			Error
 
 		if err != nil {

@@ -1,7 +1,6 @@
-package main
+package turn
 
 import (
-	"archive/zip"
 	"bytes"
 	"database/sql"
 	"errors"
@@ -10,6 +9,8 @@ import (
 	"path"
 	"testing"
 
+	"github.com/alarmfox/game-repository/model"
+	"github.com/alarmfox/game-repository/web"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -17,14 +18,14 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-type TurnRepositorySuite struct {
+type RepositorySuite struct {
 	suite.Suite
 	db       *gorm.DB
 	testPath string
-	service  TurnStorage
+	service  Repository
 }
 
-func (suite *TurnRepositorySuite) SetupSuite() {
+func (suite *RepositorySuite) SetupSuite() {
 	dbUrl := os.Getenv("DB_URI")
 	db, err := gorm.Open(postgres.Open(dbUrl), &gorm.Config{
 		SkipDefaultTransaction: true,
@@ -39,11 +40,11 @@ func (suite *TurnRepositorySuite) SetupSuite() {
 	suite.db = db
 
 	err = db.AutoMigrate(
-		&GameModel{},
-		&RoundModel{},
-		&PlayerModel{},
-		&TurnModel{},
-		&MetadataModel{},
+		&model.Game{},
+		&model.Round{},
+		&model.Player{},
+		&model.Turn{},
+		&model.Metadata{},
 	)
 	if err != nil {
 		suite.T().Fatal(err)
@@ -54,10 +55,10 @@ func (suite *TurnRepositorySuite) SetupSuite() {
 		suite.T().Fatal(err)
 	}
 
-	suite.service = *NewTurnRepository(db, suite.testPath)
+	suite.service = *NewRepository(db, suite.testPath)
 }
 
-func (suite *TurnRepositorySuite) Cleanup() {
+func (suite *RepositorySuite) Cleanup() {
 	// Truncate each table individually
 	if err := suite.db.Exec("TRUNCATE TABLE turns RESTART IDENTITY CASCADE").Error; err != nil {
 		suite.T().Fatal(err)
@@ -77,18 +78,18 @@ func (suite *TurnRepositorySuite) Cleanup() {
 
 }
 
-func (suite *TurnRepositorySuite) SeedTestData() {
+func (suite *RepositorySuite) SeedTestData() {
 	// Create a game with rounds and turns
 
 	// Create a test game
-	game := GameModel{
+	game := model.Game{
 		Name:         "Test Game",
 		PlayersCount: 4,
-		Rounds: []RoundModel{
+		Rounds: []model.Round{
 			{
 				Order:       1,
 				TestClassId: "test",
-				Turns: []TurnModel{
+				Turns: []model.Turn{
 					{
 						PlayerID: 1,          // Replace with your desired player ID
 						Scores:   "10,20,30", // Replace with your desired scores
@@ -101,17 +102,17 @@ func (suite *TurnRepositorySuite) SeedTestData() {
 	}
 
 	// Create a player
-	player := PlayerModel{
+	player := model.Player{
 		AccountID: "testplayer", // Replace with your desired account ID
 	}
 
 	// Create test metadata
-	metadata := MetadataModel{
+	metadata := model.Metadata{
 		Path: path.Join(suite.testPath, "1.zip"), // Replace with your desired path
 	}
 
 	// Create a player-game relationship
-	playerGame := PlayerGameModel{
+	playerGame := model.PlayerGame{
 		PlayerID: 1, // Replace with the player ID
 		GameID:   1, // Replace with the game ID
 	}
@@ -156,7 +157,7 @@ func (suite *TurnRepositorySuite) SeedTestData() {
 	}
 }
 
-func (suite *TurnRepositorySuite) TestSaveFile() {
+func (suite *RepositorySuite) TestSaveFile() {
 	type input struct {
 		turnId  int64
 		content io.Reader
@@ -173,7 +174,7 @@ func (suite *TurnRepositorySuite) TestSaveFile() {
 	}{
 		{
 			Name:   "T51-NotAZip",
-			Output: output{err: ErrNotAZip},
+			Output: output{err: web.ErrNotAZip},
 			Input: input{
 				turnId:  1,
 				content: bytes.NewBufferString("hello"),
@@ -197,7 +198,7 @@ func (suite *TurnRepositorySuite) TestSaveFile() {
 		},
 		{
 			Name:   "T54-InvalidTurnID",
-			Output: output{err: ErrNotFound},
+			Output: output{err: web.ErrNotFound},
 			Input: input{
 				turnId:  -1,
 				content: generateValidZipContent(suite.T(), []byte("hello")),
@@ -205,7 +206,7 @@ func (suite *TurnRepositorySuite) TestSaveFile() {
 		},
 		{
 			Name:   "T55-NullBody",
-			Output: output{err: ErrInvalidParam},
+			Output: output{err: web.ErrInvalidParam},
 			Input: input{
 				turnId:  1,
 				content: nil,
@@ -213,14 +214,14 @@ func (suite *TurnRepositorySuite) TestSaveFile() {
 		},
 		{
 			Name:   "T56-Turn not found",
-			Output: output{err: ErrNotFound},
+			Output: output{err: web.ErrNotFound},
 			Input: input{
 				turnId:  1000,
 				content: generateValidZipContent(suite.T(), []byte("hello")),
 			},
 		},
 	}
-	service := NewTurnRepository(suite.db, suite.testPath)
+	service := NewRepository(suite.db, suite.testPath)
 
 	for _, tc := range tcs {
 		suite.T().Run(tc.Name, func(t *testing.T) {
@@ -236,11 +237,11 @@ func (suite *TurnRepositorySuite) TestSaveFile() {
 
 }
 
-func (s *TurnRepositorySuite) TeardownSuite() {
+func (s *RepositorySuite) TeardownSuite() {
 	os.RemoveAll(s.testPath)
 }
 
-func (suite *TurnRepositorySuite) TestGetFile() {
+func (suite *RepositorySuite) TestGetFile() {
 	type input struct {
 		turnId int64
 	}
@@ -258,14 +259,14 @@ func (suite *TurnRepositorySuite) TestGetFile() {
 	}{
 		{
 			Name:   "T58-TurnNotFound",
-			Output: output{fname: "", file: nil, err: ErrNotFound},
+			Output: output{fname: "", file: nil, err: web.ErrNotFound},
 			Input: input{
 				turnId: 100,
 			},
 		},
 		{
 			Name:   "T59-BadMetadata",
-			Output: output{fname: "", file: nil, err: ErrNotFound},
+			Output: output{fname: "", file: nil, err: web.ErrNotFound},
 			Input: input{
 				turnId: 2,
 			},
@@ -300,30 +301,5 @@ func TestServiceSuite(t *testing.T) {
 	if _, ok := os.LookupEnv("SKIP_INTEGRATION"); ok {
 		t.Skip()
 	}
-	suite.Run(t, new(TurnRepositorySuite))
-}
-
-func generateValidZipContent(t *testing.T, content []byte) io.Reader {
-	buf := new(bytes.Buffer)
-	zipWriter := zip.NewWriter(buf)
-
-	// Create a file inside the zip archive
-	fileWriter, err := zipWriter.Create("file.txt")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Write some content to the file
-	_, err = fileWriter.Write([]byte(content))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Close the zip writer
-	err = zipWriter.Close()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return buf
+	suite.Run(t, new(RepositorySuite))
 }

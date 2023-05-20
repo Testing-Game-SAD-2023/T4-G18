@@ -15,6 +15,12 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/alarmfox/game-repository/model"
+	"github.com/alarmfox/game-repository/web"
+	"github.com/alarmfox/game-repository/web/game"
+	"github.com/alarmfox/game-repository/web/robot"
+	"github.com/alarmfox/game-repository/web/round"
+	"github.com/alarmfox/game-repository/web/turn"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -77,13 +83,13 @@ func run(ctx context.Context, c Configuration) error {
 	}
 
 	err = db.AutoMigrate(
-		&GameModel{},
-		&RoundModel{},
-		&PlayerModel{},
-		&TurnModel{},
-		&MetadataModel{},
-		&PlayerGameModel{},
-		&RobotModel{})
+		&model.Game{},
+		&model.Round{},
+		&model.Player{},
+		&model.Turn{},
+		&model.Metadata{},
+		&model.PlayerGame{},
+		&model.Robot{})
 
 	if err != nil {
 		return err
@@ -130,20 +136,16 @@ func run(ctx context.Context, c Configuration) error {
 		var (
 
 			// game endpoint
-			gameRepository = NewGameRepository(db)
-			gameController = NewGameController(gameRepository)
+			gameController = game.NewController(game.NewRepository(db))
 
 			// round endpoint
-			roundRepository = NewRoundStorage(db)
-			roundController = NewRoundController(roundRepository)
+			roundController = round.NewController(round.NewRepository(db))
 
 			// turn endpoint
-			turnRepository = NewTurnRepository(db, c.DataDir)
-			turnController = NewTurnController(turnRepository)
+			turnController = turn.NewController(turn.NewRepository(db, c.DataDir))
 
 			// robot endpoint
-			robotRepository = NewRobotStorage(db)
-			robotController = NewRobotController(robotRepository)
+			robotController = robot.NewController(robot.NewRobotStorage(db))
 		)
 
 		r.Mount(c.ApiPrefix, setupRoutes(
@@ -212,7 +214,7 @@ func startHttpServer(ctx context.Context, r chi.Router, addr string) error {
 
 func cleanup(db *gorm.DB) (int64, error) {
 	var (
-		metadata []MetadataModel
+		metadata []model.Metadata
 		err      error
 		n        int64
 	)
@@ -237,7 +239,7 @@ func cleanup(db *gorm.DB) (int64, error) {
 			}
 		}
 
-		return tx.Delete(&[]MetadataModel{}, deleted).Error
+		return tx.Delete(&[]model.Metadata{}, deleted).Error
 	})
 
 	return n, err
@@ -260,4 +262,91 @@ func makeDefaults(c *Configuration) {
 		c.CleanupInterval = time.Hour
 	}
 
+}
+
+func setupRoutes(gc *game.Controller, rc *round.Controller, tc *turn.Controller, roc *robot.Controller) *chi.Mux {
+	r := chi.NewRouter()
+
+	r.Use(web.WithMaximumBodySize(web.DefaultBodySize))
+
+	r.Route("/games", func(r chi.Router) {
+		//Get game
+		r.Get("/{id}", web.HandlerFunc(gc.FindByID))
+
+		// List games
+		r.Get("/", web.HandlerFunc(gc.List))
+
+		// Create game
+		r.With(middleware.AllowContentType("application/json")).
+			Post("/", web.HandlerFunc(gc.Create))
+
+		// Update game
+		r.With(middleware.AllowContentType("application/json")).
+			Put("/{id}", web.HandlerFunc(gc.Update))
+
+		// Delete game
+		r.Delete("/{id}", web.HandlerFunc(gc.Delete))
+
+	})
+
+	r.Route("/rounds", func(r chi.Router) {
+		// Get round
+		r.Get("/{id}", web.HandlerFunc(rc.FindByID))
+
+		// List rounds
+		r.Get("/", web.HandlerFunc(rc.List))
+
+		// Create round
+		r.With(middleware.AllowContentType("application/json")).
+			Post("/", web.HandlerFunc(rc.Create))
+
+		// Update round
+		// r.With(middleware.AllowContentType("application/json")).
+		// 	Put("/{id}", web.HandlerFunc(rc.Update))
+
+		// Delete round
+		r.Delete("/{id}", web.HandlerFunc(rc.Delete))
+
+	})
+
+	r.Route("/turns", func(r chi.Router) {
+		// Get turn
+		r.Get("/{id}", web.HandlerFunc(tc.FindByID))
+
+		// List turn
+		r.Get("/", web.HandlerFunc(tc.List))
+
+		// Create turn
+		r.With(middleware.AllowContentType("application/json")).
+			Post("/", web.HandlerFunc(tc.Create))
+
+		// Update turn
+		r.With(middleware.AllowContentType("application/json")).
+			Put("/{id}", web.HandlerFunc(tc.Update))
+
+		// Delete turn
+		r.Delete("/{id}", web.HandlerFunc(tc.Delete))
+
+		// Get turn file
+		r.Get("/{id}/files", web.HandlerFunc(tc.Download))
+
+		// Upload turn file
+		r.With(middleware.AllowContentType("application/zip"),
+			web.WithMaximumBodySize(web.MaxUploadSize)).
+			Put("/{id}/files", web.HandlerFunc(tc.Upload))
+	})
+
+	r.Route("/robots", func(r chi.Router) {
+		// Get robot with filter
+		r.Get("/", web.HandlerFunc(roc.FindByFilter))
+
+		// Create robots in bulk
+		r.With(middleware.AllowContentType("application/json")).
+			Post("/", web.HandlerFunc(roc.CreateBulk))
+
+		r.Delete("/", web.HandlerFunc(roc.Delete))
+
+	})
+
+	return r
 }

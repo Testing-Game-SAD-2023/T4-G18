@@ -1,4 +1,4 @@
-package main
+package web
 
 import (
 	"errors"
@@ -15,7 +15,7 @@ var (
 	ErrInvalidParam  = errors.New("invalid param")
 )
 
-func handleError(err error) error {
+func MakeServiceError(err error) error {
 	switch {
 	case errors.Is(err, gorm.ErrRecordNotFound):
 		return ErrNotFound
@@ -26,7 +26,7 @@ func handleError(err error) error {
 	}
 }
 
-func makeApiError(err error) error {
+func MakeHttpError(err error) error {
 	var code int
 	var message string
 

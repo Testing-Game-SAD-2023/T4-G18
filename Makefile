@@ -9,7 +9,7 @@ OUT_DIR=build
 
 ## build: builds the application in "build" directory
 build: clean
-	CGO_ENABLED=0 go build -o $(OUT_DIR)/$(APP_NAME) -ldflags "-s -w -X main.gitCommit=$(GIT_COMMIT)"
+	CGO_ENABLED=0 go build -o $(OUT_DIR)/ -ldflags "-s -w -X main.gitCommit=$(GIT_COMMIT)" ./...
 
 ## run: runs the application in "build/game-repository"
 run: build
@@ -37,33 +37,37 @@ docker-push: docker-build
 
 ## test: executes all unit tests in the repository
 test:
-	CGO_ENABLED=0 SKIP_INTEGRATION=1 go test -v -cover . 
+	mkdir -p $(COVER_DIR)
+	CGO_ENABLED=0 SKIP_INTEGRATION=1 go test -v -cover ./... -args -test.gocoverdir=$(COVER_DIR)
+	go tool covdata percent -i=$(COVER_DIR)/ -o $(COVER_DIR)/profile
+	go tool cover -func $(COVER_DIR)/profile
+
 
 ## test-race: executes all unit tests with a race detector. Takes longer
 test-race:
-	go test -race .
+	go test -race ./...
 
 ## test-integration
 test-integration:
+	@mkdir -p $(COVER_DIR)
 ifeq ($(CI),)
 	$(info Running integration test with a local docker container)
 	@ ID=$$(docker run -p 5432 -e POSTGRES_PASSWORD=postgres --rm -d postgres:14-alpine3.17); \
 	PORT=$$(docker port $$ID | awk '{split($$0,a,":"); print a[2]}' ); \
 	sleep 5; \
-	go test -v -coverprofile=coverage.out -c . -o  build/testable . -- ; \
-	DB_URI="postgresql://postgres:postgres@localhost:$$PORT/postgres?sslmode=disable" ./build/testable -test.coverprofile=coverage.out  -- ; \
-	go tool cover -func=coverage.out -o=coverage.out ; \
+	DB_URI="postgresql://postgres:postgres@localhost:$$PORT/postgres?sslmode=disable" CGO_ENABLED=0  go test -v -cover  ./...  -args -test.gocoverdir=$(COVER_DIR) -- ; \
 	docker kill $$ID
 else
 	$(info Running integration test on $(DB_URI))
-	go test -v -coverprofile=coverage.out -c . -o testable .
-	DB_URI=$(DB_URI) ./testable -test.coverprofile=coverage.out -test.v
-	go tool cover -func=coverage.out -o=coverage.out
+	DB_URI=$(DB_URI) CGO_ENABLED=0 go test -v -cover  ./...  -args -test.gocoverdir=$(COVER_DIR)
 endif
+
+	go tool covdata percent -i=$(COVER_DIR)/ -o $(COVER_DIR)/profile
+	go tool cover -func $(COVER_DIR)/profile
 
 ## clean: remove build files 
 clean:
-	rm -f build/*
+	rm -f build/* $(COVER_DIR)
 
 .PHONY: help
 ## help: prints this help message

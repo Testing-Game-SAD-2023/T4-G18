@@ -65,12 +65,12 @@ jobs:
 
     - name: Run all tests
       run: |
-        make test-integration CI=1 DB_URI=postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
+        make test-integration CI=1 DB_URI=postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable COVER_DIR=/tmp/coverage
 
     - name: Go Coverage Badge  # Pass the `coverage.out` output to this action
       uses: tj-actions/coverage-badge-go@v2
       with:
-        filename: coverage.out
+        filename: /tmp/coverage/profile
 
     - name: Verify Changed files
       uses: tj-actions/verify-changed-files@v12
