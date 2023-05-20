@@ -61,16 +61,16 @@ jobs:
       run: make build
 
     - name: Unit tests
-      run: make test COVER_DIR=/tmp/unit
+      run: make test COVER_DIR=./unit-coverage
 
     - name: Run all tests
       run: |
-        make test-integration CI=1 DB_URI=postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable COVER_DIR=/tmp/coverage
+        make test-integration CI=1 DB_URI=postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable COVER_DIR=./coverage
 
     - name: Go Coverage Badge  # Pass the `coverage.out` output to this action
       uses: tj-actions/coverage-badge-go@v2
       with:
-        filename: /tmp/coverage/profile
+        filename: ./coverage/profile
 
     - name: Verify Changed files
       uses: tj-actions/verify-changed-files@v12
