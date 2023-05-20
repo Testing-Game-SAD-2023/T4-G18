@@ -1,8 +1,8 @@
 package game
 
 import (
+	"github.com/alarmfox/game-repository/api"
 	"github.com/alarmfox/game-repository/model"
-	"github.com/alarmfox/game-repository/web"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -24,8 +24,8 @@ func (gs *Repository) Create(r *CreateRequest) (Game, error) {
 		}
 	)
 	// detect duplication in player
-	if web.Duplicated(r.Players) {
-		return Game{}, web.ErrInvalidParam
+	if api.Duplicated(r.Players) {
+		return Game{}, api.ErrInvalidParam
 	}
 
 	err := gs.db.Transaction(func(tx *gorm.DB) error {
@@ -85,7 +85,7 @@ func (gs *Repository) Create(r *CreateRequest) (Game, error) {
 		return tx.Create(playerGames).Error
 	})
 
-	return fromModel(&game), web.MakeServiceError(err)
+	return fromModel(&game), api.MakeServiceError(err)
 }
 
 func (gs *Repository) FindById(id int64) (Game, error) {
@@ -94,15 +94,15 @@ func (gs *Repository) FindById(id int64) (Game, error) {
 		First(&game, id).
 		Error
 
-	return fromModel(&game), web.MakeServiceError(err)
+	return fromModel(&game), api.MakeServiceError(err)
 }
 
-func (gs *Repository) FindByInterval(i *web.IntervalParams, p *web.PaginationParams) ([]Game, int64, error) {
+func (gs *Repository) FindByInterval(i *api.IntervalParams, p *api.PaginationParams) ([]Game, int64, error) {
 	var games []model.Game
 	var n int64
 
 	err := gs.db.
-		Scopes(web.WithInterval(i), web.WithPagination(p)).
+		Scopes(api.WithInterval(i), api.WithPagination(p)).
 		Find(&games).
 		Count(&n).
 		Error
@@ -110,7 +110,7 @@ func (gs *Repository) FindByInterval(i *web.IntervalParams, p *web.PaginationPar
 	for i, game := range games {
 		res[i] = fromModel(&game)
 	}
-	return res, n, web.MakeServiceError(err)
+	return res, n, api.MakeServiceError(err)
 }
 
 func (gs *Repository) Delete(id int64) error {
@@ -119,9 +119,9 @@ func (gs *Repository) Delete(id int64) error {
 		Delete(&Game{})
 
 	if db.Error != nil {
-		return web.MakeServiceError(db.Error)
+		return api.MakeServiceError(db.Error)
 	} else if db.RowsAffected < 1 {
-		return web.ErrNotFound
+		return api.ErrNotFound
 	}
 	return nil
 }
@@ -147,5 +147,5 @@ func (gs *Repository) Update(id int64, r *UpdateRequest) (Game, error) {
 
 	})
 
-	return fromModel(&game), web.MakeServiceError(err)
+	return fromModel(&game), api.MakeServiceError(err)
 }

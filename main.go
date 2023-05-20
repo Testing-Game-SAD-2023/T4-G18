@@ -15,12 +15,12 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/alarmfox/game-repository/api"
+	"github.com/alarmfox/game-repository/api/game"
+	"github.com/alarmfox/game-repository/api/robot"
+	"github.com/alarmfox/game-repository/api/round"
+	"github.com/alarmfox/game-repository/api/turn"
 	"github.com/alarmfox/game-repository/model"
-	"github.com/alarmfox/game-repository/web"
-	"github.com/alarmfox/game-repository/web/game"
-	"github.com/alarmfox/game-repository/web/robot"
-	"github.com/alarmfox/game-repository/web/round"
-	"github.com/alarmfox/game-repository/web/turn"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -267,84 +267,84 @@ func makeDefaults(c *Configuration) {
 func setupRoutes(gc *game.Controller, rc *round.Controller, tc *turn.Controller, roc *robot.Controller) *chi.Mux {
 	r := chi.NewRouter()
 
-	r.Use(web.WithMaximumBodySize(web.DefaultBodySize))
+	r.Use(api.WithMaximumBodySize(api.DefaultBodySize))
 
 	r.Route("/games", func(r chi.Router) {
 		//Get game
-		r.Get("/{id}", web.HandlerFunc(gc.FindByID))
+		r.Get("/{id}", api.HandlerFunc(gc.FindByID))
 
 		// List games
-		r.Get("/", web.HandlerFunc(gc.List))
+		r.Get("/", api.HandlerFunc(gc.List))
 
 		// Create game
 		r.With(middleware.AllowContentType("application/json")).
-			Post("/", web.HandlerFunc(gc.Create))
+			Post("/", api.HandlerFunc(gc.Create))
 
 		// Update game
 		r.With(middleware.AllowContentType("application/json")).
-			Put("/{id}", web.HandlerFunc(gc.Update))
+			Put("/{id}", api.HandlerFunc(gc.Update))
 
 		// Delete game
-		r.Delete("/{id}", web.HandlerFunc(gc.Delete))
+		r.Delete("/{id}", api.HandlerFunc(gc.Delete))
 
 	})
 
 	r.Route("/rounds", func(r chi.Router) {
 		// Get round
-		r.Get("/{id}", web.HandlerFunc(rc.FindByID))
+		r.Get("/{id}", api.HandlerFunc(rc.FindByID))
 
 		// List rounds
-		r.Get("/", web.HandlerFunc(rc.List))
+		r.Get("/", api.HandlerFunc(rc.List))
 
 		// Create round
 		r.With(middleware.AllowContentType("application/json")).
-			Post("/", web.HandlerFunc(rc.Create))
+			Post("/", api.HandlerFunc(rc.Create))
 
 		// Update round
 		// r.With(middleware.AllowContentType("application/json")).
-		// 	Put("/{id}", web.HandlerFunc(rc.Update))
+		// 	Put("/{id}", api.HandlerFunc(rc.Update))
 
 		// Delete round
-		r.Delete("/{id}", web.HandlerFunc(rc.Delete))
+		r.Delete("/{id}", api.HandlerFunc(rc.Delete))
 
 	})
 
 	r.Route("/turns", func(r chi.Router) {
 		// Get turn
-		r.Get("/{id}", web.HandlerFunc(tc.FindByID))
+		r.Get("/{id}", api.HandlerFunc(tc.FindByID))
 
 		// List turn
-		r.Get("/", web.HandlerFunc(tc.List))
+		r.Get("/", api.HandlerFunc(tc.List))
 
 		// Create turn
 		r.With(middleware.AllowContentType("application/json")).
-			Post("/", web.HandlerFunc(tc.Create))
+			Post("/", api.HandlerFunc(tc.Create))
 
 		// Update turn
 		r.With(middleware.AllowContentType("application/json")).
-			Put("/{id}", web.HandlerFunc(tc.Update))
+			Put("/{id}", api.HandlerFunc(tc.Update))
 
 		// Delete turn
-		r.Delete("/{id}", web.HandlerFunc(tc.Delete))
+		r.Delete("/{id}", api.HandlerFunc(tc.Delete))
 
 		// Get turn file
-		r.Get("/{id}/files", web.HandlerFunc(tc.Download))
+		r.Get("/{id}/files", api.HandlerFunc(tc.Download))
 
 		// Upload turn file
 		r.With(middleware.AllowContentType("application/zip"),
-			web.WithMaximumBodySize(web.MaxUploadSize)).
-			Put("/{id}/files", web.HandlerFunc(tc.Upload))
+			api.WithMaximumBodySize(api.MaxUploadSize)).
+			Put("/{id}/files", api.HandlerFunc(tc.Upload))
 	})
 
 	r.Route("/robots", func(r chi.Router) {
 		// Get robot with filter
-		r.Get("/", web.HandlerFunc(roc.FindByFilter))
+		r.Get("/", api.HandlerFunc(roc.FindByFilter))
 
 		// Create robots in bulk
 		r.With(middleware.AllowContentType("application/json")).
-			Post("/", web.HandlerFunc(roc.CreateBulk))
+			Post("/", api.HandlerFunc(roc.CreateBulk))
 
-		r.Delete("/", web.HandlerFunc(roc.Delete))
+		r.Delete("/", api.HandlerFunc(roc.Delete))
 
 	})
 

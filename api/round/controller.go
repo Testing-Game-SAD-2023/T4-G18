@@ -3,7 +3,7 @@ package round
 import (
 	"net/http"
 
-	"github.com/alarmfox/game-repository/web"
+	"github.com/alarmfox/game-repository/api"
 )
 
 type Service interface {
@@ -26,7 +26,7 @@ func NewController(rs Service) *Controller {
 
 func (rc *Controller) Create(w http.ResponseWriter, r *http.Request) error {
 
-	request, err := web.FromJsonBody[CreateRequest](r.Body)
+	request, err := api.FromJsonBody[CreateRequest](r.Body)
 	if err != nil {
 		return err
 	}
@@ -34,36 +34,36 @@ func (rc *Controller) Create(w http.ResponseWriter, r *http.Request) error {
 	round, err := rc.service.Create(&request)
 
 	if err != nil {
-		return web.MakeHttpError(err)
+		return api.MakeHttpError(err)
 	}
 
-	return web.WriteJson(w, http.StatusCreated, round)
+	return api.WriteJson(w, http.StatusCreated, round)
 
 }
 
 func (rc *Controller) Update(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := web.FromUrlParams[Key](r, "id")
+	id, err := api.FromUrlParams[Key](r, "id")
 	if err != nil {
 		return err
 	}
 
-	request, err := web.FromJsonBody[UpdateRequest](r.Body)
+	request, err := api.FromJsonBody[UpdateRequest](r.Body)
 	if err != nil {
 		return err
 	}
 
 	round, err := rc.service.Update(id.AsInt64(), &request)
 	if err != nil {
-		return web.MakeHttpError(err)
+		return api.MakeHttpError(err)
 	}
 
-	return web.WriteJson(w, http.StatusOK, round)
+	return api.WriteJson(w, http.StatusOK, round)
 }
 
 func (rc *Controller) FindByID(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := web.FromUrlParams[Key](r, "id")
+	id, err := api.FromUrlParams[Key](r, "id")
 	if err != nil {
 		return err
 	}
@@ -71,29 +71,29 @@ func (rc *Controller) FindByID(w http.ResponseWriter, r *http.Request) error {
 	round, err := rc.service.FindById(id.AsInt64())
 
 	if err != nil {
-		return web.MakeHttpError(err)
+		return api.MakeHttpError(err)
 	}
 
-	return web.WriteJson(w, http.StatusOK, round)
+	return api.WriteJson(w, http.StatusOK, round)
 
 }
 
 func (rh *Controller) Delete(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := web.FromUrlParams[Key](r, "id")
+	id, err := api.FromUrlParams[Key](r, "id")
 	if err != nil {
 		return err
 	}
 
 	if err := rh.service.Delete(id.AsInt64()); err != nil {
-		return web.MakeHttpError(err)
+		return api.MakeHttpError(err)
 	}
 	w.WriteHeader(http.StatusNoContent)
 	return nil
 }
 
 func (rc *Controller) List(w http.ResponseWriter, r *http.Request) error {
-	id, err := web.FromUrlQuery(r, "gameId", Key(10))
+	id, err := api.FromUrlQuery(r, "gameId", Key(10))
 
 	if err != nil {
 		return err
@@ -101,8 +101,8 @@ func (rc *Controller) List(w http.ResponseWriter, r *http.Request) error {
 
 	rounds, err := rc.service.FindByGame(id.AsInt64())
 	if err != nil {
-		return web.MakeHttpError(err)
+		return api.MakeHttpError(err)
 	}
 
-	return web.WriteJson(w, http.StatusOK, rounds)
+	return api.WriteJson(w, http.StatusOK, rounds)
 }
