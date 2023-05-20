@@ -1,5 +1,5 @@
 # Game-Repository  
-![Coverage](https://img.shields.io/badge/Coverage-23.4%25-red) ![BuildStatus](https://github.com/alarmfox/game-repository/actions/workflows/go.yml/badge.svg)
+![Coverage](https://img.shields.io/badge/Coverage-49.3%25-yellow)
 <br>
 Implemented endpoint are:
 * /games:
