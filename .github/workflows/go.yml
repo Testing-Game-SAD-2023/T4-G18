@@ -61,7 +61,7 @@ jobs:
       run: make build
 
     - name: Unit tests
-      run:  make test COVER_DIR=unit-coverage
+      run:  make test
 
     - name: Run all tests
       run: make test-integration CI=1 DB_URI=postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable COVER_DIR=coverage
