@@ -1,12 +1,12 @@
 package robot
 
 import (
-	"fmt"
+	"encoding/json"
 	"strings"
 	"time"
 
+	"github.com/alarmfox/game-repository/api"
 	"github.com/alarmfox/game-repository/model"
-	"github.com/alarmfox/game-repository/web"
 )
 
 type RobotType int8
@@ -18,21 +18,52 @@ const (
 
 func (rb RobotType) Parse(s string) (RobotType, error) {
 	switch strings.ToLower(s) {
-	case "randoop":
+	case randoop.String():
 		return randoop, nil
-	case "evosuite":
+	case evosuite.String():
 		return evosuite, nil
 	default:
-		return RobotType(2), web.ErrInvalidParam
+		return RobotType(0), api.ErrInvalidParam
 	}
 }
 func (rb RobotType) Validate() error {
+	return nil
+}
+
+func (rb RobotType) String() string {
 	switch rb {
-	case randoop, evosuite:
-		return nil
+	case randoop:
+		return "randoop"
+	case evosuite:
+		return "evosuite"
 	default:
-		return web.ErrInvalidParam
+		panic("unreachable")
 	}
+}
+
+func (rb *RobotType) MarshalJSON() ([]byte, error) {
+	return json.Marshal(rb.String())
+}
+
+func (rb *RobotType) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+	v, err := rb.Parse(s)
+	if err != nil {
+		return err
+	}
+	if err := v.Validate(); err != nil {
+		return err
+	}
+	*rb = v
+	return nil
+
+}
+
+func (rb RobotType) AsInt8() int8 {
+	return int8(rb)
 }
 
 type CreateSingleRequest struct {
@@ -43,12 +74,7 @@ type CreateSingleRequest struct {
 }
 
 func (r CreateSingleRequest) Validate() error {
-	switch r.Type {
-	case randoop, evosuite:
-		return nil
-	default:
-		return fmt.Errorf("%w: unsupported robot type %q", web.ErrInvalidParam, r.Type)
-	}
+	return nil
 }
 
 type CreateRequest struct {
@@ -56,11 +82,6 @@ type CreateRequest struct {
 }
 
 func (robots CreateRequest) Validate() error {
-	for _, robot := range robots.Robots {
-		if err := robot.Validate(); err != nil {
-			return err
-		}
-	}
 	return nil
 }
 

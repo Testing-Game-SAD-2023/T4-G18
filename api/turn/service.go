@@ -12,8 +12,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/alarmfox/game-repository/api"
 	"github.com/alarmfox/game-repository/model"
-	"github.com/alarmfox/game-repository/web"
 	"gorm.io/gorm"
 )
 
@@ -56,8 +56,8 @@ func (tr *Repository) CreateBulk(r *CreateRequest) ([]Turn, error) {
 			return err
 		}
 
-		if len(ids) != len(r.Players) && !web.Duplicated(r.Players) {
-			return web.ErrInvalidParam
+		if len(ids) != len(r.Players) && !api.Duplicated(r.Players) {
+			return api.ErrInvalidParam
 		}
 
 		for i, id := range ids {
@@ -74,7 +74,7 @@ func (tr *Repository) CreateBulk(r *CreateRequest) ([]Turn, error) {
 		resp[i] = fromModel(&turn)
 	}
 
-	return resp, web.MakeServiceError(err)
+	return resp, api.MakeServiceError(err)
 }
 
 func (tr *Repository) Update(id int64, r *UpdateRequest) (Turn, error) {
@@ -98,7 +98,7 @@ func (tr *Repository) Update(id int64, r *UpdateRequest) (Turn, error) {
 
 	})
 
-	return fromModel(&turn), web.MakeServiceError(err)
+	return fromModel(&turn), api.MakeServiceError(err)
 }
 
 func (tr *Repository) FindById(id int64) (Turn, error) {
@@ -108,7 +108,7 @@ func (tr *Repository) FindById(id int64) (Turn, error) {
 		First(&turn, id).
 		Error
 
-	return fromModel(&turn), web.MakeServiceError(err)
+	return fromModel(&turn), api.MakeServiceError(err)
 }
 
 func (tr *Repository) FindByRound(id int64) ([]Turn, error) {
@@ -122,7 +122,7 @@ func (tr *Repository) FindByRound(id int64) ([]Turn, error) {
 	for i, turn := range turns {
 		resp[i] = fromModel(&turn)
 	}
-	return resp, web.MakeServiceError(err)
+	return resp, api.MakeServiceError(err)
 }
 
 func (tr *Repository) Delete(id int64) error {
@@ -134,7 +134,7 @@ func (tr *Repository) Delete(id int64) error {
 	if db.Error != nil {
 		return db.Error
 	} else if db.RowsAffected < 1 {
-		return web.ErrNotFound
+		return api.ErrNotFound
 	}
 
 	return nil
@@ -143,7 +143,7 @@ func (tr *Repository) Delete(id int64) error {
 
 func (ts *Repository) SaveFile(id int64, r io.Reader) error {
 	if r == nil {
-		return fmt.Errorf("%w: body is empty", web.ErrInvalidParam)
+		return fmt.Errorf("%w: body is empty", api.ErrInvalidParam)
 	}
 	err := ts.db.Transaction(func(tx *gorm.DB) error {
 		var (
@@ -170,7 +170,7 @@ func (ts *Repository) SaveFile(id int64, r io.Reader) error {
 		}
 
 		if zfile, err := zip.OpenReader(dst.Name()); err != nil {
-			return web.ErrNotAZip
+			return api.ErrNotAZip
 		} else {
 			zfile.Close()
 		}
@@ -201,7 +201,7 @@ func (ts *Repository) SaveFile(id int64, r io.Reader) error {
 
 	})
 
-	return web.MakeServiceError(err)
+	return api.MakeServiceError(err)
 
 }
 
@@ -217,13 +217,13 @@ func (ts *Repository) GetFile(id int64) (string, *os.File, error) {
 		Error
 
 	if err != nil {
-		return "", nil, web.MakeServiceError(err)
+		return "", nil, api.MakeServiceError(err)
 	}
 
 	f, err := os.Open(metadata.Path)
 
 	if errors.Is(err, os.ErrNotExist) {
-		return "", nil, web.ErrNotFound
+		return "", nil, api.ErrNotFound
 	} else if err != nil {
 		return "", nil, err
 	}

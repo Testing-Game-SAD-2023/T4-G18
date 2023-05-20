@@ -11,7 +11,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/alarmfox/game-repository/web"
+	"github.com/alarmfox/game-repository/api"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -36,7 +36,7 @@ func (suite *ControllerSuite) SetupSuite() {
 		Return(f.Name(), f, nil).
 		On("GetFile",
 			mock.MatchedBy(func(id int64) bool { return id != 1 })).
-		Return("", nil, web.ErrNotFound).
+		Return("", nil, api.ErrNotFound).
 		On("SaveFile",
 			int64(1),
 			mock.Anything).
@@ -44,43 +44,43 @@ func (suite *ControllerSuite) SetupSuite() {
 		On("SaveFile",
 			mock.MatchedBy(func(id int64) bool { return id != 1 }),
 			mock.Anything).
-		Return(web.ErrNotFound).
+		Return(api.ErrNotFound).
 		On("CreateBulk", &CreateRequest{RoundId: 1}).
 		Return([]Turn{}, nil).
 		On("CreateBulk", mock.MatchedBy(func(r *CreateRequest) bool { return r.RoundId != 1 })).
-		Return(nil, web.ErrNotFound).
+		Return(nil, api.ErrNotFound).
 		On("FindById", int64(1)).
 		Return(Turn{ID: 1}, nil).
 		On("FindById",
 			mock.MatchedBy(func(id int64) bool { return id != 1 })).
-		Return(nil, web.ErrNotFound).
+		Return(nil, api.ErrNotFound).
 		On("Delete", int64(1)).
 		Return(nil).
 		On("Delete",
 			mock.MatchedBy(func(id int64) bool { return id != 1 })).
-		Return(web.ErrNotFound).
+		Return(api.ErrNotFound).
 		On("Update", int64(1), &UpdateRequest{IsWinner: true, Scores: "a"}).
 		Return(Turn{}, nil).
 		On("Update", mock.MatchedBy(func(id int64) bool { return id != 1 }),
 			&UpdateRequest{IsWinner: true, Scores: "a"}).
-		Return(nil, web.ErrNotFound).
+		Return(nil, api.ErrNotFound).
 		On("FindByRound", int64(1)).
 		Return([]Turn{}, nil).
 		On("FindByRound", mock.MatchedBy(func(id int64) bool { return id != 1 })).
-		Return(nil, web.ErrNotFound)
+		Return(nil, api.ErrNotFound)
 
 	suite.tmpDir = os.TempDir()
 	controller := NewController(tr)
 
 	r := chi.NewMux()
 
-	r.Get("/{id}/files", web.HandlerFunc(controller.Download))
-	r.Put("/{id}/files", web.HandlerFunc(controller.Upload))
-	r.Post("/", web.HandlerFunc(controller.Create))
-	r.Get("/", web.HandlerFunc(controller.List))
-	r.Put("/{id}", web.HandlerFunc(controller.Update))
-	r.Delete("/{id}", web.HandlerFunc(controller.Delete))
-	r.Get("/{id}", web.HandlerFunc(controller.FindByID))
+	r.Get("/{id}/files", api.HandlerFunc(controller.Download))
+	r.Put("/{id}/files", api.HandlerFunc(controller.Upload))
+	r.Post("/", api.HandlerFunc(controller.Create))
+	r.Get("/", api.HandlerFunc(controller.List))
+	r.Put("/{id}", api.HandlerFunc(controller.Update))
+	r.Delete("/{id}", api.HandlerFunc(controller.Delete))
+	r.Get("/{id}", api.HandlerFunc(controller.FindByID))
 
 	suite.tServer = httptest.NewServer(r)
 }
