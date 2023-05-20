@@ -68,7 +68,7 @@ endif
 
 ## clean: remove build files 
 clean:
-	rm -f build/* $(COVER_DIR)
+	rm -f build/*
 
 .PHONY: help
 ## help: prints this help message
