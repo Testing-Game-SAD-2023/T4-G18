@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/alarmfox/game-repository/web"
+	"github.com/alarmfox/game-repository/api"
 )
 
 type Service interface {
@@ -12,7 +12,7 @@ type Service interface {
 	FindById(id int64) (Game, error)
 	Delete(id int64) error
 	Update(id int64, ug *UpdateRequest) (Game, error)
-	FindByInterval(i *web.IntervalParams, p *web.PaginationParams) ([]Game, int64, error)
+	FindByInterval(i *api.IntervalParams, p *api.PaginationParams) ([]Game, int64, error)
 }
 type Controller struct {
 	service Service
@@ -24,7 +24,7 @@ func NewController(gs Service) *Controller {
 
 func (gc *Controller) Create(w http.ResponseWriter, r *http.Request) error {
 
-	request, err := web.FromJsonBody[CreateRequest](r.Body)
+	request, err := api.FromJsonBody[CreateRequest](r.Body)
 
 	if err != nil {
 		return err
@@ -33,16 +33,16 @@ func (gc *Controller) Create(w http.ResponseWriter, r *http.Request) error {
 	g, err := gc.service.Create(&request)
 
 	if err != nil {
-		return web.MakeHttpError(err)
+		return api.MakeHttpError(err)
 	}
 
-	return web.WriteJson(w, http.StatusCreated, g)
+	return api.WriteJson(w, http.StatusCreated, g)
 
 }
 
 func (gc *Controller) FindByID(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := web.FromUrlParams[Key](r, "id")
+	id, err := api.FromUrlParams[Key](r, "id")
 	if err != nil {
 		return err
 	}
@@ -50,22 +50,22 @@ func (gc *Controller) FindByID(w http.ResponseWriter, r *http.Request) error {
 	g, err := gc.service.FindById(id.AsInt64())
 
 	if err != nil {
-		return web.MakeHttpError(err)
+		return api.MakeHttpError(err)
 	}
 
-	return web.WriteJson(w, http.StatusOK, g)
+	return api.WriteJson(w, http.StatusOK, g)
 
 }
 
 func (gc *Controller) Delete(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := web.FromUrlParams[Key](r, "id")
+	id, err := api.FromUrlParams[Key](r, "id")
 	if err != nil {
 		return err
 	}
 
 	if err := gc.service.Delete(id.AsInt64()); err != nil {
-		return web.MakeHttpError(err)
+		return api.MakeHttpError(err)
 	}
 	w.WriteHeader(http.StatusNoContent)
 	return nil
@@ -73,63 +73,63 @@ func (gc *Controller) Delete(w http.ResponseWriter, r *http.Request) error {
 
 func (gc *Controller) Update(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := web.FromUrlParams[Key](r, "id")
+	id, err := api.FromUrlParams[Key](r, "id")
 	if err != nil {
 		return err
 	}
 
-	request, err := web.FromJsonBody[UpdateRequest](r.Body)
+	request, err := api.FromJsonBody[UpdateRequest](r.Body)
 	if err != nil {
 		return err
 	}
 
 	g, err := gc.service.Update(id.AsInt64(), &request)
 	if err != nil {
-		return web.MakeHttpError(err)
+		return api.MakeHttpError(err)
 	}
 
-	return web.WriteJson(w, http.StatusOK, g)
+	return api.WriteJson(w, http.StatusOK, g)
 }
 
 func (gc *Controller) List(w http.ResponseWriter, r *http.Request) error {
-	page, err := web.FromUrlQuery[Key](r, "page", 1)
+	page, err := api.FromUrlQuery[Key](r, "page", 1)
 
 	if err != nil {
 		return err
 	}
 
-	pageSize, err := web.FromUrlQuery[Key](r, "pageSize", 10)
+	pageSize, err := api.FromUrlQuery[Key](r, "pageSize", 10)
 
 	if err != nil {
 		return err
 	}
 
-	startDate, err := web.FromUrlQuery(r, "startDate", Interval(time.Now().Add(-24*time.Hour)))
+	startDate, err := api.FromUrlQuery(r, "startDate", Interval(time.Now().Add(-24*time.Hour)))
 
 	if err != nil {
 		return err
 	}
 
-	endDate, err := web.FromUrlQuery(r, "endDate", Interval(time.Now()))
+	endDate, err := api.FromUrlQuery(r, "endDate", Interval(time.Now()))
 
 	if err != nil {
 		return err
 	}
 
-	ip := web.IntervalParams{
+	ip := api.IntervalParams{
 		Start: startDate.AsTime(),
 		End:   endDate.AsTime(),
 	}
 
-	pp := web.PaginationParams{
+	pp := api.PaginationParams{
 		Page:     page.AsInt64(),
 		PageSize: pageSize.AsInt64(),
 	}
 
 	games, count, err := gc.service.FindByInterval(&ip, &pp)
 	if err != nil {
-		return web.MakeHttpError(err)
+		return api.MakeHttpError(err)
 	}
 
-	return web.WriteJson(w, http.StatusOK, web.MakePaginatedResponse(games, count, &pp))
+	return api.WriteJson(w, http.StatusOK, api.MakePaginatedResponse(games, count, &pp))
 }

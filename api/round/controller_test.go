@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/alarmfox/game-repository/web"
+	"github.com/alarmfox/game-repository/api"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -26,37 +26,37 @@ func (suite *ControllerSuite) SetupSuite() {
 		Return(Round{ID: 1}, nil).
 		On("Create",
 			mock.MatchedBy(func(r *CreateRequest) bool { return r.GameId != 1 })).
-		Return(nil, web.ErrNotFound).
+		Return(nil, api.ErrNotFound).
 		On("FindById", int64(1)).
 		Return(Round{ID: 1}, nil).
 		On("FindById",
 			mock.MatchedBy(func(id int64) bool { return id != 1 })).
-		Return(nil, web.ErrNotFound).
+		Return(nil, api.ErrNotFound).
 		On("Delete", int64(1)).
 		Return(nil).
 		On("Delete",
 			mock.MatchedBy(func(id int64) bool { return id != 1 })).
-		Return(web.ErrNotFound).
+		Return(api.ErrNotFound).
 		On("Update", int64(1),
 			&UpdateRequest{}).
 		Return(Round{}, nil).
 		On("Update",
 			mock.MatchedBy(func(id int64) bool { return id != 1 }),
 			&UpdateRequest{}).
-		Return(nil, web.ErrNotFound).
+		Return(nil, api.ErrNotFound).
 		On("FindByGame", int64(1)).
 		Return([]Round{}, nil).
 		On("FindByGame", mock.MatchedBy(func(id int64) bool { return id != 1 })).
-		Return(nil, web.ErrNotFound)
+		Return(nil, api.ErrNotFound)
 
 	controller := NewController(rr)
 
 	r := chi.NewMux()
-	r.Get("/{id}", web.HandlerFunc(controller.FindByID))
-	r.Get("/", web.HandlerFunc(controller.List))
-	r.Post("/", web.HandlerFunc(controller.Create))
-	r.Delete("/{id}", web.HandlerFunc(controller.Delete))
-	r.Put("/{id}", web.HandlerFunc(controller.Update))
+	r.Get("/{id}", api.HandlerFunc(controller.FindByID))
+	r.Get("/", api.HandlerFunc(controller.List))
+	r.Post("/", api.HandlerFunc(controller.Create))
+	r.Delete("/{id}", api.HandlerFunc(controller.Delete))
+	r.Put("/{id}", api.HandlerFunc(controller.Update))
 
 	suite.tServer = httptest.NewServer(r)
 }

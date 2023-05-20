@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/alarmfox/game-repository/web"
+	"github.com/alarmfox/game-repository/api"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -28,30 +28,30 @@ func (suite *ControllerSuite) SetupSuite() {
 		Return(Game{ID: 1}, nil).
 		On("FindById",
 			mock.MatchedBy(func(id int64) bool { return id != 1 })).
-		Return(nil, web.ErrNotFound).
+		Return(nil, api.ErrNotFound).
 		On("Delete", int64(1)).
 		Return(nil).
 		On("Delete",
 			mock.MatchedBy(func(id int64) bool { return id != 1 })).
-		Return(web.ErrNotFound).
+		Return(api.ErrNotFound).
 		On("Update", int64(1),
 			&UpdateRequest{Name: "test", CurrentRound: 10}).
 		Return(Game{}, nil).
 		On("Update",
 			mock.MatchedBy(func(id int64) bool { return id != 1 }),
 			&UpdateRequest{Name: "test", CurrentRound: 10}).
-		Return(nil, web.ErrNotFound).
+		Return(nil, api.ErrNotFound).
 		On("FindByInterval", mock.Anything, mock.Anything).
 		Return([]Game{}, int(64), nil)
 
 	controller := NewController(gr)
 
 	r := chi.NewMux()
-	r.Get("/{id}", web.HandlerFunc(controller.FindByID))
-	r.Get("/", web.HandlerFunc(controller.List))
-	r.Post("/", web.HandlerFunc(controller.Create))
-	r.Delete("/{id}", web.HandlerFunc(controller.Delete))
-	r.Put("/{id}", web.HandlerFunc(controller.Update))
+	r.Get("/{id}", api.HandlerFunc(controller.FindByID))
+	r.Get("/", api.HandlerFunc(controller.List))
+	r.Post("/", api.HandlerFunc(controller.Create))
+	r.Delete("/{id}", api.HandlerFunc(controller.Delete))
+	r.Put("/{id}", api.HandlerFunc(controller.Update))
 
 	suite.tServer = httptest.NewServer(r)
 }
@@ -346,7 +346,7 @@ func (gr *MockedRepository) Update(id int64, ur *UpdateRequest) (Game, error) {
 	return v.(Game), args.Error(1)
 }
 
-func (gr *MockedRepository) FindByInterval(i *web.IntervalParams, p *web.PaginationParams) ([]Game, int64, error) {
+func (gr *MockedRepository) FindByInterval(i *api.IntervalParams, p *api.PaginationParams) ([]Game, int64, error) {
 	args := gr.Called(i, p)
 	v := args.Get(0)
 

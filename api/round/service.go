@@ -3,9 +3,9 @@ package round
 import (
 	"errors"
 
+	"github.com/alarmfox/game-repository/api"
+	"github.com/alarmfox/game-repository/api/game"
 	"github.com/alarmfox/game-repository/model"
-	"github.com/alarmfox/game-repository/web"
-	"github.com/alarmfox/game-repository/web/game"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -66,7 +66,7 @@ func (rs *Repository) Create(r *CreateRequest) (Round, error) {
 
 	})
 
-	return fromModel(&round), web.MakeServiceError(err)
+	return fromModel(&round), api.MakeServiceError(err)
 }
 
 func (rs *Repository) Update(id int64, r *UpdateRequest) (Round, error) {
@@ -89,7 +89,7 @@ func (rs *Repository) Update(id int64, r *UpdateRequest) (Round, error) {
 
 	})
 
-	return fromModel(&round), web.MakeServiceError(err)
+	return fromModel(&round), api.MakeServiceError(err)
 }
 
 func (rs *Repository) FindById(id int64) (Round, error) {
@@ -99,14 +99,14 @@ func (rs *Repository) FindById(id int64) (Round, error) {
 		First(&round, id).
 		Error
 
-	return fromModel(&round), web.MakeServiceError(err)
+	return fromModel(&round), api.MakeServiceError(err)
 }
 
 func (rs *Repository) FindByGame(id int64) ([]Round, error) {
 	var rounds []model.Round
 
 	err := rs.db.
-		Scopes(web.WithOrder("order")).
+		Scopes(api.WithOrder("order")).
 		Where(&model.Round{GameID: id}).
 		Find(&rounds).
 		Error
@@ -116,7 +116,7 @@ func (rs *Repository) FindByGame(id int64) ([]Round, error) {
 		resp[i] = fromModel(&round)
 	}
 
-	return resp, web.MakeServiceError(err)
+	return resp, api.MakeServiceError(err)
 }
 
 func (rs *Repository) Delete(id int64) error {
@@ -130,7 +130,7 @@ func (rs *Repository) Delete(id int64) error {
 		if db.Error != nil {
 			return db.Error
 		} else if db.RowsAffected < 1 {
-			return web.ErrNotFound
+			return api.ErrNotFound
 		}
 
 		err := rs.db.
@@ -143,5 +143,5 @@ func (rs *Repository) Delete(id int64) error {
 		return err
 	})
 
-	return web.MakeServiceError(err)
+	return api.MakeServiceError(err)
 }

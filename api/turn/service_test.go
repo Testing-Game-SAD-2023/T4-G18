@@ -9,8 +9,8 @@ import (
 	"path"
 	"testing"
 
+	"github.com/alarmfox/game-repository/api"
 	"github.com/alarmfox/game-repository/model"
-	"github.com/alarmfox/game-repository/web"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -174,7 +174,7 @@ func (suite *RepositorySuite) TestSaveFile() {
 	}{
 		{
 			Name:   "T51-NotAZip",
-			Output: output{err: web.ErrNotAZip},
+			Output: output{err: api.ErrNotAZip},
 			Input: input{
 				turnId:  1,
 				content: bytes.NewBufferString("hello"),
@@ -198,7 +198,7 @@ func (suite *RepositorySuite) TestSaveFile() {
 		},
 		{
 			Name:   "T54-InvalidTurnID",
-			Output: output{err: web.ErrNotFound},
+			Output: output{err: api.ErrNotFound},
 			Input: input{
 				turnId:  -1,
 				content: generateValidZipContent(suite.T(), []byte("hello")),
@@ -206,7 +206,7 @@ func (suite *RepositorySuite) TestSaveFile() {
 		},
 		{
 			Name:   "T55-NullBody",
-			Output: output{err: web.ErrInvalidParam},
+			Output: output{err: api.ErrInvalidParam},
 			Input: input{
 				turnId:  1,
 				content: nil,
@@ -214,7 +214,7 @@ func (suite *RepositorySuite) TestSaveFile() {
 		},
 		{
 			Name:   "T56-Turn not found",
-			Output: output{err: web.ErrNotFound},
+			Output: output{err: api.ErrNotFound},
 			Input: input{
 				turnId:  1000,
 				content: generateValidZipContent(suite.T(), []byte("hello")),
@@ -259,14 +259,14 @@ func (suite *RepositorySuite) TestGetFile() {
 	}{
 		{
 			Name:   "T58-TurnNotFound",
-			Output: output{fname: "", file: nil, err: web.ErrNotFound},
+			Output: output{fname: "", file: nil, err: api.ErrNotFound},
 			Input: input{
 				turnId: 100,
 			},
 		},
 		{
 			Name:   "T59-BadMetadata",
-			Output: output{fname: "", file: nil, err: web.ErrNotFound},
+			Output: output{fname: "", file: nil, err: api.ErrNotFound},
 			Input: input{
 				turnId: 2,
 			},
