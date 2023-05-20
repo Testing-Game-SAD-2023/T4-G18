@@ -50,8 +50,8 @@ jobs:
     - uses: actions/checkout@v3
       name: Checkout
       with:
-        fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
-
+        fetch-depth: 0
+ 
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
@@ -66,10 +66,10 @@ jobs:
     - name: Run all tests
       run: make test-integration CI=1 DB_URI=postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable COVER_DIR=$(pwd)/coverage
 
-    - name: Go Coverage Badge  # Pass the `coverage.out` output to this action
+    - name: Go Coverage Badge 
       uses: tj-actions/coverage-badge-go@v2
       with:
-        filename: ./coverage/profile
+        filename: coverage/profile
 
     - name: Verify Changed files
       uses: tj-actions/verify-changed-files@v12
