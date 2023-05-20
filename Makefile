@@ -37,11 +37,13 @@ docker-push: docker-build
 
 ## test: executes all unit tests in the repository
 test:
-	mkdir -p $(COVER_DIR)
+ifeq ($(COVER_DIR),)
+	CGO_ENABLED=0 SKIP_INTEGRATION=1 go test ./...
+else
 	CGO_ENABLED=0 SKIP_INTEGRATION=1 go test -v -cover ./... -args -test.gocoverdir=$(COVER_DIR)
 	go tool covdata percent -i=$(COVER_DIR)/ -o $(COVER_DIR)/profile
 	go tool cover -func $(COVER_DIR)/profile
-
+endif
 
 ## test-race: executes all unit tests with a race detector. Takes longer
 test-race:
@@ -61,7 +63,6 @@ else
 	$(info Running integration test on $(DB_URI))
 	DB_URI=$(DB_URI) CGO_ENABLED=0 go test -v -cover  ./...  -args -test.gocoverdir=$(COVER_DIR)
 endif
-
 	go tool covdata percent -i=$(COVER_DIR)/ -o $(COVER_DIR)/profile
 	go tool cover -func $(COVER_DIR)/profile
 
