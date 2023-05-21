@@ -943,9 +943,11 @@ components:
                 startedAt:
                     type: string
                     format: date-time
-                closetAt:
+                    nullable: true
+                closedAt:
                     type: string
                     format: date-time
+                    nullable: true
 
         Round:
             type: object
@@ -966,9 +968,11 @@ components:
                 startedAt:
                     type: string
                     format: date-time
-                closetAt:
+                    nullable: true
+                closedAt:
                     type: string
                     format: date-time
+                    nullable: true
 
         Turn:
             type: object
@@ -991,9 +995,11 @@ components:
                 startedAt:
                     type: string
                     format: date-time
-                closetAt:
+                    nullable: true
+                closedAt:
                     type: string
                     format: date-time
+                    nullable: true
 
         Robot:
             type: object
