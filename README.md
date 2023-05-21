@@ -15,7 +15,6 @@ Implemented endpoint are:
     - GET ?gameId=<integer> retrieve all rounds in a game;
     - POST / create a round;
     - DELETE /{id} delete a round;
-    - PUT /{id} update an existing round;
 * /turns:
     - GET /{id} retrieve a turn by ID;
     - GET ?roundId=<integer> retrieve all turns in a round;
