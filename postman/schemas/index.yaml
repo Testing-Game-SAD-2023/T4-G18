@@ -67,6 +67,10 @@ paths:
                                     type: string
                                 currentRound:
                                     type: integer
+                                startedAt:
+                                    type: date-time
+                                closedAt:
+                                    type: date-time
                         example:
                             name: "New Game name"
                             currentRound: 2
@@ -150,6 +154,10 @@ paths:
                                         type: string
                                 name:
                                     type: string
+                                startedAt:
+                                    type: date-time
+                                closedAt:
+                                    type: date-time
                         example:
                             name: Game name
                             players: ["id1", "id2"]
@@ -267,6 +275,57 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
+        put:
+            summary: Update a round
+            description: Update a round by id
+            tags:
+                - rounds
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                startedAt:
+                                    type: date-time
+                                closedAt:
+                                    type: date-time
+
+            responses:
+                "200":
+                    description: Updated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Round"
+                "400":
+                    description: Bad request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "404":
+                    description: No round found for the provided `Id`
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "413":
+                    description: Request body too large
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+                "500":
+                    description: Internal server error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
+
         delete:
             summary: Delete a round
             description: Delete a round by id
@@ -314,6 +373,10 @@ paths:
                                     type: string
                                 order:
                                     type: integer
+                                startedAt:
+                                    type: date-time
+                                closedAt:
+                                    type: date-time
                         example:
                             gameId: 1
                             testClassId: "a_test_class.java"
@@ -442,6 +505,10 @@ paths:
                                     type: string
                                 isWinner:
                                     type: boolean
+                                startedAt:
+                                    type: date-time
+                                closedAt:
+                                    type: date-time
                         example:
                             scores: "a new score in JSON format"
                             isWinner: true
@@ -652,6 +719,10 @@ paths:
                                 roundId:
                                     type: integer
                                     format: int64
+                                startedAt:
+                                    type: date-time
+                                closedAt:
+                                    type: date-time
                         example:
                             players: ["id1", "id2"]
                             roundId: 1
@@ -869,6 +940,12 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
+                startedAt:
+                    type: string
+                    format: date-time
+                closetAt:
+                    type: string
+                    format: date-time
 
         Round:
             type: object
@@ -884,6 +961,12 @@ components:
                     type: string
                     format: date-time
                 updatedAt:
+                    type: string
+                    format: date-time
+                startedAt:
+                    type: string
+                    format: date-time
+                closetAt:
                     type: string
                     format: date-time
 
@@ -903,6 +986,12 @@ components:
                     type: string
                     format: date-time
                 updatedAt:
+                    type: string
+                    format: date-time
+                startedAt:
+                    type: string
+                    format: date-time
+                closetAt:
                     type: string
                     format: date-time
 

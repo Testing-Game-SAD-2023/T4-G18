@@ -9,11 +9,11 @@ OUT_DIR=build
 
 ## build: builds the application in "build" directory
 build: clean
-	CGO_ENABLED=0 go build -o $(OUT_DIR)/ -ldflags "-s -w -X main.gitCommit=$(GIT_COMMIT)" ./...
+	@CGO_ENABLED=0 go build -o $(OUT_DIR)/ -ldflags "-s -w -X main.gitCommit=$(GIT_COMMIT)" ./...
 
 ## run: runs the application in "build/game-repository"
 run: build
-	./$(OUT_DIR)/$(APP_NAME) --config=$(CONFIG)
+	@./$(OUT_DIR)/$(APP_NAME) --config=$(CONFIG)
 
 ## dev: executes the application with hot reload
 dev: 
@@ -21,7 +21,7 @@ dev:
 
 ## dev-dependecies: installs development dependencies
 dev-dependecies:
-	go install github.com/cosmtrek/air@latest
+	@go install github.com/cosmtrek/air@latest
 
 ## docker-build: builds a docker image
 docker-build:
@@ -68,7 +68,7 @@ endif
 
 ## clean: remove build files 
 clean:
-	rm -f build/*
+	@rm -f build/*
 
 .PHONY: help
 ## help: prints this help message

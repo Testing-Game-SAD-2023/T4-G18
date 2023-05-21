@@ -20,7 +20,10 @@ func NewRepository(db *gorm.DB) *Repository {
 func (gs *Repository) Create(r *CreateRequest) (Game, error) {
 	var (
 		game = model.Game{
-			Name: r.Name,
+			Name:         r.Name,
+			PlayersCount: len(r.Players),
+			StartedAt:    r.StartedAt,
+			ClosedAt:     r.ClosedAt,
 		}
 	)
 	// detect duplication in player
@@ -148,4 +151,46 @@ func (gs *Repository) Update(id int64, r *UpdateRequest) (Game, error) {
 	})
 
 	return fromModel(&game), api.MakeServiceError(err)
+}
+
+func (gr *Repository) FindByPlayer(accountId string) ([]Game, error) {
+	var (
+		player model.Player
+		games  []model.Game
+	)
+
+	err := gr.db.Transaction(func(tx *gorm.DB) error {
+
+		err := tx.Debug().Preload("PlayerGames").
+			Where(&model.Player{AccountID: accountId}).
+			Find(&player).
+			Error
+		if err != nil {
+			return err
+		}
+
+		playerGame := player.PlayerGames
+
+		gameIds := make([]int64, len(playerGame))
+		for i, pg := range playerGame {
+			gameIds[i] = pg.GameID
+		}
+
+		err = tx.Debug().
+			Where("id IN ?", gameIds).
+			Find(&games).
+			Error
+
+		if err != nil {
+			return err
+		}
+
+		return err
+	})
+
+	resp := make([]Game, len(games))
+	for i, game := range games {
+		resp[i] = fromModel(&game)
+	}
+	return resp, api.MakeServiceError(err)
 }

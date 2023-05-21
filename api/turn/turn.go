@@ -8,16 +8,20 @@ import (
 )
 
 type Turn struct {
-	ID        int64     `json:"id"`
-	IsWinner  bool      `json:"isWinner"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	PlayerID  int64     `json:"playerId"`
-	Scores    string    `json:"scores"`
+	ID        int64      `json:"id"`
+	IsWinner  bool       `json:"isWinner"`
+	CreatedAt time.Time  `json:"createdAt"`
+	UpdatedAt time.Time  `json:"updatedAt"`
+	PlayerID  int64      `json:"playerId"`
+	Scores    string     `json:"scores"`
+	StartedAt *time.Time `json:"startedAt"`
+	ClosedAt  *time.Time `json:"closedAt"`
 }
 type CreateRequest struct {
-	RoundId int64    `json:"roundId"`
-	Players []string `json:"players"`
+	RoundId   int64     `json:"roundId"`
+	Players   []string  `json:"players"`
+	StartedAt time.Time `json:"startedAt"`
+	ClosedAt  time.Time `json:"closedAt"`
 }
 
 func (CreateRequest) Validate() error {
@@ -25,8 +29,10 @@ func (CreateRequest) Validate() error {
 }
 
 type UpdateRequest struct {
-	Scores   string `json:"scores"`
-	IsWinner bool   `json:"isWinner"`
+	Scores    string    `json:"scores"`
+	IsWinner  bool      `json:"isWinner"`
+	StartedAt time.Time `json:"startedAt"`
+	ClosedAt  time.Time `json:"closedAt"`
 }
 
 func (UpdateRequest) Validate() error {
@@ -52,6 +58,7 @@ func fromModel(t *model.Turn) Turn {
 		CreatedAt: t.CreatedAt,
 		UpdatedAt: t.UpdatedAt,
 		PlayerID:  t.PlayerID,
+		StartedAt: t.StartedAt,
+		ClosedAt:  t.ClosedAt,
 	}
 }
-

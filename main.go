@@ -276,6 +276,9 @@ func setupRoutes(gc *game.Controller, rc *round.Controller, tc *turn.Controller,
 		// List games
 		r.Get("/", api.HandlerFunc(gc.List))
 
+		// Get game by player
+		r.Get("/byplayer/{accountId}", api.HandlerFunc(gc.FindByPlayer))
+
 		// Create game
 		r.With(middleware.AllowContentType("application/json")).
 			Post("/", api.HandlerFunc(gc.Create))
@@ -302,7 +305,7 @@ func setupRoutes(gc *game.Controller, rc *round.Controller, tc *turn.Controller,
 
 		// Update round
 		// r.With(middleware.AllowContentType("application/json")).
-		// 	Put("/{id}", api.HandlerFunc(rc.Update))
+		r.Put("/{id}", api.HandlerFunc(rc.Update))
 
 		// Delete round
 		r.Delete("/{id}", api.HandlerFunc(rc.Delete))
