@@ -9,7 +9,7 @@ OUT_DIR=build
 
 ## build: builds the application in "build" directory
 build: clean
-	CGO_ENABLED=0 go build -o $(OUT_DIR)/$(APP_NAME) -ldflags "-s -w -X main.gitCommit=$(GIT_COMMIT)"
+	CGO_ENABLED=0 go build -o $(OUT_DIR)/ -ldflags "-s -w -X main.gitCommit=$(GIT_COMMIT)" ./...
 
 ## run: runs the application in "build/game-repository"
 run: build
@@ -35,31 +35,36 @@ docker-run: docker-build
 docker-push: docker-build
 	docker save $(APP_NAME):$(GIT_COMMIT) | bzip2 | pv | ssh $(SSH) docker load
 
-## test: executes all unit tests in the repository
+## test: executes all unit tests in the repository. Use COVER_DIR=<PATH> to enable coverage. (i.e make test COVER_DIR=$(pwd)/coverage)
 test:
-	CGO_ENABLED=0 SKIP_INTEGRATION=1 go test -v -cover . 
+ifeq ($(COVER_DIR),)
+	CGO_ENABLED=0 SKIP_INTEGRATION=1 go test ./...
+else
+	CGO_ENABLED=0 SKIP_INTEGRATION=1 go test -v -cover ./... -args -test.gocoverdir=$(COVER_DIR)
+	@go tool covdata percent -i=$(COVER_DIR)/ -o $(COVER_DIR)/profile
+	go tool cover -func $(COVER_DIR)/profile
+endif
 
 ## test-race: executes all unit tests with a race detector. Takes longer
 test-race:
-	go test -race .
+	@go test -race ./...
 
-## test-integration
+## test-integration: executes all tests. If CI is set, DB_URI can be used to set database URL, otherwis a docker container is used (i.e make test-integration CI=1 DB_URI=db-url COVER_DIR=/some/path)
 test-integration:
+	@mkdir -p $(COVER_DIR)
 ifeq ($(CI),)
 	$(info Running integration test with a local docker container)
 	@ ID=$$(docker run -p 5432 -e POSTGRES_PASSWORD=postgres --rm -d postgres:14-alpine3.17); \
 	PORT=$$(docker port $$ID | awk '{split($$0,a,":"); print a[2]}' ); \
 	sleep 5; \
-	go test -v -coverprofile=coverage.out -c . -o  build/testable . -- ; \
-	DB_URI="postgresql://postgres:postgres@localhost:$$PORT/postgres?sslmode=disable" ./build/testable -test.coverprofile=coverage.out -test.parallel=1 -- ; \
-	go tool cover -func=coverage.out -o=coverage.out ; \
+	DB_URI="postgresql://postgres:postgres@localhost:$$PORT/postgres?sslmode=disable" CGO_ENABLED=0  go test -v -cover  ./...  -args -test.gocoverdir=$(COVER_DIR) -- ; \
 	docker kill $$ID
 else
 	$(info Running integration test on $(DB_URI))
-	go test -v -coverprofile=coverage.out -c . -o testable .
-	DB_URI=$(DB_URI) ./testable -test.coverprofile=coverage.out -test.v
-	go tool cover -func=coverage.out -o=coverage.out
+	@DB_URI=$(DB_URI) CGO_ENABLED=0 go test -v -cover  ./...  -args -test.gocoverdir=$(COVER_DIR)
 endif
+	@go tool covdata percent -i=$(COVER_DIR)/ -o $(COVER_DIR)/profile
+	go tool cover -func $(COVER_DIR)/profile -o=coverage.out
 
 ## clean: remove build files 
 clean:
