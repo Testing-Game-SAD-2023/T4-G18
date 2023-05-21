@@ -266,53 +266,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-        put:
-            summary: Update a round
-            description: Update a round by id
-            tags:
-                - rounds
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            type: object
-                            properties:
-                                order:
-                                    type: integer
-                        example:
-                            order: 2
-            responses:
-                "200":
-                    description: The updated round
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Round"
-                "400":
-                    description: Bad request
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
-                "404":
-                    description: No round found for the provided `Id`
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
-                "413":
-                    description: Request body too large
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
-                "500":
-                    description: Internal server error
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Error"
 
         delete:
             summary: Delete a round
@@ -364,7 +317,7 @@ paths:
                         example:
                             gameId: 1
                             testClassId: "a_test_class.java"
-                            order: 1
+
             responses:
                 "201":
                     description: Created
@@ -759,15 +712,15 @@ paths:
                   description: Difficulty identifier
                   schema:
                       type: string
-                      default: "easy_v1"
+                      default: "easy"
                   required: true
                 - in: query
                   name: type
-                  description: Type of test engine. 0 Randoop, 1 evosuite
+                  description: Type of test engine
                   schema:
-                      type: integer
-                      enum: [0, 1]
-                      default: 1
+                      type: string
+                      enum: [randoop, evosuite]
+                      default: randoop
                   required: true
             responses:
                 "200":
@@ -850,8 +803,8 @@ paths:
                                             difficulty:
                                                 type: string
                                             type:
-                                                type: integer
-                                                enum: [0, 1]
+                                                type: string
+                                                enum: [randoop, evosuite]
                                             scores:
                                                 type: string
                                             testClassId:
@@ -861,7 +814,7 @@ paths:
                                 [
                                     {
                                         "difficulty": "easy_v1",
-                                        "type": 0,
+                                        "type": "randoop",
                                         "scores": "some scores in some format",
                                         "testClassId": a_test_class.java,
                                     },
