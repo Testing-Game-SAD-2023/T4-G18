@@ -7,7 +7,7 @@ tmp_dir = "tmp"
   bin = "./build/main"
   cmd = "go build -o ./build/main ."
   delay = 0
-  exclude_dir = ["vendor", "data"]
+  exclude_dir = ["vendor", "data", "data", "coverage", "postman"]
   exclude_file = []
   exclude_regex = ["_test.go"]
   exclude_unchanged = false
@@ -41,4 +41,4 @@ tmp_dir = "tmp"
 
 [screen]
   clear_on_rebuild = true
-  keep_scroll = true
+  keep_scroll = false

@@ -8,14 +8,14 @@ import (
 )
 
 type Turn struct {
-	ID        int64     `json:"id"`
-	IsWinner  bool      `json:"isWinner"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	PlayerID  int64     `json:"playerId"`
-	Scores    string    `json:"scores"`
-	StartedAt time.Time `json:"startedAt"`
-	ClosedAt  time.Time `json:"closedAt"`
+	ID        int64      `json:"id"`
+	IsWinner  bool       `json:"isWinner"`
+	CreatedAt time.Time  `json:"createdAt"`
+	UpdatedAt time.Time  `json:"updatedAt"`
+	PlayerID  int64      `json:"playerId"`
+	Scores    string     `json:"scores"`
+	StartedAt *time.Time `json:"startedAt"`
+	ClosedAt  *time.Time `json:"closedAt"`
 }
 type CreateRequest struct {
 	RoundId   int64     `json:"roundId"`

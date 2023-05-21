@@ -8,21 +8,21 @@ import (
 )
 
 type Game struct {
-	ID           int64     `json:"id"`
-	CurrentRound int       `json:"currentRound"`
-	CreatedAt    time.Time `json:"createdAt"`
-	StartedAt    time.Time `json:"startedAt"`
-	ClosedAt     time.Time `json:"closedAt"`
-	UpdatedAt    time.Time `json:"updatedAt"`
-	PlayersCount int       `json:"playersCount"`
-	Name         string    `json:"name"`
+	ID           int64      `json:"id"`
+	CurrentRound int        `json:"currentRound"`
+	CreatedAt    time.Time  `json:"createdAt"`
+	UpdatedAt    time.Time  `json:"updatedAt"`
+	StartedAt    *time.Time `json:"startedAt"`
+	ClosedAt     *time.Time `json:"closedAt"`
+	PlayersCount int        `json:"playersCount"`
+	Name         string     `json:"name"`
 }
 
 type CreateRequest struct {
-	Name      string    `json:"name"`
-	Players   []string  `json:"players"`
-	StartedAt time.Time `json:"startedAt"`
-	ClosedAt  time.Time `json:"closedAt"`
+	Name      string     `json:"name"`
+	Players   []string   `json:"players"`
+	StartedAt *time.Time `json:"startedAt"`
+	ClosedAt  *time.Time `json:"closedAt"`
 }
 
 func (CreateRequest) Validate() error {
@@ -30,10 +30,10 @@ func (CreateRequest) Validate() error {
 }
 
 type UpdateRequest struct {
-	CurrentRound int       `json:"currentRound"`
-	Name         string    `json:"name"`
-	StartedAt    time.Time `json:"startedAt"`
-	ClosedAt     time.Time `json:"closedAt"`
+	CurrentRound int        `json:"currentRound"`
+	Name         string     `json:"name"`
+	StartedAt    *time.Time `json:"startedAt"`
+	ClosedAt     *time.Time `json:"closedAt"`
 }
 
 func (UpdateRequest) Validate() error {

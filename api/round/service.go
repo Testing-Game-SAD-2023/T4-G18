@@ -51,8 +51,8 @@ func (rs *Repository) Create(r *CreateRequest) (Round, error) {
 		round = model.Round{
 			GameID:      r.GameId,
 			TestClassId: r.TestClassId,
-			StartedAt:   r.StartedAt,
-			ClosedAt:    r.ClosedAt,
+			StartedAt:   &r.StartedAt,
+			ClosedAt:    &r.ClosedAt,
 		}
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			round.Order = lastRound.Order + 1
