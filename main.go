@@ -8,7 +8,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
@@ -49,7 +48,6 @@ func main() {
 		ctx        = context.Background()
 	)
 	flag.Parse()
-	rand.Seed(time.Now().Unix())
 
 	fcontent, err := os.ReadFile(*configPath)
 	if err != nil {
