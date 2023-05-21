@@ -869,6 +869,12 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
+                startedAt:
+                    type: string
+                    format: date-time
+                closetAt:
+                    type: string
+                    format: date-time
 
         Round:
             type: object
@@ -884,6 +890,12 @@ components:
                     type: string
                     format: date-time
                 updatedAt:
+                    type: string
+                    format: date-time
+                startedAt:
+                    type: string
+                    format: date-time
+                closetAt:
                     type: string
                     format: date-time
 
@@ -903,6 +915,12 @@ components:
                     type: string
                     format: date-time
                 updatedAt:
+                    type: string
+                    format: date-time
+                startedAt:
+                    type: string
+                    format: date-time
+                closetAt:
                     type: string
                     format: date-time
 

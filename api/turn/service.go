@@ -62,8 +62,10 @@ func (tr *Repository) CreateBulk(r *CreateRequest) ([]Turn, error) {
 
 		for i, id := range ids {
 			turns[i] = model.Turn{
-				PlayerID: id,
-				RoundID:  r.RoundId,
+				PlayerID:  id,
+				RoundID:   r.RoundId,
+				StartedAt: r.StartedAt,
+				ClosedAt:  r.ClosedAt,
 			}
 		}
 

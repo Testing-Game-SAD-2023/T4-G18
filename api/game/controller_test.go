@@ -42,13 +42,15 @@ func (suite *ControllerSuite) SetupSuite() {
 			&UpdateRequest{Name: "test", CurrentRound: 10}).
 		Return(nil, api.ErrNotFound).
 		On("FindByInterval", mock.Anything, mock.Anything).
+		Return([]Game{}, int(64), nil).
+		On("FindByPlayer", mock.Anything, mock.Anything).
 		Return([]Game{}, int(64), nil)
-
 	controller := NewController(gr)
 
 	r := chi.NewMux()
 	r.Get("/{id}", api.HandlerFunc(controller.FindByID))
 	r.Get("/", api.HandlerFunc(controller.List))
+	r.Get("/byplayer", api.HandlerFunc(controller.FindByPlayer))
 	r.Post("/", api.HandlerFunc(controller.Create))
 	r.Delete("/{id}", api.HandlerFunc(controller.Delete))
 	r.Put("/{id}", api.HandlerFunc(controller.Update))
@@ -354,5 +356,10 @@ func (gr *MockedRepository) FindByInterval(i *api.IntervalParams, p *api.Paginat
 		return nil, int64(args.Int(1)), args.Error(2)
 	}
 	return v.([]Game), int64(args.Int(1)), args.Error(2)
+
+}
+
+func (gr *MockedRepository) FindByPlayer(i string) ([]Game, error) {
+	return nil, nil
 
 }
