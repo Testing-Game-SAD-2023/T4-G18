@@ -13,19 +13,25 @@ type Round struct {
 	TestClassId string    `json:"testClassId"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
+	StartedAt   time.Time `json:"startedAt"`
+	ClosedAt    time.Time `json:"closedAt"`
 }
 
 type CreateRequest struct {
-	GameId      int64  `json:"gameId"`
-	TestClassId string `json:"testClassId"`
+	GameId      int64  		`json:"gameId"`
+	TestClassId string 		`json:"testClassId"`
+	StartedAt   time.Time   `json:"startedAt"`
+	ClosedAt    time.Time   `json:"closedAt"`
 }
 
 func (CreateRequest) Validate() error {
 	return nil
 }
 
-// TODO:
+
 type UpdateRequest struct {
+	StartedAt  time.Time `json:"startedAt"`
+	ClosedAt   time.Time `json:"closedAt"`
 }
 
 func (UpdateRequest) Validate() error {
@@ -50,5 +56,7 @@ func fromModel(r *model.Round) Round {
 		CreatedAt:   r.CreatedAt,
 		UpdatedAt:   r.UpdatedAt,
 		TestClassId: r.TestClassId,
+		StartedAt:	 r.StartedAt,
+		ClosedAt: 	 r.ClosedAt,
 	}
 }

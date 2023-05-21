@@ -13,6 +13,7 @@ type Service interface {
 	Delete(id int64) error
 	Update(id int64, ug *UpdateRequest) (Game, error)
 	FindByInterval(i *api.IntervalParams, p *api.PaginationParams) ([]Game, int64, error)
+	FindByPlayer(accountId string) ([]Game, error)
 }
 type Controller struct {
 	service Service
@@ -48,6 +49,20 @@ func (gc *Controller) FindByID(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	g, err := gc.service.FindById(id.AsInt64())
+
+	if err != nil {
+		return api.MakeHttpError(err)
+	}
+
+	return api.WriteJson(w, http.StatusOK, g)
+
+}
+
+func (gc *Controller) FindByPlayer(w http.ResponseWriter, r *http.Request) error {
+
+	accountId := r.URL.Query().Get("accountId")
+
+	g, err := gc.service.FindByPlayer(accountId)
 
 	if err != nil {
 		return api.MakeHttpError(err)

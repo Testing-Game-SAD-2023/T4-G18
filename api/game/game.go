@@ -11,14 +11,18 @@ type Game struct {
 	ID           int64     `json:"id"`
 	CurrentRound int       `json:"currentRound"`
 	CreatedAt    time.Time `json:"createdAt"`
+	StartedAt    time.Time `json:"startedAt"`
+	ClosedAt     time.Time `json:"closedAt"`
 	UpdatedAt    time.Time `json:"updatedAt"`
 	PlayersCount int       `json:"playersCount"`
 	Name         string    `json:"name"`
 }
 
 type CreateRequest struct {
-	Name    string   `json:"name"`
-	Players []string `json:"players"`
+	Name      string    `json:"name"`
+	Players   []string  `json:"players"`
+	StartedAt time.Time `json:"startedAt"`
+	ClosedAt  time.Time `json:"closedAt"`
 }
 
 func (CreateRequest) Validate() error {
@@ -26,8 +30,10 @@ func (CreateRequest) Validate() error {
 }
 
 type UpdateRequest struct {
-	CurrentRound int    `json:"currentRound"`
-	Name         string `json:"name"`
+	CurrentRound int       `json:"currentRound"`
+	Name         string    `json:"name"`
+	StartedAt    time.Time `json:"startedAt"`
+	ClosedAt     time.Time `json:"closedAt"`
 }
 
 func (UpdateRequest) Validate() error {
@@ -57,6 +63,7 @@ func (k Interval) AsTime() time.Time {
 }
 
 func fromModel(g *model.Game) Game {
+
 	return Game{
 		ID:           g.ID,
 		CurrentRound: g.CurrentRound,
@@ -64,5 +71,8 @@ func fromModel(g *model.Game) Game {
 		UpdatedAt:    g.UpdatedAt,
 		Name:         g.Name,
 		PlayersCount: g.PlayersCount,
+		StartedAt:    g.StartedAt,
+		ClosedAt:     g.ClosedAt,
 	}
+
 }
