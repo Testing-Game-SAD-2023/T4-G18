@@ -64,8 +64,8 @@ func (tr *Repository) CreateBulk(r *CreateRequest) ([]Turn, error) {
 			turns[i] = model.Turn{
 				PlayerID:  id,
 				RoundID:   r.RoundId,
-				StartedAt: &r.StartedAt,
-				ClosedAt:  &r.ClosedAt,
+				StartedAt: r.StartedAt,
+				ClosedAt:  r.ClosedAt,
 			}
 		}
 

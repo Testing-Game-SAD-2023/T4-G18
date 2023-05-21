@@ -18,10 +18,10 @@ type Turn struct {
 	ClosedAt  *time.Time `json:"closedAt"`
 }
 type CreateRequest struct {
-	RoundId   int64     `json:"roundId"`
-	Players   []string  `json:"players"`
-	StartedAt time.Time `json:"startedAt"`
-	ClosedAt  time.Time `json:"closedAt"`
+	RoundId   int64      `json:"roundId"`
+	Players   []string   `json:"players"`
+	StartedAt *time.Time `json:"startedAt,omitempty"`
+	ClosedAt  *time.Time `json:"closedAt,omitempty"`
 }
 
 func (CreateRequest) Validate() error {
@@ -29,10 +29,10 @@ func (CreateRequest) Validate() error {
 }
 
 type UpdateRequest struct {
-	Scores    string    `json:"scores"`
-	IsWinner  bool      `json:"isWinner"`
-	StartedAt time.Time `json:"startedAt"`
-	ClosedAt  time.Time `json:"closedAt"`
+	Scores    string     `json:"scores"`
+	IsWinner  bool       `json:"isWinner"`
+	StartedAt *time.Time `json:"startedAt,omitempty"`
+	ClosedAt  *time.Time `json:"closedAt,omitempty"`
 }
 
 func (UpdateRequest) Validate() error {

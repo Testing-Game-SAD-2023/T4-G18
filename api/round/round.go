@@ -18,10 +18,10 @@ type Round struct {
 }
 
 type CreateRequest struct {
-	GameId      int64     `json:"gameId"`
-	TestClassId string    `json:"testClassId"`
-	StartedAt   time.Time `json:"startedAt"`
-	ClosedAt    time.Time `json:"closedAt"`
+	GameId      int64      `json:"gameId"`
+	TestClassId string     `json:"testClassId"`
+	StartedAt   *time.Time `json:"startedAt,omitempty"`
+	ClosedAt    *time.Time `json:"closedAt,omitempty"`
 }
 
 func (CreateRequest) Validate() error {
@@ -29,8 +29,8 @@ func (CreateRequest) Validate() error {
 }
 
 type UpdateRequest struct {
-	StartedAt *time.Time `json:"startedAt"`
-	ClosedAt  *time.Time `json:"closedAt"`
+	StartedAt *time.Time `json:"startedAt,omitempty"`
+	ClosedAt  *time.Time `json:"closedAt,omitempty"`
 }
 
 func (UpdateRequest) Validate() error {

@@ -21,8 +21,8 @@ type Game struct {
 type CreateRequest struct {
 	Name      string     `json:"name"`
 	Players   []string   `json:"players"`
-	StartedAt *time.Time `json:"startedAt"`
-	ClosedAt  *time.Time `json:"closedAt"`
+	StartedAt *time.Time `json:"startedAt,omitempty"`
+	ClosedAt  *time.Time `json:"closedAt,omitempty"`
 }
 
 func (CreateRequest) Validate() error {
@@ -32,8 +32,8 @@ func (CreateRequest) Validate() error {
 type UpdateRequest struct {
 	CurrentRound int        `json:"currentRound"`
 	Name         string     `json:"name"`
-	StartedAt    *time.Time `json:"startedAt"`
-	ClosedAt     *time.Time `json:"closedAt"`
+	StartedAt    *time.Time `json:"startedAt,omitempty"`
+	ClosedAt     *time.Time `json:"closedAt,omitempty"`
 }
 
 func (UpdateRequest) Validate() error {
