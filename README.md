@@ -1,6 +1,8 @@
 # Game-Repository  
 ![Coverage](https://img.shields.io/badge/Coverage-46.6%25-yellow)
 <br>
+![BuildStatus](https://github.com/alarmfox/game-repository/actions/workflows/go.yml/badge.svg)
+<br>
 Implemented endpoint are:
 * /games:
     - GET /{id} retrieve a game by ID;
