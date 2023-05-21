@@ -65,7 +65,6 @@ func FromJsonBody[T Validable](r io.ReadCloser) (T, error) {
 }
 
 type Parseable[T any] interface {
-	Validable
 	Parse(s string) (T, error)
 }
 
@@ -88,14 +87,6 @@ func fromString[T Parseable[T]](s, name string) (T, error) {
 	v, err := t.Parse(s)
 	if err != nil {
 		err = fmt.Errorf("%w %q: %v", ErrInvalidParam, name, err)
-		return t, ApiError{
-			code:    http.StatusBadRequest,
-			err:     err,
-			Message: err.Error(),
-		}
-	}
-
-	if err := v.Validate(); err != nil {
 		return t, ApiError{
 			code:    http.StatusBadRequest,
 			err:     err,

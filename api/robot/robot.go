@@ -2,6 +2,7 @@ package robot
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -9,6 +10,15 @@ import (
 	"github.com/alarmfox/game-repository/model"
 )
 
+type Robot struct {
+	ID          int64     `json:"id"`
+	TestClassId string    `json:"testClassId"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+	Difficulty  string    `json:"difficulty"`
+	Type        RobotType `json:"type"`
+	Scores      string    `json:"scores"`
+}
 type RobotType int8
 
 const (
@@ -23,11 +33,9 @@ func (rb RobotType) Parse(s string) (RobotType, error) {
 	case evosuite.String():
 		return evosuite, nil
 	default:
-		return RobotType(0), api.ErrInvalidParam
+		return RobotType(0), fmt.Errorf("%w: unsupported test engine",
+			api.ErrInvalidParam)
 	}
-}
-func (rb RobotType) Validate() error {
-	return nil
 }
 
 func (rb RobotType) String() string {
@@ -41,7 +49,7 @@ func (rb RobotType) String() string {
 	}
 }
 
-func (rb *RobotType) MarshalJSON() ([]byte, error) {
+func (rb RobotType) MarshalJSON() ([]byte, error) {
 	return json.Marshal(rb.String())
 }
 
@@ -54,9 +62,7 @@ func (rb *RobotType) UnmarshalJSON(data []byte) error {
 	if err != nil {
 		return err
 	}
-	if err := v.Validate(); err != nil {
-		return err
-	}
+
 	*rb = v
 	return nil
 
@@ -107,16 +113,6 @@ func (s CustomString) AsString() string {
 
 func (CustomString) Validate() error {
 	return nil
-}
-
-type Robot struct {
-	ID          int64     `json:"id"`
-	TestClassId string    `json:"testClassId"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
-	Difficulty  string    `json:"difficulty"`
-	Type        RobotType `json:"type"`
-	Scores      string    `json:"scores"`
 }
 
 func fromModel(r *model.Robot) *Robot {
