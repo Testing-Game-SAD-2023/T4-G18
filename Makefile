@@ -57,11 +57,11 @@ ifeq ($(CI),)
 	@ ID=$$(docker run -p 5432 -e POSTGRES_PASSWORD=postgres --rm -d postgres:14-alpine3.17); \
 	PORT=$$(docker port $$ID | awk '{split($$0,a,":"); print a[2]}' ); \
 	sleep 5; \
-	DB_URI="postgresql://postgres:postgres@localhost:$$PORT/postgres?sslmode=disable" CGO_ENABLED=0  go test -v -cover  ./...  -args -test.gocoverdir=$(COVER_DIR) -- ; \
+	DB_URI="postgresql://postgres:postgres@localhost:$$PORT/postgres?sslmode=disable" CGO_ENABLED=0  go test -cover  ./...  -args -test.gocoverdir=$(COVER_DIR) -- ; \
 	docker kill $$ID
 else
 	$(info Running integration test on $(DB_URI))
-	@DB_URI=$(DB_URI) CGO_ENABLED=0 go test -v -cover  ./...  -args -test.gocoverdir=$(COVER_DIR)
+	@DB_URI=$(DB_URI) CGO_ENABLED=0 go test -cover  ./...  -args -test.gocoverdir=$(COVER_DIR)
 endif
 	@go tool covdata percent -i=$(COVER_DIR)/ -o $(COVER_DIR)/profile
 	go tool cover -func $(COVER_DIR)/profile -o=coverage.out

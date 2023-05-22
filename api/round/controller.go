@@ -43,7 +43,7 @@ func (rc *Controller) Create(w http.ResponseWriter, r *http.Request) error {
 
 func (rc *Controller) Update(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := api.FromUrlParams[Key](r, "id")
+	id, err := api.FromUrlParams[KeyType](r, "id")
 	if err != nil {
 		return err
 	}
@@ -63,7 +63,7 @@ func (rc *Controller) Update(w http.ResponseWriter, r *http.Request) error {
 
 func (rc *Controller) FindByID(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := api.FromUrlParams[Key](r, "id")
+	id, err := api.FromUrlParams[KeyType](r, "id")
 	if err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func (rc *Controller) FindByID(w http.ResponseWriter, r *http.Request) error {
 
 func (rh *Controller) Delete(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := api.FromUrlParams[Key](r, "id")
+	id, err := api.FromUrlParams[KeyType](r, "id")
 	if err != nil {
 		return err
 	}
@@ -93,7 +93,7 @@ func (rh *Controller) Delete(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (rc *Controller) List(w http.ResponseWriter, r *http.Request) error {
-	id, err := api.FromUrlQuery(r, "gameId", Key(10))
+	id, err := api.FromUrlQuery(r, "gameId", KeyType(10))
 
 	if err != nil {
 		return err

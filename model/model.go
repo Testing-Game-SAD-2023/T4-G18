@@ -9,17 +9,41 @@ type Game struct {
 	CurrentRound int   `gorm:"default:1"`
 	ID           int64 `gorm:"primaryKey;autoIncrement"`
 	Name         string
-	PlayersCount int
-	CreatedAt    time.Time    `gorm:"autoCreateTime"`
-	UpdatedAt    time.Time    `gorm:"autoUpdateTime"`
-	StartedAt    *time.Time   `gorm:"default:null"`
-	ClosedAt     *time.Time   `gorm:"default:null"`
-	Rounds       []Round      `gorm:"foreignKey:GameID;constraint:OnDelete:CASCADE;"`
-	PlayerGame   []PlayerGame `gorm:"foreignKey:GameID;constraint:OnDelete:CASCADE;"`
+	CreatedAt    time.Time  `gorm:"autoCreateTime"`
+	UpdatedAt    time.Time  `gorm:"autoUpdateTime"`
+	StartedAt    *time.Time `gorm:"default:null"`
+	ClosedAt     *time.Time `gorm:"default:null"`
+	Rounds       []Round    `gorm:"foreignKey:GameID;constraint:OnDelete:CASCADE;"`
+	Players      []Player   `gorm:"many2many:player_games;foreignKey:ID;joinForeignKey:GameID;References:AccountID;joinReferences:PlayerID"`
 }
 
 func (Game) TableName() string {
 	return "games"
+}
+
+type PlayerGame struct {
+	PlayerID  string    `gorm:"primaryKey"`
+	GameID    int64     `gorm:"primaryKey"`
+	CreatedAt time.Time `gorm:"autoCreateTime"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime"`
+	IsWinner  bool      `gorm:"default:false"`
+}
+
+func (PlayerGame) TableName() string {
+	return "player_games"
+}
+
+type Player struct {
+	ID        int64     `gorm:"primaryKey;autoIncrement"`
+	AccountID string    `gorm:"unique"`
+	CreatedAt time.Time `gorm:"autoCreateTime"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime"`
+	Turns     []Turn    `gorm:"foreignKey:PlayerID;constraint:OnDelete:SET NULL;"`
+	Games     []Game    `gorm:"many2many:player_games;foreignKey:AccountID;joinForeignKey:PlayerID;"`
+}
+
+func (Player) TableName() string {
+	return "players"
 }
 
 type Round struct {
@@ -65,32 +89,6 @@ type Metadata struct {
 
 func (Metadata) TableName() string {
 	return "metadata"
-}
-
-type PlayerGame struct {
-	ID        int64     `gorm:"primaryKey;autoIncrement"`
-	CreatedAt time.Time `gorm:"autoCreateTime"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime"`
-	IsWinner  bool      `gorm:"default:false"`
-	PlayerID  int64     `gorm:"index:idx_playergame,unique;not null;"`
-	GameID    int64     `gorm:"index:idx_playergame,unique;not null"`
-}
-
-func (PlayerGame) TableName() string {
-	return "player_game"
-}
-
-type Player struct {
-	ID          int64        `gorm:"primaryKey;autoIncrement"`
-	AccountID   string       `gorm:"unique"`
-	CreatedAt   time.Time    `gorm:"autoCreateTime"`
-	UpdatedAt   time.Time    `gorm:"autoUpdateTime"`
-	Turns       []Turn       `gorm:"foreignKey:PlayerID;constraint:OnDelete:SET NULL;"`
-	PlayerGames []PlayerGame `gorm:"foreignKey:PlayerID;constraint:OnDelete:SET NULL;"`
-}
-
-func (Player) TableName() string {
-	return "players"
 }
 
 type Robot struct {

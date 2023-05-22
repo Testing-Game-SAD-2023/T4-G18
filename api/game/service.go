@@ -4,7 +4,6 @@ import (
 	"github.com/alarmfox/game-repository/api"
 	"github.com/alarmfox/game-repository/model"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type Repository struct {
@@ -20,10 +19,10 @@ func NewRepository(db *gorm.DB) *Repository {
 func (gs *Repository) Create(r *CreateRequest) (Game, error) {
 	var (
 		game = model.Game{
-			Name:         r.Name,
-			PlayersCount: len(r.Players),
-			StartedAt:    r.StartedAt,
-			ClosedAt:     r.ClosedAt,
+			Name:      r.Name,
+			StartedAt: r.StartedAt,
+			ClosedAt:  r.ClosedAt,
+			Players:   make([]model.Player, len(r.Players)),
 		}
 	)
 	// detect duplication in player
@@ -31,76 +30,33 @@ func (gs *Repository) Create(r *CreateRequest) (Game, error) {
 		return Game{}, api.ErrInvalidParam
 	}
 
+	for i, player := range r.Players {
+		game.Players[i] = model.Player{
+			AccountID: player,
+		}
+	}
 	err := gs.db.Transaction(func(tx *gorm.DB) error {
-		var (
-			err         error
-			players     []model.Player
-			playerGames []model.PlayerGame = make([]model.PlayerGame, len(r.Players))
-		)
-
-		err = tx.
-			Create(&game).
-			Error
-
-		if err != nil {
-			return err
-		}
-
-		toCreate := make([]model.Player, len(r.Players))
-		for i, account := range r.Players {
-			toCreate[i] = model.Player{
-				AccountID: account,
-			}
-		}
-
-		// account creation (if not exist)
-		err = tx.
-			Clauses(
-				clause.OnConflict{
-					DoNothing: true,
-				},
-			).
-			Create(&toCreate).
-			Error
-
-		if err != nil {
-			return err
-		}
-
-		// get all players for game
-		err = tx.
-			Where("account_id IN ?", r.Players).
-			Find(&players).
-			Error
-
-		if err != nil {
-			return err
-		}
-
-		for i, player := range players {
-			playerGames[i] = model.PlayerGame{
-				GameID:   game.ID,
-				PlayerID: player.ID,
-			}
-		}
-
-		// create player instance in game
-		return tx.Create(playerGames).Error
+		return gs.db.Create(&game).Error
 	})
 
-	return fromModel(&game), api.MakeServiceError(err)
+	if err != nil {
+		return Game{}, api.MakeServiceError(err)
+	}
+
+	return fromModel(&game), nil
 }
 
 func (gs *Repository) FindById(id int64) (Game, error) {
 	var game model.Game
 	err := gs.db.
+		Preload("Players").
 		First(&game, id).
 		Error
 
 	return fromModel(&game), api.MakeServiceError(err)
 }
 
-func (gs *Repository) FindByInterval(i *api.IntervalParams, p *api.PaginationParams) ([]Game, int64, error) {
+func (gs *Repository) FindByInterval(i api.IntervalParams, p api.PaginationParams) ([]Game, int64, error) {
 	var games []model.Game
 	var n int64
 
@@ -153,44 +109,26 @@ func (gs *Repository) Update(id int64, r *UpdateRequest) (Game, error) {
 	return fromModel(&game), api.MakeServiceError(err)
 }
 
-func (gr *Repository) FindByPlayer(accountId string) ([]Game, error) {
+func (gr *Repository) FindByPlayer(accountId string, pp api.PaginationParams) ([]Game, int64, error) {
 	var (
-		player model.Player
-		games  []model.Game
+		// player model.Player
+		count int64
+		games []model.Game
 	)
 
 	err := gr.db.Transaction(func(tx *gorm.DB) error {
 
-		err := tx.Debug().Preload("PlayerGames").
-			Where(&model.Player{AccountID: accountId}).
-			Find(&player).
-			Error
-		if err != nil {
-			return err
-		}
+		association := tx.Debug().Model(&model.Player{AccountID: accountId}).
+			Scopes(api.WithPagination(pp)).
+			Association("Games")
 
-		playerGame := player.PlayerGames
-
-		gameIds := make([]int64, len(playerGame))
-		for i, pg := range playerGame {
-			gameIds[i] = pg.GameID
-		}
-
-		err = tx.Debug().
-			Where("id IN ?", gameIds).
-			Find(&games).
-			Error
-
-		if err != nil {
-			return err
-		}
-
-		return err
+		count = association.Count()
+		return association.Find(&games)
 	})
 
 	resp := make([]Game, len(games))
 	for i, game := range games {
 		resp[i] = fromModel(&game)
 	}
-	return resp, api.MakeServiceError(err)
+	return resp, count, api.MakeServiceError(err)
 }

@@ -30,14 +30,14 @@ type PaginationMetadata struct {
 	PageSize int64 `json:"pageSize"`
 }
 
-func WithPagination(p *PaginationParams) func(db *gorm.DB) *gorm.DB {
+func WithPagination(p PaginationParams) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		offset := (p.Page - 1) * p.PageSize
 		return db.Offset(int(offset)).Limit(int(p.PageSize))
 	}
 }
 
-func WithInterval(i *IntervalParams) func(db *gorm.DB) *gorm.DB {
+func WithInterval(i IntervalParams) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where("created_at between ? AND ?", i.Start, i.End)
 	}
@@ -57,7 +57,7 @@ func WithOrder(column string) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-func MakePaginatedResponse(v any, count int64, p *PaginationParams) *PaginatedResponse {
+func MakePaginatedResponse(v any, count int64, p PaginationParams) *PaginatedResponse {
 	return &PaginatedResponse{
 		Data: v,
 		Metadata: PaginationMetadata{

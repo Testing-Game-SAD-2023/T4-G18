@@ -59,6 +59,7 @@ func (suite *RepositorySuite) SetupSuite() {
 }
 
 func (suite *RepositorySuite) Cleanup() {
+	suite.T().Helper()
 	// Truncate each table individually
 	if err := suite.db.Exec("TRUNCATE TABLE turns RESTART IDENTITY CASCADE").Error; err != nil {
 		suite.T().Fatal(err)
@@ -80,11 +81,11 @@ func (suite *RepositorySuite) Cleanup() {
 
 func (suite *RepositorySuite) SeedTestData() {
 	// Create a game with rounds and turns
+	suite.T().Helper()
 
 	// Create a test game
 	game := model.Game{
-		Name:         "Test Game",
-		PlayersCount: 4,
+		Name: "Test Game",
 		Rounds: []model.Round{
 			{
 				Order:       1,
@@ -113,8 +114,8 @@ func (suite *RepositorySuite) SeedTestData() {
 
 	// Create a player-game relationship
 	playerGame := model.PlayerGame{
-		PlayerID: 1, // Replace with the player ID
-		GameID:   1, // Replace with the game ID
+		PlayerID: "testplayer", // Replace with the player ID
+		GameID:   1,            // Replace with the game ID
 	}
 
 	// Save the test data to the database

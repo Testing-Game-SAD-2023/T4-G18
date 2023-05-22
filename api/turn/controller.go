@@ -46,7 +46,7 @@ func (tc *Controller) Create(w http.ResponseWriter, r *http.Request) error {
 
 func (tc *Controller) Update(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := api.FromUrlParams[Key](r, "id")
+	id, err := api.FromUrlParams[KeyType](r, "id")
 	if err != nil {
 		return err
 	}
@@ -66,7 +66,7 @@ func (tc *Controller) Update(w http.ResponseWriter, r *http.Request) error {
 
 func (tc *Controller) FindByID(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := api.FromUrlParams[Key](r, "id")
+	id, err := api.FromUrlParams[KeyType](r, "id")
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func (tc *Controller) FindByID(w http.ResponseWriter, r *http.Request) error {
 
 func (tc *Controller) Delete(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := api.FromUrlParams[Key](r, "id")
+	id, err := api.FromUrlParams[KeyType](r, "id")
 	if err != nil {
 		return err
 	}
@@ -97,7 +97,7 @@ func (tc *Controller) Delete(w http.ResponseWriter, r *http.Request) error {
 
 func (tc *Controller) Upload(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := api.FromUrlParams[Key](r, "id")
+	id, err := api.FromUrlParams[KeyType](r, "id")
 	if err != nil {
 		return err
 	}
@@ -112,7 +112,7 @@ func (tc *Controller) Upload(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (tc *Controller) Download(w http.ResponseWriter, r *http.Request) error {
-	id, err := api.FromUrlParams[Key](r, "id")
+	id, err := api.FromUrlParams[KeyType](r, "id")
 	if err != nil {
 		return err
 	}
@@ -132,7 +132,7 @@ func (tc *Controller) Download(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (tc *Controller) List(w http.ResponseWriter, r *http.Request) error {
-	id, err := api.FromUrlQuery(r, "roundId", Key(10))
+	id, err := api.FromUrlQuery(r, "roundId", KeyType(10))
 
 	if err != nil {
 		return err

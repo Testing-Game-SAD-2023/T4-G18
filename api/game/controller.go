@@ -12,8 +12,8 @@ type Service interface {
 	FindById(id int64) (Game, error)
 	Delete(id int64) error
 	Update(id int64, ug *UpdateRequest) (Game, error)
-	FindByInterval(i *api.IntervalParams, p *api.PaginationParams) ([]Game, int64, error)
-	FindByPlayer(accountId string) ([]Game, error)
+	FindByInterval(i api.IntervalParams, p api.PaginationParams) ([]Game, int64, error)
+	FindByPlayer(accountId string, p api.PaginationParams) ([]Game, int64, error)
 }
 type Controller struct {
 	service Service
@@ -43,7 +43,7 @@ func (gc *Controller) Create(w http.ResponseWriter, r *http.Request) error {
 
 func (gc *Controller) FindByID(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := api.FromUrlParams[Key](r, "id")
+	id, err := api.FromUrlParams[KeyType](r, "id")
 	if err != nil {
 		return err
 	}
@@ -60,21 +60,38 @@ func (gc *Controller) FindByID(w http.ResponseWriter, r *http.Request) error {
 
 func (gc *Controller) FindByPlayer(w http.ResponseWriter, r *http.Request) error {
 
-	accountId := r.URL.Query().Get("accountId")
+	accountId, err := api.FromUrlQuery[AccountIdType](r, "accountId", "")
+	if err != nil {
+		return err
+	}
+	page, err := api.FromUrlQuery[KeyType](r, "page", 1)
 
-	g, err := gc.service.FindByPlayer(accountId)
+	if err != nil {
+		return err
+	}
+
+	pageSize, err := api.FromUrlQuery[KeyType](r, "pageSize", 10)
+
+	if err != nil {
+		return err
+	}
+	pp := api.PaginationParams{
+		Page:     page.AsInt64(),
+		PageSize: pageSize.AsInt64(),
+	}
+	games, n, err := gc.service.FindByPlayer(accountId.AsString(), pp)
 
 	if err != nil {
 		return api.MakeHttpError(err)
 	}
 
-	return api.WriteJson(w, http.StatusOK, g)
+	return api.WriteJson(w, http.StatusOK, api.MakePaginatedResponse(games, n, pp))
 
 }
 
 func (gc *Controller) Delete(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := api.FromUrlParams[Key](r, "id")
+	id, err := api.FromUrlParams[KeyType](r, "id")
 	if err != nil {
 		return err
 	}
@@ -88,7 +105,7 @@ func (gc *Controller) Delete(w http.ResponseWriter, r *http.Request) error {
 
 func (gc *Controller) Update(w http.ResponseWriter, r *http.Request) error {
 
-	id, err := api.FromUrlParams[Key](r, "id")
+	id, err := api.FromUrlParams[KeyType](r, "id")
 	if err != nil {
 		return err
 	}
@@ -107,25 +124,25 @@ func (gc *Controller) Update(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (gc *Controller) List(w http.ResponseWriter, r *http.Request) error {
-	page, err := api.FromUrlQuery[Key](r, "page", 1)
+	page, err := api.FromUrlQuery[KeyType](r, "page", 1)
 
 	if err != nil {
 		return err
 	}
 
-	pageSize, err := api.FromUrlQuery[Key](r, "pageSize", 10)
+	pageSize, err := api.FromUrlQuery[KeyType](r, "pageSize", 10)
 
 	if err != nil {
 		return err
 	}
 
-	startDate, err := api.FromUrlQuery(r, "startDate", Interval(time.Now().Add(-24*time.Hour)))
+	startDate, err := api.FromUrlQuery(r, "startDate", IntervalType(time.Now().Add(-24*time.Hour)))
 
 	if err != nil {
 		return err
 	}
 
-	endDate, err := api.FromUrlQuery(r, "endDate", Interval(time.Now()))
+	endDate, err := api.FromUrlQuery(r, "endDate", IntervalType(time.Now()))
 
 	if err != nil {
 		return err
@@ -141,10 +158,10 @@ func (gc *Controller) List(w http.ResponseWriter, r *http.Request) error {
 		PageSize: pageSize.AsInt64(),
 	}
 
-	games, count, err := gc.service.FindByInterval(&ip, &pp)
+	games, count, err := gc.service.FindByInterval(ip, pp)
 	if err != nil {
 		return api.MakeHttpError(err)
 	}
 
-	return api.WriteJson(w, http.StatusOK, api.MakePaginatedResponse(games, count, &pp))
+	return api.WriteJson(w, http.StatusOK, api.MakePaginatedResponse(games, count, pp))
 }

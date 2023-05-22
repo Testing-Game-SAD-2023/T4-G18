@@ -92,6 +92,9 @@ func run(ctx context.Context, c Configuration) error {
 	if err != nil {
 		return err
 	}
+	if err := db.SetupJoinTable(&model.Game{}, "Players", &model.PlayerGame{}); err != nil {
+		return err
+	}
 
 	if err := os.Mkdir(c.DataDir, os.ModePerm); err != nil && !errors.Is(err, os.ErrExist) {
 		return fmt.Errorf("cannot create data directory: %w", err)
@@ -275,7 +278,7 @@ func setupRoutes(gc *game.Controller, rc *round.Controller, tc *turn.Controller,
 		r.Get("/", api.HandlerFunc(gc.List))
 
 		// Get game by player
-		r.Get("/byplayer/{accountId}", api.HandlerFunc(gc.FindByPlayer))
+		r.Get("/byPlayer", api.HandlerFunc(gc.FindByPlayer))
 
 		// Create game
 		r.With(middleware.AllowContentType("application/json")).
@@ -302,8 +305,8 @@ func setupRoutes(gc *game.Controller, rc *round.Controller, tc *turn.Controller,
 			Post("/", api.HandlerFunc(rc.Create))
 
 		// Update round
-		// r.With(middleware.AllowContentType("application/json")).
-		r.Put("/{id}", api.HandlerFunc(rc.Update))
+		r.With(middleware.AllowContentType("application/json")).
+			Put("/{id}", api.HandlerFunc(rc.Update))
 
 		// Delete round
 		r.Delete("/{id}", api.HandlerFunc(rc.Delete))
@@ -345,6 +348,7 @@ func setupRoutes(gc *game.Controller, rc *round.Controller, tc *turn.Controller,
 		r.With(middleware.AllowContentType("application/json")).
 			Post("/", api.HandlerFunc(roc.CreateBulk))
 
+		// Delete robots by class id
 		r.Delete("/", api.HandlerFunc(roc.Delete))
 
 	})
