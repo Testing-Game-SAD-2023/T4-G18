@@ -68,9 +68,13 @@ paths:
                                 currentRound:
                                     type: integer
                                 startedAt:
-                                    type: date-time
+                                    type: string
+                                    format: date-time
+                                    nullable: true
                                 closedAt:
-                                    type: date-time
+                                    type: string
+                                    format: date-time
+                                    nullable: true
                         example:
                             name: "New Game name"
                             currentRound: 2
@@ -155,9 +159,13 @@ paths:
                                 name:
                                     type: string
                                 startedAt:
-                                    type: date-time
+                                    type: string 
+                                    format: date-time
+                                    nullable: true
                                 closedAt:
-                                    type: date-time
+                                    type: string
+                                    format: date-time
+                                    nullable: true
                         example:
                             name: Game name
                             players: ["id1", "id2"]
@@ -234,6 +242,45 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/GetGamesResponse"
+    /games/byPlayer:
+        get:
+            summary: Get all games by a player
+            description: Get all games by a player
+            tags:
+                - games
+            parameters:
+              - in: query
+                name: accountId
+                description: Id of the player
+                schema: 
+                  type: string
+                required: true
+            responses:
+                "200":
+                    description: Games played by the player`
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Game"
+                "400":
+                    description: Bad request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "404":
+                    description: No game found for the provided `Id`
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "500":
+                    description: Internal server error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+
 
     /rounds/{id}:
         parameters:
@@ -288,9 +335,13 @@ paths:
                             type: object
                             properties:
                                 startedAt:
-                                    type: date-time
+                                    type: string
+                                    format: date-time
+                                    nullable: true
                                 closedAt:
-                                    type: date-time
+                                    type: string
+                                    format: date-time
+                                    nullable: true
 
             responses:
                 "200":
@@ -374,9 +425,13 @@ paths:
                                 order:
                                     type: integer
                                 startedAt:
-                                    type: date-time
+                                    type: string
+                                    format: date-time
+                                    nullable: true
                                 closedAt:
-                                    type: date-time
+                                    type: string
+                                    format: date-time
+                                    nullable: true
                         example:
                             gameId: 1
                             testClassId: "a_test_class.java"
@@ -506,9 +561,13 @@ paths:
                                 isWinner:
                                     type: boolean
                                 startedAt:
-                                    type: date-time
+                                    type: string
+                                    format: date-time
+                                    nullable: true
                                 closedAt:
-                                    type: date-time
+                                    type: string
+                                    format: date-time
+                                    nullable: true
                         example:
                             scores: "a new score in JSON format"
                             isWinner: true
@@ -720,9 +779,13 @@ paths:
                                     type: integer
                                     format: int64
                                 startedAt:
-                                    type: date-time
+                                    type: string
+                                    format: date-time
+                                    nullable: true
                                 closedAt:
-                                    type: date-time
+                                    type: string
+                                    format: date-time
+                                    nullable: true
                         example:
                             players: ["id1", "id2"]
                             roundId: 1
@@ -924,13 +987,19 @@ components:
     schemas:
         Game:
             type: object
+            required:
+                - id
+                - currentRound
+                - name 
+                - createdAt
+                - updatedAt
+                - startedAt
+                - closedAt
             properties:
                 id:
                     type: integer
                     format: int64
                 currentRound:
-                    type: integer
-                playersCount:
                     type: integer
                 name:
                     type: string
@@ -948,6 +1017,18 @@ components:
                     type: string
                     format: date-time
                     nullable: true
+                players:
+                    nullable: true
+                    type: array
+                    items: 
+                        type: object
+                        properties:
+                            id: 
+                                type: integer
+                                format: int64
+                            accountId:
+                                type: string
+
 
         Round:
             type: object
