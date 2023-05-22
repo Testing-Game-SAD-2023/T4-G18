@@ -13,6 +13,7 @@ on:
       - '.postman/**'
       - Makefile
       - LICENSE
+      - 'docs/**'
       
   pull_request:
     branches: [ "master" ]
@@ -23,7 +24,7 @@ on:
       - '.postman/**'
       - Makefile
       - LICENSE
-      
+      - 'docs/**'
   workflow_dispatch: 
 
 jobs:
