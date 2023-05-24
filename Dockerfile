@@ -5,7 +5,7 @@ WORKDIR /app
 COPY vendor .
 COPY . .
 
-RUN CGO_ENABLED=0 go build -o build/game-repository
+RUN CGO_ENABLED=0 go build -ldflags "-s -w"  -o build/game-repository
 
 FROM alpine 
 
