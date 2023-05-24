@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type PaginationParams struct {
@@ -40,20 +39,6 @@ func WithPagination(p PaginationParams) func(db *gorm.DB) *gorm.DB {
 func WithInterval(i IntervalParams) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where("created_at between ? AND ?", i.Start, i.End)
-	}
-}
-
-func WithOrder(column string) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		return db.Order(clause.OrderBy{
-			Columns: []clause.OrderByColumn{
-				{
-					Column: clause.Column{
-						Name: column,
-					},
-				},
-			},
-		})
 	}
 }
 

@@ -120,6 +120,7 @@ func (gr *Repository) FindByPlayer(accountId string, pp api.PaginationParams) ([
 
 		association := tx.Debug().Model(&model.Player{AccountID: accountId}).
 			Scopes(api.WithPagination(pp)).
+			Order("created_at desc").
 			Association("Games")
 
 		count = association.Count()

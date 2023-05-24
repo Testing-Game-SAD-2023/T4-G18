@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/alarmfox/game-repository/api"
-	"github.com/alarmfox/game-repository/api/game"
 	"github.com/alarmfox/game-repository/model"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -25,46 +24,25 @@ func (rs *Repository) Create(r *CreateRequest) (Round, error) {
 
 	err := rs.db.Transaction(func(tx *gorm.DB) error {
 
-		err := tx.
-			Select("id").
-			First(&game.Game{}, r.GameId).
-			Error
-
-		if err != nil {
-			return err
-		}
 		var lastRound model.Round
-		err = tx.Where(&model.Round{GameID: r.GameId}).
-			Order(clause.OrderBy{
-				Columns: []clause.OrderByColumn{
-					{
-						Column: clause.Column{
-							Name: "order",
-						},
-						Desc: true,
-					},
-				},
-			}).
+		err := tx.Where(&model.Round{GameID: r.GameId}).
+			Order("\"order\" desc").
 			Last(&lastRound).
 			Error
+
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
 
 		round = model.Round{
 			GameID:      r.GameId,
 			TestClassId: r.TestClassId,
 			StartedAt:   r.StartedAt,
 			ClosedAt:    r.ClosedAt,
-		}
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			round.Order = lastRound.Order + 1
-		} else if err != nil {
-			return err
-		} else {
-			round.Order = 1
+			Order:       lastRound.Order + 1,
 		}
 
-		return tx.
-			Create(&round).
-			Error
+		return tx.Create(&round).Error
 
 	})
 
@@ -108,8 +86,8 @@ func (rs *Repository) FindByGame(id int64) ([]Round, error) {
 	var rounds []model.Round
 
 	err := rs.db.
-		Scopes(api.WithOrder("order")).
 		Where(&model.Round{GameID: id}).
+		Order("\"order\" asc").
 		Find(&rounds).
 		Error
 
