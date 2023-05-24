@@ -6,7 +6,8 @@
 Implemented endpoint are:
 * /games:
     - GET /{id} retrieve a game by ID;
-    - GET /?pageSize=<integer>&page=<integer>&startDate=<YYYY-MM-DD>&endDate=<YYYY-MM-DD> list games in interval with pagination;
+    - GET /?pageSize=<integer>&page=<integer>&startDate=<YYYY-MM-DD>&endDate=<YYYY-MM-DD> list games in interval with paginati
+    - GET /byPLayer?accountId<string>&?pageSize=<integer>&page=<integer> retrieve players game with pagination;
     - POST / create a game;
     - DELETE /{id} delete a game;
     - PUT /{id} update an existing game;
@@ -15,6 +16,7 @@ Implemented endpoint are:
     - GET ?gameId=<integer> retrieve all rounds in a game;
     - POST / create a round;
     - DELETE /{id} delete a round;
+    - PUT /{id} update a round;
 * /turns:
     - GET /{id} retrieve a turn by ID;
     - GET ?roundId=<integer> retrieve all turns in a round;
