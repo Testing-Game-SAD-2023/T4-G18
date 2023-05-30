@@ -12,8 +12,7 @@ type Service interface {
 	FindById(id int64) (Game, error)
 	Delete(id int64) error
 	Update(id int64, ug *UpdateRequest) (Game, error)
-	FindByInterval(i api.IntervalParams, p api.PaginationParams) ([]Game, int64, error)
-	FindByPlayer(accountId string, p api.PaginationParams) ([]Game, int64, error)
+	FindByInterval(accountId string, i api.IntervalParams, p api.PaginationParams) ([]Game, int64, error)
 }
 type Controller struct {
 	service Service
@@ -58,37 +57,6 @@ func (gc *Controller) FindByID(w http.ResponseWriter, r *http.Request) error {
 
 }
 
-func (gc *Controller) FindByPlayer(w http.ResponseWriter, r *http.Request) error {
-
-	accountId, err := api.FromUrlQuery[AccountIdType](r, "accountId", "")
-	if err != nil {
-		return err
-	}
-	page, err := api.FromUrlQuery[KeyType](r, "page", 1)
-
-	if err != nil {
-		return err
-	}
-
-	pageSize, err := api.FromUrlQuery[KeyType](r, "pageSize", 10)
-
-	if err != nil {
-		return err
-	}
-	pp := api.PaginationParams{
-		Page:     page.AsInt64(),
-		PageSize: pageSize.AsInt64(),
-	}
-	games, n, err := gc.service.FindByPlayer(accountId.AsString(), pp)
-
-	if err != nil {
-		return api.MakeHttpError(err)
-	}
-
-	return api.WriteJson(w, http.StatusOK, api.MakePaginatedResponse(games, n, pp))
-
-}
-
 func (gc *Controller) Delete(w http.ResponseWriter, r *http.Request) error {
 
 	id, err := api.FromUrlParams[KeyType](r, "id")
@@ -124,6 +92,11 @@ func (gc *Controller) Update(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (gc *Controller) List(w http.ResponseWriter, r *http.Request) error {
+	accountId, err := api.FromUrlQuery[AccountIdType](r, "accountId", "")
+
+	if err != nil {
+		return err
+	}
 	page, err := api.FromUrlQuery[KeyType](r, "page", 1)
 
 	if err != nil {
@@ -158,7 +131,7 @@ func (gc *Controller) List(w http.ResponseWriter, r *http.Request) error {
 		PageSize: pageSize.AsInt64(),
 	}
 
-	games, count, err := gc.service.FindByInterval(ip, pp)
+	games, count, err := gc.service.FindByInterval(accountId.AsString(), ip, pp)
 	if err != nil {
 		return api.MakeHttpError(err)
 	}

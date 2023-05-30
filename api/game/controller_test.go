@@ -50,7 +50,6 @@ func (suite *ControllerSuite) SetupSuite() {
 	r := chi.NewMux()
 	r.Get("/{id}", api.HandlerFunc(controller.FindByID))
 	r.Get("/", api.HandlerFunc(controller.List))
-	r.Get("/byplayer", api.HandlerFunc(controller.FindByPlayer))
 	r.Post("/", api.HandlerFunc(controller.Create))
 	r.Delete("/{id}", api.HandlerFunc(controller.Delete))
 	r.Put("/{id}", api.HandlerFunc(controller.Update))
@@ -348,7 +347,7 @@ func (gr *MockedRepository) Update(id int64, ur *UpdateRequest) (Game, error) {
 	return v.(Game), args.Error(1)
 }
 
-func (gr *MockedRepository) FindByInterval(i api.IntervalParams, p api.PaginationParams) ([]Game, int64, error) {
+func (gr *MockedRepository) FindByInterval(accountId string, i api.IntervalParams, p api.PaginationParams) ([]Game, int64, error) {
 	args := gr.Called(i, p)
 	v := args.Get(0)
 
@@ -356,10 +355,5 @@ func (gr *MockedRepository) FindByInterval(i api.IntervalParams, p api.Paginatio
 		return nil, int64(args.Int(1)), args.Error(2)
 	}
 	return v.([]Game), int64(args.Int(1)), args.Error(2)
-
-}
-
-func (gr *MockedRepository) FindByPlayer(i string, pp api.PaginationParams) ([]Game, int64, error) {
-	return nil, 0, fmt.Errorf("not implemented")
 
 }

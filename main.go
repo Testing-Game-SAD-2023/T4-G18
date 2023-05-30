@@ -301,9 +301,6 @@ func setupRoutes(gc *game.Controller, rc *round.Controller, tc *turn.Controller,
 		// List games
 		r.Get("/", api.HandlerFunc(gc.List))
 
-		// Get game by player
-		r.Get("/byPlayer", api.HandlerFunc(gc.FindByPlayer))
-
 		// Create game
 		r.With(middleware.AllowContentType("application/json")).
 			Post("/", api.HandlerFunc(gc.Create))
