@@ -105,23 +105,14 @@ func (gs *Repository) Delete(id int64) error {
 func (gs *Repository) Update(id int64, r *UpdateRequest) (Game, error) {
 
 	var (
-		game model.Game
+		game model.Game = model.Game{ID: id}
 		err  error
 	)
 
-	err = gs.db.Transaction(func(tx *gorm.DB) error {
-
-		err := tx.
-			First(&game, id).
-			Error
-
-		if err != nil {
-			return err
-		}
-
-		return tx.Model(&game).Updates(r).Error
-
-	})
+	err = gs.db.Model(&game).Updates(r).Error
+	if err != nil {
+		return Game{}, api.MakeServiceError(err)
+	}
 
 	return fromModel(&game), api.MakeServiceError(err)
 }
