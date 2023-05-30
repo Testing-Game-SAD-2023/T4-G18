@@ -12,6 +12,7 @@ type Service interface {
 	DeleteByTestClass(testClassId string) error
 }
 
+//slide
 type Controller struct {
 	service Service
 }
