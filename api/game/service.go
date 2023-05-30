@@ -111,7 +111,6 @@ func (gs *Repository) Update(id int64, r *UpdateRequest) (Game, error) {
 
 func (gr *Repository) FindByPlayer(accountId string, pp api.PaginationParams) ([]Game, int64, error) {
 	var (
-		// player model.Player
 		count int64
 		games []model.Game
 	)

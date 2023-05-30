@@ -3,5 +3,10 @@
     "listenAddress": "localhost:3000",
     "apiPrefix": "/",
     "dataPath": "data",
-    "enableSwagger": false
+    "enableSwagger": false,
+    "rateLimiting": {
+        "enabled": false,
+        "burst": 0,
+        "buckeSize": 0
+    }
 }
