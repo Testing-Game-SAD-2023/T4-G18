@@ -19,6 +19,7 @@ import (
 	"github.com/alarmfox/game-repository/api/robot"
 	"github.com/alarmfox/game-repository/api/round"
 	"github.com/alarmfox/game-repository/api/turn"
+	"github.com/alarmfox/game-repository/limiter"
 	"github.com/alarmfox/game-repository/model"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -37,6 +38,11 @@ type Configuration struct {
 	DataDir         string        `json:"dataDir"`
 	EnableSwagger   bool          `json:"enableSwagger"`
 	CleanupInterval time.Duration `json:"cleanupInterval"`
+	RateLimiting    struct {
+		Burst      int  `json:"burst"`
+		BucketSize int  `json:"bucketSize"`
+		Enabled    bool `json:"enabled"`
+	} `json:"rateLimiting,omitempty"`
 }
 
 //go:embed postman
@@ -130,10 +136,15 @@ func run(ctx context.Context, c Configuration) error {
 	// metrics endpoint
 	r.Handle("/metrics", promhttp.Handler())
 
+	clientLimiter := limiter.NewClientLimiter(c.RateLimiting.Burst, c.RateLimiting.BucketSize)
 	r.Group(func(r chi.Router) {
+		r.Use(middleware.RealIP)
 		r.Use(middleware.Logger)
 		r.Use(middleware.Recoverer)
 
+		if c.RateLimiting.Enabled {
+			r.Use(clientLimiter.Limit)
+		}
 		var (
 
 			// game endpoint
@@ -164,10 +175,9 @@ func run(ctx context.Context, c Configuration) error {
 	})
 
 	g.Go(func() error {
-		ticker := time.NewTicker(c.CleanupInterval)
 		for {
 			select {
-			case <-ticker.C:
+			case <-time.After(c.CleanupInterval):
 				_, err := cleanup(db)
 				if err != nil {
 					log.Print(err)
@@ -177,6 +187,20 @@ func run(ctx context.Context, c Configuration) error {
 			}
 		}
 	})
+
+	if c.RateLimiting.Enabled {
+		g.Go(func() error {
+			for {
+				select {
+				case <-ctx.Done():
+					return nil
+				case <-time.After(time.Minute):
+					clientLimiter.Cleanup(3 * time.Minute)
+				}
+			}
+		})
+
+	}
 
 	return g.Wait()
 
