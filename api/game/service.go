@@ -118,7 +118,7 @@ func (gr *Repository) FindByPlayer(accountId string, pp api.PaginationParams) ([
 
 	err := gr.db.Transaction(func(tx *gorm.DB) error {
 
-		association := tx.Debug().Model(&model.Player{AccountID: accountId}).
+		association := tx.Model(&model.Player{AccountID: accountId}).
 			Scopes(api.WithPagination(pp)).
 			Order("created_at desc").
 			Association("Games")
