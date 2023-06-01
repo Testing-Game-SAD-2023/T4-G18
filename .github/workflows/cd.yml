@@ -25,6 +25,37 @@ on:
   workflow_dispatch:
 
 jobs:
+  test:
+    services:
+      postgres:
+        image: postgres:14-alpine3.17
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: 
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      name: Checkout
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+ 
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.20.4
+
+    - name: Run all tests
+      run: make test-integration CI=1 DB_URI=postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable COVER_DIR=$(pwd)/coverage
+
+
+
   build:
     runs-on: ubuntu-latest
     steps:
