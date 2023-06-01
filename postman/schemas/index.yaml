@@ -235,6 +235,12 @@ paths:
                       minimum: 10
                       default: 100
                   required: false
+                - in: query
+                  name: accountId
+                  description: Id of the player
+                  schema: 
+                    type: string
+                  required: false
             responses:
                 "200":
                     description: Games in the inteval
@@ -242,44 +248,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/GetGamesResponse"
-    /games/byPlayer:
-        get:
-            summary: Get all games by a player
-            description: Get all games by a player
-            tags:
-                - games
-            parameters:
-              - in: query
-                name: accountId
-                description: Id of the player
-                schema: 
-                  type: string
-                required: true
-              - in: query
-                name: page
-                description: Page number to retrieve
-                schema:
-                    type: integer
-                    format: int64
-                    minimum: 1
-                    default: 1
-                required: false
-              - in: query
-                name: pageSize
-                description: Number of items per page
-                schema:
-                    type: integer
-                    format: int64
-                    minimum: 10
-                    default: 100
-                required: false
-            responses:
-                "200":
-                    description: Games played by the player`
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Game"
                 "400":
                     description: Bad request
                     content:
@@ -298,7 +266,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-
 
     /rounds/{id}:
         parameters:
