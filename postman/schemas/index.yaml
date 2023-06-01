@@ -8,7 +8,7 @@ servers:
     - url: https://sad.capass.org
       description: Stage server (public available)
     - url: http://localhost:3000
-      description: Local server (used for  localdevelopment)
+      description: Local server (used for  local development)
 
 paths:
     /games/{id}:
