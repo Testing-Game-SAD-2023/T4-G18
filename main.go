@@ -39,9 +39,9 @@ type Configuration struct {
 	EnableSwagger   bool          `json:"enableSwagger"`
 	CleanupInterval time.Duration `json:"cleanupInterval"`
 	RateLimiting    struct {
-		Burst      int  `json:"burst"`
-		BucketSize int  `json:"bucketSize"`
-		Enabled    bool `json:"enabled"`
+		Burst   int     `json:"burst"`
+		MaxRate float64 `json:"maxRate"`
+		Enabled bool    `json:"enabled"`
 	} `json:"rateLimiting,omitempty"`
 }
 
@@ -136,7 +136,7 @@ func run(ctx context.Context, c Configuration) error {
 	// metrics endpoint
 	r.Handle("/metrics", promhttp.Handler())
 
-	clientLimiter := limiter.NewClientLimiter(c.RateLimiting.Burst, c.RateLimiting.BucketSize)
+	clientLimiter := limiter.NewClientLimiter(c.RateLimiting.Burst, c.RateLimiting.MaxRate)
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.RealIP)
 		r.Use(middleware.Logger)

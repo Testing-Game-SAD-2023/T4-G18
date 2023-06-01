@@ -16,18 +16,18 @@ type client struct {
 }
 
 type ClientLimiter struct {
-	mu         sync.RWMutex
-	clients    map[string]*client
-	burst      int
-	bucketSize int
+	mu      sync.Mutex
+	clients map[string]*client
+	burst   int
+	maxRate float64
 }
 
-func NewClientLimiter(burst, bucketSize int) *ClientLimiter {
+func NewClientLimiter(burst int, maxRate float64) *ClientLimiter {
 	return &ClientLimiter{
-		mu:         sync.RWMutex{},
-		clients:    make(map[string]*client),
-		burst:      burst,
-		bucketSize: bucketSize,
+		mu:      sync.Mutex{},
+		clients: make(map[string]*client),
+		burst:   burst,
+		maxRate: maxRate,
 	}
 }
 
@@ -42,27 +42,23 @@ func (cm *ClientLimiter) Cleanup(timeout time.Duration) {
 	}
 }
 
-func (cm *ClientLimiter) get(ip string) (*rate.Limiter, bool) {
-
-	cm.mu.RLock()
-	defer cm.mu.RUnlock()
-	v := cm.clients[ip]
-	if v != nil {
-		v.lastSeen = time.Now()
-		return v.limiter, true
-	}
-	return nil, false
-}
-
-func (cm *ClientLimiter) add(ip string) *rate.Limiter {
+func (cm *ClientLimiter) getOrAdd(ip string) *rate.Limiter {
 
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
-	limiter := rate.NewLimiter(rate.Limit(cm.burst), cm.bucketSize)
-	cm.clients[ip] = &client{
-		limiter:  limiter,
-		lastSeen: time.Now(),
+	var limiter *rate.Limiter
+	v := cm.clients[ip]
+	if v != nil {
+		v.lastSeen = time.Now()
+		limiter = v.limiter
+	} else {
+		limiter = rate.NewLimiter(rate.Limit(cm.maxRate), cm.burst)
+		cm.clients[ip] = &client{
+			limiter:  limiter,
+			lastSeen: time.Now(),
+		}
 	}
+
 	return limiter
 }
 
@@ -78,10 +74,7 @@ func (cm *ClientLimiter) Limit(next http.Handler) http.Handler {
 
 		// Call the getVisitor function to retreive the rate limiter for
 		// the current user.
-		limiter, ok := cm.get(ip)
-		if !ok {
-			limiter = cm.add(ip)
-		}
+		limiter := cm.getOrAdd(ip)
 		if !limiter.Allow() {
 			http.Error(w, http.StatusText(http.StatusTooManyRequests), http.StatusTooManyRequests)
 			return

@@ -6,7 +6,7 @@
     "enableSwagger": false,
     "rateLimiting": {
         "enabled": false,
-        "burst": 0,
-        "buckeSize": 0
+        "burst": 4,
+        "maxRate": 2
     }
 }
