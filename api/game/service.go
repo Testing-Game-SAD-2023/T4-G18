@@ -56,15 +56,32 @@ func (gs *Repository) FindById(id int64) (Game, error) {
 	return fromModel(&game), api.MakeServiceError(err)
 }
 
-func (gs *Repository) FindByInterval(i api.IntervalParams, p api.PaginationParams) ([]Game, int64, error) {
-	var games []model.Game
-	var n int64
+func (gs *Repository) FindByInterval(accountId string, i api.IntervalParams, p api.PaginationParams) ([]Game, int64, error) {
+	var (
+		games []model.Game
+		n     int64
+		err   error
+	)
 
-	err := gs.db.
-		Scopes(api.WithInterval(i), api.WithPagination(p)).
-		Find(&games).
-		Count(&n).
-		Error
+	if accountId != "" {
+		err = gs.db.Transaction(func(tx *gorm.DB) error {
+			association := tx.Model(&model.Player{AccountID: accountId}).
+				Scopes(api.WithInterval(i, "games.created_at"),
+					api.WithPagination(p)).
+				Order("games.created_at desc").
+				Association("Games")
+
+			n = association.Count()
+			return association.Find(&games)
+
+		})
+	} else {
+		err = gs.db.Scopes(api.WithInterval(i, "games.created_at"),
+			api.WithPagination(p)).
+			Find(&games).
+			Count(&n).
+			Error
+	}
 	res := make([]Game, len(games))
 	for i, game := range games {
 		res[i] = fromModel(&game)
@@ -88,48 +105,14 @@ func (gs *Repository) Delete(id int64) error {
 func (gs *Repository) Update(id int64, r *UpdateRequest) (Game, error) {
 
 	var (
-		game model.Game
+		game model.Game = model.Game{ID: id}
 		err  error
 	)
 
-	err = gs.db.Transaction(func(tx *gorm.DB) error {
-
-		err := tx.
-			First(&game, id).
-			Error
-
-		if err != nil {
-			return err
-		}
-
-		return tx.Model(&game).Updates(r).Error
-
-	})
+	err = gs.db.Model(&game).Updates(r).Error
+	if err != nil {
+		return Game{}, api.MakeServiceError(err)
+	}
 
 	return fromModel(&game), api.MakeServiceError(err)
-}
-
-func (gr *Repository) FindByPlayer(accountId string, pp api.PaginationParams) ([]Game, int64, error) {
-	var (
-		// player model.Player
-		count int64
-		games []model.Game
-	)
-
-	err := gr.db.Transaction(func(tx *gorm.DB) error {
-
-		association := tx.Model(&model.Player{AccountID: accountId}).
-			Scopes(api.WithPagination(pp)).
-			Order("created_at desc").
-			Association("Games")
-
-		count = association.Count()
-		return association.Find(&games)
-	})
-
-	resp := make([]Game, len(games))
-	for i, game := range games {
-		resp[i] = fromModel(&game)
-	}
-	return resp, count, api.MakeServiceError(err)
 }

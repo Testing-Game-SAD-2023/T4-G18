@@ -52,22 +52,14 @@ func (rs *Repository) Create(r *CreateRequest) (Round, error) {
 func (rs *Repository) Update(id int64, r *UpdateRequest) (Round, error) {
 
 	var (
-		round model.Round
+		round model.Round = model.Round{ID: id}
 		err   error
 	)
-	err = rs.db.Transaction(func(tx *gorm.DB) error {
 
-		err := tx.
-			First(&round, id).
-			Error
-
-		if err != nil {
-			return err
-		}
-
-		return tx.Model(&round).Updates(r).Error
-
-	})
+	err = rs.db.Model(&round).Updates(r).Error
+	if err != nil {
+		return Round{}, api.MakeServiceError(err)
+	}
 
 	return fromModel(&round), api.MakeServiceError(err)
 }

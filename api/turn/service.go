@@ -57,7 +57,7 @@ func (tr *Repository) CreateBulk(r *CreateRequest) ([]Turn, error) {
 		}
 
 		if len(ids) != len(r.Players) && !api.Duplicated(r.Players) {
-			return api.ErrInvalidParam
+			return fmt.Errorf("%w: invalid player list", api.ErrInvalidParam)
 		}
 
 		for i, id := range ids {
@@ -82,23 +82,11 @@ func (tr *Repository) CreateBulk(r *CreateRequest) ([]Turn, error) {
 func (tr *Repository) Update(id int64, r *UpdateRequest) (Turn, error) {
 
 	var (
-		turn model.Turn
+		turn model.Turn = model.Turn{ID: id}
 		err  error
 	)
 
-	err = tr.db.Transaction(func(tx *gorm.DB) error {
-
-		err := tx.
-			First(&turn, id).
-			Error
-
-		if err != nil {
-			return err
-		}
-
-		return tx.Model(&turn).Updates(r).Error
-
-	})
+	err = tr.db.Model(&turn).Updates(r).Error
 
 	return fromModel(&turn), api.MakeServiceError(err)
 }
