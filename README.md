@@ -6,8 +6,7 @@
 Implemented endpoint are:
 * /games:
     - GET /{id} retrieve a game by ID;
-    - GET /?pageSize=<integer>&page=<integer>&startDate=<YYYY-MM-DD>&endDate=<YYYY-MM-DD> list games in interval with paginati
-    - GET /byPLayer?accountId<string>&?pageSize=<integer>&page=<integer> retrieve players game with pagination;
+    - GET /?pageSize=<integer>&page=<integer>&startDate=<YYYY-MM-DD>&endDate=<YYYY-MM-DD> list games in interval with pagination and optionally filtering by player;
     - POST / create a game;
     - DELETE /{id} delete a game;
     - PUT /{id} update an existing game;
