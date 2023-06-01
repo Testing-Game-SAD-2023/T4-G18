@@ -36,9 +36,9 @@ func WithPagination(p PaginationParams) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-func WithInterval(i IntervalParams) func(db *gorm.DB) *gorm.DB {
+func WithInterval(i IntervalParams, column string) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Where("created_at between ? AND ?", i.Start, i.End)
+		return db.Where(fmt.Sprintf("%s between ? AND ?", column), i.Start, i.End)
 	}
 }
 
