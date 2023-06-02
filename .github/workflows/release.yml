@@ -120,6 +120,6 @@ jobs:
             release_tag: latest
             pre_command: export CGO_ENABLED=0 && export GODEBUG=http2client=0
             binary_name: "game-repository"
-            extra_files: LICENSE README.md postman/schemas/index.yaml postman/collections/GameRepositoryCollections.json
+            extra_files: LICENSE README.md postman/schemas/index.yaml postman/collections/GameRepositoryCollection.json
             ldflags: -s -w
             asset_name: '${{ env.REPOSITORY_NAME }}-${{ env.RELEASE_TAG }}-${{ env.OS_NAME }}-${{ matrix.goarch }}'
