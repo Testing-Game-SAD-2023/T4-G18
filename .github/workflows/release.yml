@@ -119,4 +119,3 @@ jobs:
             release_tag: latest
             # extra_files: LICENSE README.md postman/schemas/index.yaml postman/collections/GameRepositoryCollection.json
             extra_files: LICENSE README.md 
-            build_flags: -v 
