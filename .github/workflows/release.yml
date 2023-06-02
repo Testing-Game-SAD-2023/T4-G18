@@ -85,7 +85,6 @@ jobs:
         permissions: write-all
         strategy:
           matrix:
-            # build and publish in parallel: linux/386, linux/amd64, linux/arm64, windows/386, windows/amd64, darwin/amd64, darwin/arm64
             goos: [linux, windows, darwin]
             goarch: ["386", amd64, arm64]
             exclude:
@@ -94,13 +93,6 @@ jobs:
             - goarch: arm64
               goos: windows
         steps:
-        - name: Get Release Info
-          run: |
-            {
-                echo "RELEASE_TAG=${GITHUB_REF/refs\/tags\//}"
-                echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}"
-                echo "OS_NAME=${{ matrix.goos }}"
-            } >> "$GITHUB_ENV"
         - uses: actions/checkout@v3
         - uses: wangyoucao577/go-release-action@v1.38
           with:
@@ -108,7 +100,5 @@ jobs:
             goos: ${{ matrix.goos }}
             goarch: ${{ matrix.goarch }}
             goversion: 1.20.4
-            # release_tag: latest
             overwrite: true
             extra_files: LICENSE README.md postman/schemas/index.yaml postman/collections/GameRepositoryCollection.json
-            # extra_files: LICENSE README.md 
