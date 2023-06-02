@@ -1,4 +1,4 @@
-name: Golang CI/CD
+name: Release
 
 on:
   push:
