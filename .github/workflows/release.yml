@@ -6,27 +6,27 @@ on:
   workflow_dispatch: 
 
 jobs:
-#   test:
-#     services:
-#       postgres:
-#         image: postgres:14-alpine3.17
-#         env:
-#           POSTGRES_PASSWORD: postgres
-#         options: 
-#           --health-cmd pg_isready
-#           --health-interval 10s
-#           --health-timeout 5s
-#           --health-retries 5
-#         ports:
-#           - 5432:5432
+  test:
+    services:
+      postgres:
+        image: postgres:14-alpine3.17
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: 
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
-#     permissions:
-#       actions: write
-#       contents: write
-#     runs-on: ubuntu-latest
-#     steps:
-#     - uses: actions/checkout@v3
-#       name: Checkout
+    permissions:
+      actions: write
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      name: Checkout
  
 #     - name: Set up Go
 #       uses: actions/setup-go@v3
