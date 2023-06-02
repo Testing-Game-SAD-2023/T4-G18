@@ -3,6 +3,8 @@
 <br>
 ![BuildStatus](https://github.com/alarmfox/game-repository/actions/workflows/go.yml/badge.svg) ![Go Report Card](https://goreportcard.com/badge/github.com/alarmfox/game-repository)
 <br>
+## Live demo
+A live demo is available [here]("https://sad.capass.org")
 Implemented endpoint are:
 * /games:
     - GET /{id} retrieve a game by ID;
