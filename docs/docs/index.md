@@ -5,6 +5,7 @@ Il componente realizza una API REST per gestire le informazioni che riguardano l
 * Prometheus: permette l'estrazione delle metriche dal rest-server con un sistema di monitoraggio periodico;
 * Grafana: elabora le metriche estratte da Prometheus per la creazione di dashboard grafiche per misurare le performance dell'applicazione;
 * Postgres: database relazionale necessario al funzionanmento dell'applicazione;
+
 Ad eccezione del rest-server e di postgres, tutti gli altri componenti sono opzionali.
 
 
