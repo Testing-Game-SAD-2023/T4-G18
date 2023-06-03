@@ -3,17 +3,6 @@ name: Release
 on:
   release:
     types: [created]
-  push:
-    branches: [release]
-    paths-ignore:
-      - '.github/**'
-      - 'README.md'
-      - 'vendor/**'
-      - 'postman/**'
-      - '.postman/**'
-      - Makefile
-      - LICENSE
-      - 'docs/**'
   workflow_dispatch: 
 
 jobs:
