@@ -10,6 +10,7 @@ Ad eccezione del rest-server e di postgres, tutti gli altri componenti sono opzi
 
 ## Struttura progetto
 Il progetto segue presenta 3 cartelle principali:
+
 * **model**: in cui ci sono le strutture che servono per interagire con il database;
 * **api**: in cui per ogni entità (Game, Round ecc) sono implementati gli endpoint HTTP con le relative operazioni sul database;
 * **postman**: in cui si trovano la specifica OpenAPI (`postman/schemas/index.yaml`) e la collection Postman `postman/collections/GameRepositoryCollection.json`;
