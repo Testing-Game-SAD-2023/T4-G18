@@ -173,7 +173,7 @@ Una volta individuati l'architettura e il sistema operativo su cui deve essere e
 * **index.yaml**: specifica OpenAPI;
 * **GameRepositoryCollection**: collection da importare in Postman;
 
-Le release sono disponibili al seguente [link](https://github.com/alarmfox/game-repository/releases).
+Le release sono disponibili al seguente [link](https://github.com/Testing-Game-SAD-2023/T4-G18/releases).
 
 ### Docker release
 Insieme ad ogni release, un'immagine docker viene salvata sul registry: `capas/game-repository`. Per scaricare l'immagine, eseguire:
