@@ -5,6 +5,6 @@
 <br>
 
 ## Documentation
-A usage guide is available at https://alarmfox.github.io/game-repository
+A usage guide is available at https://testing-game-sad-2023.github.io/T4-G18/
 ## Live demo
 A live demo is available on https://sad.capass.org
