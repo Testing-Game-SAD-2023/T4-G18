@@ -44,6 +44,12 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "429":
+                    description: Too many requests
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
                 "500":
                     description: Internal server error
                     content:
@@ -67,6 +73,8 @@ paths:
                                     type: string
                                 currentRound:
                                     type: integer
+                                description:
+                                    type: string
                                 startedAt:
                                     type: string
                                     format: date-time
@@ -78,6 +86,7 @@ paths:
                         example:
                             name: "New Game name"
                             currentRound: 2
+                            description: "description"
 
             responses:
                 "200":
@@ -104,7 +113,12 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-
+                "429":
+                    description: Too many requests
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
                 "500":
                     description: Internal server error
                     content:
@@ -128,6 +142,12 @@ paths:
                                 $ref: "#/components/schemas/Error"
                 "400":
                     description: Bad request
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "429":
+                    description: Too many requests
                     content:
                         application/json:
                             schema:
@@ -158,8 +178,12 @@ paths:
                                         type: string
                                 name:
                                     type: string
+                                description:
+                                    type: string
+                                difficulty:
+                                    type: string
                                 startedAt:
-                                    type: string 
+                                    type: string
                                     format: date-time
                                     nullable: true
                                 closedAt:
@@ -185,6 +209,12 @@ paths:
                                 $ref: "#/components/schemas/Error"
                 "413":
                     description: Request body too large
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "429":
+                    description: Too many requests
                     content:
                         application/json:
                             schema:
@@ -238,8 +268,8 @@ paths:
                 - in: query
                   name: accountId
                   description: Id of the player
-                  schema: 
-                    type: string
+                  schema:
+                      type: string
                   required: false
             responses:
                 "200":
@@ -256,6 +286,12 @@ paths:
                                 $ref: "#/components/schemas/Error"
                 "404":
                     description: No game found for the provided `Id`
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "429":
+                    description: Too many requests
                     content:
                         application/json:
                             schema:
@@ -296,6 +332,12 @@ paths:
                                 $ref: "#/components/schemas/Error"
                 "404":
                     description: No round found for the provided `Id`
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "429":
+                    description: Too many requests
                     content:
                         application/json:
                             schema:
@@ -353,14 +395,14 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-
+                "429":
+                    description: Too many requests
                 "500":
                     description: Internal server error
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
-
 
         delete:
             summary: Delete a round
@@ -382,6 +424,8 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "429":
+                    description: Too many requests
                 "500":
                     description: Internal server error
                     content:
@@ -440,6 +484,8 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "429":
+                    description: Too many requests
                 "500":
                     description: Internal server error
                     content:
@@ -481,6 +527,8 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "429":
+                    description: Too many requests
                 "500":
                     description: Internal server error
                     content:
@@ -522,6 +570,8 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "429":
+                    description: Too many requests
                 "500":
                     description: Internal server error
                     content:
@@ -582,6 +632,8 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "429":
+                    description: Too many requests
                 "500":
                     description: Internal server error
                     content:
@@ -609,6 +661,8 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "429":
+                    description: Too many requests
                 "500":
                     description: Internal server error
                     content:
@@ -658,6 +712,8 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "429":
+                    description: Too many requests
                 "500":
                     description: Internal server error
                     content:
@@ -690,6 +746,8 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "429":
+                    description: Too many requests
                 "500":
                     description: Internal server error
                     content:
@@ -738,6 +796,8 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "429":
+                    description: Too many requests
                 "500":
                     description: Internal server error
                     content:
@@ -805,6 +865,8 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "429":
+                    description: Too many requests
                 "500":
                     description: Internal server error
                     content:
@@ -862,6 +924,8 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "429":
+                    description: Too many requests
                 "500":
                     description: Internal server error
                     content:
@@ -896,6 +960,8 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "429":
+                    description: Too many requests
                 "500":
                     description: Internal server error
                     content:
@@ -946,7 +1012,7 @@ paths:
                             schema:
                                 type: object
                                 properties:
-                                    created: 
+                                    created:
                                         type: integer
                 "400":
                     description: Invalid parameters
@@ -960,6 +1026,8 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+                "429":
+                    description: Too many requests
                 "500":
                     description: Internal server error
                     content:
@@ -967,7 +1035,6 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/Error"
 
-   
 components:
     schemas:
         Game:
@@ -975,7 +1042,9 @@ components:
             required:
                 - id
                 - currentRound
-                - name 
+                - name
+                - description
+                - difficulty
                 - createdAt
                 - updatedAt
                 - startedAt
@@ -987,6 +1056,10 @@ components:
                 currentRound:
                     type: integer
                 name:
+                    type: string
+                description:
+                    type: string
+                difficulty:
                     type: string
                 createdAt:
                     type: string
@@ -1005,15 +1078,14 @@ components:
                 players:
                     nullable: true
                     type: array
-                    items: 
+                    items:
                         type: object
                         properties:
-                            id: 
+                            id:
                                 type: integer
                                 format: int64
                             accountId:
                                 type: string
-
 
         Round:
             type: object
