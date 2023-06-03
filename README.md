@@ -4,5 +4,7 @@
 ![BuildStatus](https://github.com/alarmfox/game-repository/actions/workflows/go.yml/badge.svg) ![Go Report Card](https://goreportcard.com/badge/github.com/alarmfox/game-repository)
 <br>
 
+## Documentation
+A usage guide is available at https://alarmfox.github.io/game-repository
 ## Live demo
 A live demo is available on https://sad.capass.org
