@@ -39,10 +39,10 @@ markdown_extensions:
   - pymdownx.details
   - pymdownx.superfences
   - pymdownx.mark
-  - attr_list
-  - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
 
 copyright: |
   &copy; <a href="https://github.com/alarmfox"  target="_blank" rel="noopener">Giuseppe Capasso</a> <br>
