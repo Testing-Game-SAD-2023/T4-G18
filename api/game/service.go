@@ -35,13 +35,15 @@ func (gs *Repository) Create(r *CreateRequest) (Game, error) {
 			AccountID: player,
 		}
 	}
+
 	err := gs.db.Transaction(func(tx *gorm.DB) error {
-		return gs.db.Create(&game).Error
+		return tx.Create(&game).Error
 	})
 
 	if err != nil {
 		return Game{}, api.MakeServiceError(err)
 	}
+	game.Players = nil
 
 	return fromModel(&game), nil
 }

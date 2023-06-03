@@ -9,6 +9,8 @@ type Game struct {
 	CurrentRound int   `gorm:"default:1"`
 	ID           int64 `gorm:"primaryKey;autoIncrement"`
 	Name         string
+	Description  sql.NullString `gorm:"default:null"`
+	Difficulty   string
 	CreatedAt    time.Time  `gorm:"autoCreateTime"`
 	UpdatedAt    time.Time  `gorm:"autoUpdateTime"`
 	StartedAt    *time.Time `gorm:"default:null"`

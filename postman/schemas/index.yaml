@@ -193,6 +193,8 @@ paths:
                         example:
                             name: Game name
                             players: ["id1", "id2"]
+                            description: "description"
+                            difficulty: "easy"
 
             responses:
                 "201":
@@ -200,7 +202,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: "#/components/schemas/Game"
+                                $ref: "#/components/schemas/GameShort"
                 "400":
                     description: Bad request
                     content:
@@ -1039,16 +1041,6 @@ components:
     schemas:
         Game:
             type: object
-            required:
-                - id
-                - currentRound
-                - name
-                - description
-                - difficulty
-                - createdAt
-                - updatedAt
-                - startedAt
-                - closedAt
             properties:
                 id:
                     type: integer
@@ -1076,7 +1068,6 @@ components:
                     format: date-time
                     nullable: true
                 players:
-                    nullable: true
                     type: array
                     items:
                         type: object
@@ -1087,6 +1078,34 @@ components:
                             accountId:
                                 type: string
 
+        GameShort:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                currentRound:
+                    type: integer
+                name:
+                    type: string
+                description:
+                    type: string
+                difficulty:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+                startedAt:
+                    type: string
+                    format: date-time
+                    nullable: true
+                closedAt:
+                    type: string
+                    format: date-time
+                    nullable: true
         Round:
             type: object
             properties:
@@ -1186,4 +1205,4 @@ components:
                 data:
                     type: array
                     items:
-                        $ref: "#/components/schemas/Game"
+                        $ref: "#/components/schemas/GameShort"
