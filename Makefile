@@ -31,9 +31,16 @@ docker-build:
 docker-run: docker-build
 	docker run --network=host -v $(CONFIG):/app/config.json $(APP_NAME):$(GIT_COMMIT)
 
-## docker-push: sends the image on a server with ssh (i.e make docker push SSH="10.10.1.1 -p1234")
-docker-push: docker-build
+## docker-push-ssh: sends the image on a server with ssh (i.e make docker-push-ssh SSH="10.10.1.1 -p1234")
+docker-push-ssh: docker-build
 	docker save $(APP_NAME):$(GIT_COMMIT) | bzip2 | pv | ssh $(SSH) docker load
+
+## docker-push: sends the image on a registry (i.e make docker-push REGISTRY=<registry_name>)
+docker-push: docker-build
+	docker tag $(APP_NAME):$(GIT_COMMIT) $(REGISTRY)/$(APP_NAME):$(GIT_COMMIT)
+	docker push $(REGISTRY)/$(APP_NAME):$(GIT_COMMIT)
+	docker tag $(REGISTRY)/$(APP_NAME):$(GIT_COMMIT) $(REGISTRY)/$(APP_NAME):latest
+	docker push $(REGISTRY)/$(APP_NAME):latest
 
 ## test: executes all unit tests in the repository. Use COVER_DIR=<PATH> to enable coverage. (i.e make test COVER_DIR=$(pwd)/coverage)
 test:
