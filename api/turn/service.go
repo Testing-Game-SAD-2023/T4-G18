@@ -1,7 +1,6 @@
 package turn
 
 import (
-	"archive/zip"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -9,8 +8,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"strconv"
-	"time"
 
 	"github.com/alarmfox/game-repository/api"
 	"github.com/alarmfox/game-repository/model"
@@ -137,13 +134,22 @@ func (ts *Repository) SaveFile(id int64, r io.Reader) error {
 	}
 	err := ts.db.Transaction(func(tx *gorm.DB) error {
 		var (
-			err   error
-			round model.Round
+			err    error
+			round  model.Round
+			player model.Player
 		)
 
 		err = tx.
 			Joins("join turns on turns.round_id = rounds.id where turns.id  = ?", id).
 			First(&round).
+			Error
+
+		if err != nil {
+			return err
+		}
+
+		err = tx.Joins("join turns on turns.player_id = players.id where turns.id = ?", id).
+			First(&player).
 			Error
 
 		if err != nil {
@@ -159,18 +165,12 @@ func (ts *Repository) SaveFile(id int64, r io.Reader) error {
 			return err
 		}
 
-		if zfile, err := zip.OpenReader(dst.Name()); err != nil {
-			return api.ErrNotAZip
-		} else {
-			zfile.Close()
-		}
-
-		year := time.Now().Year()
-
 		fname := path.Join(ts.dataDir,
-			strconv.FormatInt(int64(year), 10),
-			strconv.FormatInt(round.GameID, 10),
-			fmt.Sprintf("%d.zip", id),
+			round.TestClassId,
+			player.AccountID,
+			fmt.Sprintf("%d", round.GameID),
+			"TestSourceCode",
+			"user.java",
 		)
 
 		dir := path.Dir(fname)
