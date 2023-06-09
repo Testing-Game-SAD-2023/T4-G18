@@ -1,7 +1,7 @@
 # Introduzione
 Il componente realizza una API REST per gestire le informazioni che riguardano le partite. In particolare, è composta da:
 
-* Rest server: componente principale dell'applicazione realizzato dal team
+* Rest server: componente principale dell'applicazione realizzato dal team;
 * Prometheus: permette l'estrazione delle metriche dal rest-server con un sistema di monitoraggio periodico;
 * Grafana: elabora le metriche estratte da Prometheus per la creazione di dashboard grafiche per misurare le performance dell'applicazione;
 * Postgres: database relazionale necessario al funzionanmento dell'applicazione;
@@ -142,42 +142,4 @@ Oppure se si preferisce utilizzare un database usa e getta:
 
 ```sh
 make test-integration COVER_DIR=$(pwd)/coverage
-```
-
-## Installazione
-Ci sono diverse modalità per installare l'applicazione. In particolare, in questa sezione si farà riferimento solo al rest-server.
-
-### Docker from source
-Una volta effettuato il `clone` della repository e installata la GO toolchain eseguire il comando:
-
-```sh
-
-make docker-build
-```
-L'immagine avrà il tag `game-repository:{git-commit}`
-### Binary from source
-
-Una volta effettuato il `clone` della repository e installata la GO toolchain eseguire il comando:
-
-```sh
-make build
-```
-
-L'applicazione si troverà nella cartella `build`.
-
-### Binary from release
-Una volta individuati l'architettura e il sistema operativo su cui deve essere eseguita l'applicazione è possibile scaricare un pacchetto della versione rilasciata su Github. Ogni pacchetto (tar.gz per Linux/Mac e zip per Windows) contiene i seguenti file:
-
-* **game-repository**: eseguibile dell'applicazione;
-* **README.md**: file che punta a un'istanza demo e a questa documentazione;
-* **LICENSE**: file di licenza;
-* **index.yaml**: specifica OpenAPI;
-* **GameRepositoryCollection**: collection da importare in Postman;
-
-Le release sono disponibili al seguente [link](https://github.com/alarmfox/game-repository/releases).
-
-### Docker release
-Insieme ad ogni release, un'immagine docker viene salvata sul registry: `capas/game-repository`. Per scaricare l'immagine, eseguire:
-```sh
-docker pull capas/game-repository
 ```

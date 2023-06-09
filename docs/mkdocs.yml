@@ -2,7 +2,7 @@ site_name: Game repository
 theme:
   name: material
   features:
-    - navigation.tabs
+    # - navigation.tabs
     - navigation.sections
     - navigation.top
     - toc.follow
