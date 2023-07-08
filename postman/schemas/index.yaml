@@ -907,13 +907,13 @@ paths:
                   required: true
             responses:
                 "200":
-                    description: List of turns
+                    description: List of robots
                     content:
                         application/json:
                             schema:
                                 type: array
                                 items:
-                                    $ref: "#/components/schemas/Turn"
+                                    $ref: "#/components/schemas/Robot"
                 "404":
                     description: No result found for the provided id
                     content:
