@@ -729,7 +729,7 @@ paths:
                 - turns
             responses:
                 "200":
-                    description: Bad request
+                    description: Zip uploaded by user
                     content:
                         application/zip:
                             schema:
