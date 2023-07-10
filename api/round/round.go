@@ -11,6 +11,7 @@ type Round struct {
 	ID          int64      `json:"id"`
 	Order       int        `json:"order"`
 	TestClassId string     `json:"testClassId"`
+	GameID      int64      `json:"gameId"`
 	CreatedAt   time.Time  `json:"createdAt"`
 	UpdatedAt   time.Time  `json:"updatedAt"`
 	StartedAt   *time.Time `json:"startedAt"`
@@ -57,5 +58,6 @@ func fromModel(r *model.Round) Round {
 		TestClassId: r.TestClassId,
 		StartedAt:   r.StartedAt,
 		ClosedAt:    r.ClosedAt,
+		GameID:      r.GameID,
 	}
 }

@@ -13,6 +13,7 @@ type Turn struct {
 	CreatedAt time.Time  `json:"createdAt"`
 	UpdatedAt time.Time  `json:"updatedAt"`
 	PlayerID  int64      `json:"playerId"`
+	RoundID   int64      `json:"roundId"`
 	Scores    string     `json:"scores"`
 	StartedAt *time.Time `json:"startedAt"`
 	ClosedAt  *time.Time `json:"closedAt"`
@@ -60,5 +61,6 @@ func fromModel(t *model.Turn) Turn {
 		PlayerID:  t.PlayerID,
 		StartedAt: t.StartedAt,
 		ClosedAt:  t.ClosedAt,
+		RoundID:   t.RoundID,
 	}
 }

@@ -1116,6 +1116,8 @@ components:
                     type: string
                 order:
                     type: integer
+                gameId:
+                    type: integer
                 createdAt:
                     type: string
                     format: date-time
@@ -1140,6 +1142,8 @@ components:
                 isWinner:
                     type: boolean
                 playerId:
+                    type: integer
+                roundId:
                     type: integer
                 scores:
                     type: string
