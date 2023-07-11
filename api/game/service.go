@@ -93,8 +93,8 @@ func (gs *Repository) FindByInterval(accountId string, i api.IntervalParams, p a
 
 func (gs *Repository) Delete(id int64) error {
 	db := gs.db.
-		Where(&Game{ID: id}).
-		Delete(&Game{})
+		Where(&model.Game{ID: id}).
+		Delete(&model.Game{})
 
 	if db.Error != nil {
 		return api.MakeServiceError(db.Error)

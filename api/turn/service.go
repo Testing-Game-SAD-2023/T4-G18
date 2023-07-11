@@ -118,8 +118,8 @@ func (tr *Repository) FindByRound(id int64) ([]Turn, error) {
 func (tr *Repository) Delete(id int64) error {
 
 	db := tr.db.
-		Where(&Turn{ID: id}).
-		Delete(&Turn{})
+		Where(&model.Turn{ID: id}).
+		Delete(&model.Turn{})
 
 	if db.Error != nil {
 		return db.Error
