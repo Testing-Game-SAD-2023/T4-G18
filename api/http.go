@@ -1,11 +1,13 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -130,5 +132,57 @@ func HandlerFunc(f ApiFunction) http.HandlerFunc {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Print(err)
 		}
+	}
+}
+
+type JWTAuthenticationConfig struct {
+	HeaderKey    string
+	Method       string
+	AuthEndpoint string
+}
+
+func WithJWTAuthentication(c JWTAuthenticationConfig) func(http.Handler) http.Handler {
+	type authRequest struct {
+		AccessToken string `json:"access_token"`
+	}
+	return func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHeaderParts := strings.Split(r.Header.Get(c.HeaderKey), "Bearer ")
+			if len(authHeaderParts) != 2 {
+				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+				return
+			}
+			token := authHeaderParts[1]
+
+			if token == "" {
+				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+				return
+			}
+
+			var body bytes.Buffer
+			if err := json.NewEncoder(&body).Encode(authRequest{AccessToken: token}); err != nil {
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				log.Print(err)
+				return
+			}
+
+			req, err := http.NewRequestWithContext(r.Context(), c.Method, c.AuthEndpoint, &body)
+			if err != nil {
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				log.Print(err)
+				return
+			}
+			resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				log.Print(err)
+				return
+			}
+			if resp.StatusCode != http.StatusOK {
+				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+				return
+			}
+			h.ServeHTTP(w, r)
+		})
 	}
 }

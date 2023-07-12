@@ -8,5 +8,11 @@
         "enabled": false,
         "burst": 4,
         "maxRate": 2
+    },
+    "authentication": {
+        "enabled": false,
+        "headerKey": "Authorization",
+        "authEndpoint": "http://auth-service/auth",
+        "method": "POST"
     }
 }

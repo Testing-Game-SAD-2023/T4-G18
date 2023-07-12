@@ -42,7 +42,13 @@ type Configuration struct {
 		Burst   int     `json:"burst"`
 		MaxRate float64 `json:"maxRate"`
 		Enabled bool    `json:"enabled"`
-	} `json:"rateLimiting,omitempty"`
+	} `json:"rateLimiting"`
+	Authentication struct {
+		Enabled      bool   `json:"enabled"`
+		HeaderKey    string `json:"headerKey"`
+		AuthEndpoint string `json:"authEndpoint"`
+		Method       string `json:"method"`
+	}
 }
 
 //go:embed postman
@@ -144,6 +150,14 @@ func run(ctx context.Context, c Configuration) error {
 
 		if c.RateLimiting.Enabled {
 			r.Use(clientLimiter.Limit)
+		}
+
+		if c.Authentication.Enabled {
+			r.Use(api.WithJWTAuthentication(api.JWTAuthenticationConfig{
+				HeaderKey:    c.Authentication.HeaderKey,
+				Method:       c.Authentication.Method,
+				AuthEndpoint: c.Authentication.AuthEndpoint,
+			}))
 		}
 		var (
 
