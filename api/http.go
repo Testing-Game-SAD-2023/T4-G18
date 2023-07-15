@@ -178,6 +178,7 @@ func WithJWTAuthentication(c JWTAuthenticationConfig) func(http.Handler) http.Ha
 				log.Print(err)
 				return
 			}
+			defer resp.Body.Close()
 			if resp.StatusCode != http.StatusOK {
 				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 				return
