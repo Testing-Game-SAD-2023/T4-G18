@@ -62,6 +62,12 @@ L'applicazione deve essere configurata con un file in formato `json` il cui path
         "enabled": false,
         "burst": 4,
         "maxRate": 2
+    },
+    "authentication": {
+        "enabled": false,
+        "headerKey": "Authorization",
+        "authEndpoint": "http://auth-service/auth",
+        "method": "POST"
     }
 }
 
